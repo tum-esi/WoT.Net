@@ -208,7 +208,11 @@ namespace WoT_Definitions
 
     struct SecurityScheme
     {
-
+        public string[] AtType { get; set; }
+        public string Description { get; set; }
+        public string[] Descriptions { get; set; }
+        public Uri proxy { get; set; }
+        public string scheme { get; set; }
     }
 
     class ThingDescription
