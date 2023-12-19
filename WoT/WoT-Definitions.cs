@@ -20,7 +20,7 @@ namespace WoT_Definitions
         string Format { get; set; }
         string Type { get; }
 
-    }
+    } 
     interface INteractionAffordance
     {
         string[] AtType { get; set; }
@@ -206,9 +206,25 @@ namespace WoT_Definitions
         }
     }
 
-    struct SecurityScheme
+    abstract class SecurityScheme
     {
+        public string[] AtType { get; set; }
+        public string Description { get; set; }
+        public string[] Descriptions { get; set; }
+        public Uri proxy { get; set; }
+        public string scheme { get; set; }
+    }
 
+    class NoSecurityScheme : SecurityScheme
+    {
+        public new readonly string Type = "nosec";
+    }
+
+    class BasicSecurityScheme : SecurityScheme
+    {
+        public new readonly string Type = "basic";
+        public string Name { get; set; }
+        public string In { get; set; }
     }
 
     class ThingDescription
