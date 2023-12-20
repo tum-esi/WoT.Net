@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Phd\\Git\\WoT.Net\\WoT\\WoT.csproj": {}
+    "C:\\Users\\Hiwi\\Desktop\\WoT.Net\\WoT\\WoT.csproj": {}
   },
   "projects": {
-    "C:\\Phd\\Git\\WoT.Net\\WoT\\WoT.csproj": {
+    "C:\\Users\\Hiwi\\Desktop\\WoT.Net\\WoT\\WoT.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Phd\\Git\\WoT.Net\\WoT\\WoT.csproj",
+        "projectUniqueName": "C:\\Users\\Hiwi\\Desktop\\WoT.Net\\WoT\\WoT.csproj",
         "projectName": "WoT",
-        "projectPath": "C:\\Phd\\Git\\WoT.Net\\WoT\\WoT.csproj",
-        "packagesPath": "C:\\Users\\fadyt\\.nuget\\packages\\",
-        "outputPath": "C:\\Phd\\Git\\WoT.Net\\WoT\\obj\\",
+        "projectPath": "C:\\Users\\Hiwi\\Desktop\\WoT.Net\\WoT\\WoT.csproj",
+        "packagesPath": "C:\\Users\\Hiwi\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Hiwi\\Desktop\\WoT.Net\\WoT\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\fadyt\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Hiwi\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
