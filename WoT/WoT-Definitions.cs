@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
-
+using Newtonsoft;
+using Newtonsoft.Json;
 
 namespace WoT_Definitions
 {
@@ -30,7 +31,7 @@ namespace WoT_Definitions
         string Description { get; set; }
         string[] Descriptions { get; set; }
         Form[] Forms { get; set; }
-        Dictionary<string, IDataSchema> UriVariables { get; set; }
+        Dictionary<string, DataSchema> UriVariables { get; set; }
 
     }
     public abstract class DataSchema : IDataSchema
@@ -81,7 +82,8 @@ namespace WoT_Definitions
         public int Maximum { get; set; }
         public int ExclusiveMaximum { get; set; }
         public int MultipleOf { get; set; }
-    }
+        public new int Const { get; set; }
+}
     public class ObjectSchema : DataSchema
     {
         public new readonly string Type = "object";
@@ -109,7 +111,7 @@ namespace WoT_Definitions
         public string Description { get; set; }
         public string[] Descriptions { get; set; }
         public Form[] Forms { get; set; }
-        public Dictionary<string, IDataSchema> UriVariables { get; set; }
+        public Dictionary<string, DataSchema> UriVariables { get; set; }
     }
     public class PropertyAffordance : InteractionAffordance, IDataSchema
     {
@@ -213,25 +215,25 @@ namespace WoT_Definitions
         public string[] AtType { get; set; }
         public string Description { get; set; }
         public string[] Descriptions { get; set; }
-        public Uri proxy { get; set; }
-        public string scheme { get; set; }
+        public Uri Proxy { get; set; }
+        public string Scheme { get; set; }
     }
 
     public class NoSecurityScheme : SecurityScheme
     {
-        public readonly string Type = "nosec";
+        public readonly string Scheme = "nosec";
     }
 
     public class BasicSecurityScheme : SecurityScheme
     {
-        public readonly string Type = "basic";
+        public readonly string Scheme = "basic";
         public string Name { get; set; }
         public string In { get; set; }
     }
 
     public class ThingDescription
     {
-
+        //[JsonConverter()]
         public Object[] AtContext { get; set; }
         public string[] AtType { get; set; }
         /**
@@ -258,8 +260,8 @@ namespace WoT_Definitions
         public string[] Security { get; set; }
         public Dictionary<string, SecurityScheme> SecurityDefinitions { get; set; }
         public Uri[] Profile { get; set; }
-        public Dictionary<string, IDataSchema> SchemaDefinitions { get; set; }
-        public Dictionary<string, IDataSchema> UriVariables { get; set; }
+        public Dictionary<string, DataSchema> SchemaDefinitions { get; set; }
+        public Dictionary<string, DataSchema> UriVariables { get; set; }
 
     }
 
