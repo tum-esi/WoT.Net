@@ -1,9 +1,11 @@
-using System;
 using System.Collections.Generic;
+using System;
+using Newtonsoft;
+using Newtonsoft.Json;
 
 namespace WoT_Definitions
 {
-    interface IDataSchema
+    public interface IDataSchema
     {
         string[] AtType { get; set; }
         string Title { get; set; }
@@ -20,8 +22,8 @@ namespace WoT_Definitions
         string Format { get; set; }
         string Type { get; }
 
-    } 
-    interface INteractionAffordance
+    }
+    public interface INteractionAffordance
     {
         string[] AtType { get; set; }
         string Title { get; set; }
@@ -29,10 +31,10 @@ namespace WoT_Definitions
         string Description { get; set; }
         string[] Descriptions { get; set; }
         Form[] Forms { get; set; }
-        IDataSchema UriVariables { get; set; }
+        Dictionary<string, DataSchema> UriVariables { get; set; }
 
     }
-    abstract class DataSchema : IDataSchema
+    public abstract class DataSchema : IDataSchema
     {
         public string[] AtType { get; set; }
         public string Title { get; set; }
@@ -43,25 +45,26 @@ namespace WoT_Definitions
         public object Default { get; set; }
         public string Unit { get; set; }
         public IDataSchema[] OneOf { get; set; }
+        public IDataSchema[] AllOf { get; set; }
         public object[] Enum { get; set; }
         public bool ReadOnly { get; set; }
         public bool WriteOnly { get; set; }
         public string Format { get; set; }
         public string Type { get; }
     }
-    class ArraySchema: DataSchema
+    public class ArraySchema : DataSchema
     {
         public new readonly string Type = "array";
         public DataSchema[] Items { get; set; }
         public uint MinItems { get; set; }
         public uint MaxItems { get; set; }
     }
-    class BooleanSchema : DataSchema
+    public class BooleanSchema : DataSchema
     {
         public new readonly string Type = "boolean";
     }
 
-    class NumberSchema : DataSchema
+    public class NumberSchema : DataSchema
     {
         public new readonly string Type = "number";
         public double Minimum { get; set; }
@@ -71,7 +74,7 @@ namespace WoT_Definitions
         public double MultipleOf { get; set; }
 
     }
-    class IntegerSchema : DataSchema
+    public class IntegerSchema : DataSchema
     {
         public new readonly string Type = "integer";
         public int Minimum { get; set; }
@@ -79,14 +82,15 @@ namespace WoT_Definitions
         public int Maximum { get; set; }
         public int ExclusiveMaximum { get; set; }
         public int MultipleOf { get; set; }
-    }
-    class ObjectSchema : DataSchema
+        public new int Const { get; set; }
+}
+    public class ObjectSchema : DataSchema
     {
         public new readonly string Type = "object";
         public Dictionary<string, DataSchema> Properties { get; set; }
         public string[] Required { get; set; }
     }
-    class StringSchema : DataSchema
+    public class StringSchema : DataSchema
     {
         public new readonly string Type = "string";
         public uint MinLength { get; set; }
@@ -95,11 +99,11 @@ namespace WoT_Definitions
         public string ContentEncoding { get; set; }
         public string ContentMediaType { get; set; }
     }
-    class NullSchema : DataSchema
+    public class NullSchema : DataSchema
     {
         public new readonly string Type = "null";
     }
-    class InteracionAffordance : INteractionAffordance
+    public class InteractionAffordance : INteractionAffordance
     {
         public string[] AtType { get; set; }
         public string Title { get; set; }
@@ -107,9 +111,9 @@ namespace WoT_Definitions
         public string Description { get; set; }
         public string[] Descriptions { get; set; }
         public Form[] Forms { get; set; }
-        public IDataSchema UriVariables { get; set; }
+        public Dictionary<string, DataSchema> UriVariables { get; set; }
     }
-    class PropertyAffordance : InteracionAffordance, IDataSchema
+    public class PropertyAffordance : InteractionAffordance, IDataSchema
     {
         public object Const { get; set; }
         public object Default { get; set; }
@@ -123,7 +127,7 @@ namespace WoT_Definitions
         public Boolean Observable { get; set; }
     }
 
-    class ActionAffordance : InteracionAffordance
+    public class ActionAffordance : InteractionAffordance
     {
         public DataSchema Input { get; set; }
         public DataSchema Output { get; set; }
@@ -132,7 +136,7 @@ namespace WoT_Definitions
         public Boolean Synchronous { get; set; }
     }
 
-    class EventAffordance : InteracionAffordance
+    public class EventAffordance : InteractionAffordance
     {
         public DataSchema Subscription { get; set; }
         public DataSchema Data { get; set; }
@@ -140,7 +144,7 @@ namespace WoT_Definitions
         public DataSchema Cancellation { get; set; }
     }
 
-    class Form
+    public class Form
     {
         public Uri Href { get; set; }
         public string ContentType { get; set; }
@@ -151,7 +155,7 @@ namespace WoT_Definitions
 
     }
 
-    struct Link
+    public struct Link
     {
         public Uri Href { get; set; }
         public string Type { get; set; }
@@ -161,7 +165,7 @@ namespace WoT_Definitions
         public string[] Hreflang { get; set; }
     }
 
-    struct VersionInfo
+    public struct VersionInfo
     {
         public string Instance { get; set; }
         public string Model { get; set; }
@@ -184,7 +188,7 @@ namespace WoT_Definitions
         }
     }
 
-    struct ExpectedRespone
+    public struct ExpectedRespone
     {
         public string ContentType { get; set; }
         public ExpectedRespone(string contentType)
@@ -193,7 +197,7 @@ namespace WoT_Definitions
         }
     }
 
-    struct AdditionalExpectedRespone
+    public struct AdditionalExpectedRespone
     {
         public string ContentType { get; set; }
         public Boolean Success { get; set; }
@@ -206,31 +210,32 @@ namespace WoT_Definitions
         }
     }
 
-    abstract class SecurityScheme
+    public class SecurityScheme
     {
         public string[] AtType { get; set; }
         public string Description { get; set; }
         public string[] Descriptions { get; set; }
-        public Uri proxy { get; set; }
-        public string scheme { get; set; }
+        public Uri Proxy { get; set; }
+        public string Scheme { get; set; }
     }
 
-    class NoSecurityScheme : SecurityScheme
+    public class NoSecurityScheme : SecurityScheme
     {
-        public new readonly string Type = "nosec";
+        public readonly string Scheme = "nosec";
     }
 
-    class BasicSecurityScheme : SecurityScheme
+    public class BasicSecurityScheme : SecurityScheme
     {
-        public new readonly string Type = "basic";
+        public readonly string Scheme = "basic";
         public string Name { get; set; }
         public string In { get; set; }
     }
 
-    class ThingDescription
+    public class ThingDescription
     {
-        public Object[] @Context { get; set; }
-        public string[] @Type { get; set; }
+        //[JsonConverter()]
+        public Object[] AtContext { get; set; }
+        public string[] AtType { get; set; }
         /**
          * Identifier of the Thing in form of a URI [RFC3986] (e.g., stable URI, temporary and mutable URI, URI with local IP address, URN, etc.).
          **/
@@ -242,7 +247,6 @@ namespace WoT_Definitions
         public string[] Titles { get; set; }
         public string Description { get; set; }
         public string[] Descriptions { get; set; }
-
         public VersionInfo Version { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
@@ -256,8 +260,9 @@ namespace WoT_Definitions
         public string[] Security { get; set; }
         public Dictionary<string, SecurityScheme> SecurityDefinitions { get; set; }
         public Uri[] Profile { get; set; }
-        public Dictionary<string, IDataSchema> SchemaDefinitions { get; set; }
-        public Dictionary<string, IDataSchema> UriVariables { get; set; }
+        public Dictionary<string, DataSchema> SchemaDefinitions { get; set; }
+        public Dictionary<string, DataSchema> UriVariables { get; set; }
 
     }
+
 }
