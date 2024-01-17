@@ -8,6 +8,12 @@
     <PackageReference Include="JsonSchema.Net" Version="5.4.0" />
     <PackageReference Include="JsonSchema.Net.CodeGeneration" Version="0.1.3" />
     <PackageReference Include="JsonSchema.Net.Generation" Version="3.5.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="TDHelpers">
+      <HintPath>..\..\TDHelpers\TDHelpers\bin\Debug\netstandard2.0\TDHelpers.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
