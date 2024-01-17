@@ -9,7 +9,7 @@ using System.Linq;
 namespace TDHelpers
 {
 
-    //Converter to assign the correct DataSchema for a given schema
+    //Converter to assign the corresponding DataSchema for a given schema
     public class DataSchemaConverter : JsonConverter<DataSchema>
     {
 
@@ -202,7 +202,7 @@ namespace TDHelpers
 
     }
 
-    //Converter to assign the correct SecurityScheme for a given schema
+    //Converter to assign the corresponding SecurityScheme for a given schema
     public class SecuritySchemeConverter : JsonConverter<SecurityScheme>
     {
 
@@ -276,7 +276,7 @@ namespace TDHelpers
 
     }
 
-    //Converter to for Form in TD
+    //Converter for Form in TD
     public class FormConverter : JsonConverter<Form>
     {
 
@@ -333,7 +333,7 @@ namespace TDHelpers
 
     }
 
-    //Converter to for PropertyForm 
+    //Converter for PropertyForm 
     public class PropertyFormConverter : JsonConverter<PropertyForm>
     {
 
@@ -396,7 +396,7 @@ namespace TDHelpers
 
     }
 
-    //Converter to for ActionForm 
+    //Converter for ActionForm 
     public class ActionFormConverter : JsonConverter<ActionForm>
     {
 
@@ -461,7 +461,7 @@ namespace TDHelpers
 
     }
 
-    //Converter to for EventForm 
+    //Converter for EventForm 
     public class EventFormConverter : JsonConverter<EventForm>
     {
 
@@ -578,7 +578,7 @@ namespace TDHelpers
 
     }
 
-    //Converter to assign the correct type for a given Op
+    //Called for properties that can be either string or string[], and it returns string[].
     public class StringTypeConverter : JsonConverter<string[]>
     {
 
@@ -635,7 +635,7 @@ namespace TDHelpers
         }
     }
 
-    //Converter to assign the correct type for a given Op
+    //Called for properties that can be either DataSchema or DataSchema[], and it returns DataSchema[].
     public class DataSchemaTypeConverter : JsonConverter<DataSchema[]>
     {
 
@@ -696,7 +696,7 @@ namespace TDHelpers
         }
     }
 
-    //Converter to assign the correct InteractionAffordance for a given schema
+    //Converter to assign the corresponding InteractionAffordance for a given schema
     public class InteractionAffordanceConverter : JsonConverter<InteractionAffordance>
     {
 
