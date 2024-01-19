@@ -13,12 +13,12 @@ namespace TDHelpers
     public class DataSchemaConverter : JsonConverter<DataSchema>
     {
 
-        public override void WriteJson(JsonWriter writer, DataSchema? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, DataSchema value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override DataSchema? ReadJson(JsonReader reader, Type objectType, DataSchema? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override DataSchema ReadJson(JsonReader reader, Type objectType, DataSchema existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             JsonReader reader2 = reader;
             JToken schemaObj = JToken.Load(reader2);
@@ -131,7 +131,7 @@ namespace TDHelpers
             ObjectSchema schema = new ObjectSchema();
             CommonFiller(schema, schemaObj, serializer);
 
-            if (schemaObj["required"] != null) schema.Required = schemaObj["required"].ToObject<string?[]>();
+            if (schemaObj["required"] != null) schema.Required = schemaObj["required"].ToObject<string[]>();
             if (schemaObj["properties"] != null) schema.Properties = serializer.Deserialize(new JTokenReader(schemaObj["properties"]), objectType: typeof(Dictionary<string, DataSchema>)) as Dictionary<string, DataSchema>;
 
             if (schemaObj["const"] != null) schema.Const = schemaObj["const"];
@@ -146,9 +146,9 @@ namespace TDHelpers
             StringSchema schema = new StringSchema();
             CommonFiller(schema, schemaObj, serializer);
 
-            schema.Pattern = (string?)schemaObj["pattern"];
-            schema.ContentEncoding = (string?)schemaObj["contentEncoding"];
-            schema.ContentMediaType = (string?)schemaObj["contentMediaType"];
+            schema.Pattern = (string)schemaObj["pattern"];
+            schema.ContentEncoding = (string)schemaObj["contentEncoding"];
+            schema.ContentMediaType = (string)schemaObj["contentMediaType"];
 
             if (schemaObj["minLength"] != null) schema.MinLength = (uint)schemaObj["minLength"];
             if (schemaObj["maxLength"] != null) schema.MaxLength = (uint)schemaObj["maxLength"];
@@ -177,14 +177,14 @@ namespace TDHelpers
         // to fill the common properties of DataSchemas
         public void CommonFiller(DataSchema schema, JToken schemaObj, JsonSerializer serializer)
         {
-            schema.Description = (string?)schemaObj["description"];
-            schema.Title = (string?)schemaObj["title"];
-            schema.Unit = (string?)schemaObj["unit"];
-            schema.Format = (string?)schemaObj["format"];
+            schema.Description = (string)schemaObj["description"];
+            schema.Title = (string)schemaObj["title"];
+            schema.Unit = (string)schemaObj["unit"];
+            schema.Format = (string)schemaObj["format"];
             if (schemaObj["readOnly"] != null) schema.ReadOnly = (bool)schemaObj["readOnly"];
             if (schemaObj["writeOnly"] != null) schema.WriteOnly = (bool)schemaObj["writeOnly"];
-            if (schemaObj["titles"] != null) schema.Titles = schemaObj["titles"].ToObject<string?[]>();
-            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string?[]>();
+            if (schemaObj["titles"] != null) schema.Titles = schemaObj["titles"].ToObject<string[]>();
+            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string[]>();
             if (schemaObj["allOf"] != null) schema.AllOf = serializer.Deserialize(new JTokenReader(schemaObj["allOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
             if (schemaObj["oneOf"] != null) schema.OneOf = serializer.Deserialize(new JTokenReader(schemaObj["oneOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
 
@@ -206,12 +206,12 @@ namespace TDHelpers
     public class SecuritySchemeConverter : JsonConverter<SecurityScheme>
     {
 
-        public override void WriteJson(JsonWriter writer, SecurityScheme? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, SecurityScheme value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override SecurityScheme? ReadJson(JsonReader reader, Type objectType, SecurityScheme? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override SecurityScheme ReadJson(JsonReader reader, Type objectType, SecurityScheme existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             JToken schemaObj = JToken.Load(reader);
             if (schemaObj.Type == JTokenType.Null) return null;
@@ -241,10 +241,10 @@ namespace TDHelpers
 
 
             //assigning default value
-            schema.Name = (string?)schemaObj["name"];
+            schema.Name = (string)schemaObj["name"];
             if (schemaObj["in"] != null)
             {
-                schema.In = (string?)schemaObj["in"];
+                schema.In = (string)schemaObj["in"];
             }
             else
             {
@@ -258,8 +258,8 @@ namespace TDHelpers
         // to fill the common properties of SecuritySchemas
         public void CommonFiller(SecurityScheme schema, JToken schemaObj, JsonSerializer serializer)
         {
-            schema.Description = (string?)schemaObj["description"];
-            schema.Scheme = (string?)schemaObj["scheme"];
+            schema.Description = (string)schemaObj["description"];
+            schema.Scheme = (string)schemaObj["scheme"];
 
             if (schemaObj["@type"] != null)
             {
@@ -269,7 +269,7 @@ namespace TDHelpers
                 schema.AtType = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
             }
 
-            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string?[]>();
+            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string[]>();
             if (schemaObj["proxy"] != null) schema.Proxy = schemaObj["proxy"].ToObject<Uri>();
 
         }
@@ -280,12 +280,12 @@ namespace TDHelpers
     public class FormConverter : JsonConverter<Form>
     {
 
-        public override void WriteJson(JsonWriter writer, Form? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, Form value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override Form? ReadJson(JsonReader reader, Type objectType, Form? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override Form ReadJson(JsonReader reader, Type objectType, Form existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             //add default converter 
             var settings = new JsonSerializerSettings();
@@ -337,12 +337,12 @@ namespace TDHelpers
     public class PropertyFormConverter : JsonConverter<PropertyForm>
     {
 
-        public override void WriteJson(JsonWriter writer, PropertyForm? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, PropertyForm value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override PropertyForm? ReadJson(JsonReader reader, Type objectType, PropertyForm? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override PropertyForm ReadJson(JsonReader reader, Type objectType, PropertyForm existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             //add default converter 
             var settings = new JsonSerializerSettings();
@@ -400,12 +400,12 @@ namespace TDHelpers
     public class ActionFormConverter : JsonConverter<ActionForm>
     {
 
-        public override void WriteJson(JsonWriter writer, ActionForm? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, ActionForm value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override ActionForm? ReadJson(JsonReader reader, Type objectType, ActionForm? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override ActionForm ReadJson(JsonReader reader, Type objectType, ActionForm existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             //add default converter 
             var settings = new JsonSerializerSettings();
@@ -465,12 +465,12 @@ namespace TDHelpers
     public class EventFormConverter : JsonConverter<EventForm>
     {
 
-        public override void WriteJson(JsonWriter writer, EventForm? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, EventForm value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override EventForm? ReadJson(JsonReader reader, Type objectType, EventForm? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override EventForm ReadJson(JsonReader reader, Type objectType, EventForm existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             //add default converter 
             var settings = new JsonSerializerSettings();
@@ -530,12 +530,12 @@ namespace TDHelpers
     public class AtContextConverter : JsonConverter<Object[]>
     {
 
-        public override void WriteJson(JsonWriter writer, Object[]? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, Object[] value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override Object[]? ReadJson(JsonReader reader, Type objectType, Object[]? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override Object[] ReadJson(JsonReader reader, Type objectType, Object[] existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             JToken schemaObj = JToken.Load(reader);
             if (schemaObj.Type == JTokenType.Null) return null;
@@ -582,12 +582,12 @@ namespace TDHelpers
     public class StringTypeConverter : JsonConverter<string[]>
     {
 
-        public override void WriteJson(JsonWriter writer, string[]? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, string[] value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override string[]? ReadJson(JsonReader reader, Type objectType, string[]? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override string[] ReadJson(JsonReader reader, Type objectType, string[] existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             JToken schemaObj = JToken.Load(reader);
             if (schemaObj.Type == JTokenType.Null) return null;
@@ -639,12 +639,12 @@ namespace TDHelpers
     public class DataSchemaTypeConverter : JsonConverter<DataSchema[]>
     {
 
-        public override void WriteJson(JsonWriter writer, DataSchema[]? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, DataSchema[] value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override DataSchema[]? ReadJson(JsonReader reader, Type objectType, DataSchema[]? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override DataSchema[] ReadJson(JsonReader reader, Type objectType, DataSchema[] existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             JToken schemaObj = JToken.Load(reader);
             if (schemaObj.Type == JTokenType.Null) return null;
@@ -700,12 +700,12 @@ namespace TDHelpers
     public class InteractionAffordanceConverter : JsonConverter<InteractionAffordance>
     {
 
-        public override void WriteJson(JsonWriter writer, InteractionAffordance? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, InteractionAffordance value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToString());
         }
 
-        public override InteractionAffordance? ReadJson(JsonReader reader, Type objectType, InteractionAffordance? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override InteractionAffordance ReadJson(JsonReader reader, Type objectType, InteractionAffordance existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             JToken schemaObj = JToken.Load(reader);
             if (schemaObj.Type == JTokenType.Null) return null;
@@ -780,8 +780,8 @@ namespace TDHelpers
 
         public void CommonFiller(InteractionAffordance schema, JToken schemaObj, JsonSerializer serializer)
         {
-            schema.Description = (string?)schemaObj["description"];
-            schema.Title = (string?)schemaObj["title"];
+            schema.Description = (string)schemaObj["description"];
+            schema.Title = (string)schemaObj["title"];
 
             //if (schemaObj["@type"] != null) schema.AtType = serializer.Deserialize(new JTokenReader(schemaObj["@type"]), objectType: typeof(AtTypeType)) as AtTypeType;
 
@@ -793,8 +793,8 @@ namespace TDHelpers
                 schema.AtType = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
             }
 
-            if (schemaObj["titles"] != null) schema.Titles = schemaObj["titles"].ToObject<string?[]>();
-            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string?[]>();
+            if (schemaObj["titles"] != null) schema.Titles = schemaObj["titles"].ToObject<string[]>();
+            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string[]>();
 
             schema.OriginalJson = schemaObj.ToString();
 
