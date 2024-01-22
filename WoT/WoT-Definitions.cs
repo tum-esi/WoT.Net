@@ -25,7 +25,7 @@ namespace WoT_Definitions
         string Type { get; }
 
     }
-    public interface INteractionAffordance
+    public interface IInteractionAffordance
     {
         [JsonProperty("@type")]
         string[] AtType { get; set; }
@@ -139,7 +139,7 @@ namespace WoT_Definitions
 
 
     [JsonConverter(typeof(InteractionAffordanceConverter))] 
-    public class InteractionAffordance : INteractionAffordance
+    public class InteractionAffordance : IInteractionAffordance
     {
         [JsonProperty("@type")]
         public string[] AtType { get; set; }
