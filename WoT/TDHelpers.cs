@@ -269,7 +269,14 @@ namespace TDHelpers
             }
 
             if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string[]>();
-            if (schemaObj["proxy"] != null) schema.Proxy = schemaObj["proxy"].ToObject<Uri>();
+            
+            
+            
+            if (schemaObj["proxy"] != null) {
+              
+                Uri temp = new Uri(schemaObj["proxy"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Proxy = temp;
+            } 
 
         }
 
@@ -297,7 +304,14 @@ namespace TDHelpers
 
             Form schema = new Form();
 
-            if (schemaObj["href"] != null) schema.Href = schemaObj["href"].ToObject<Uri>();
+
+            if (schemaObj["href"] != null)
+            {
+
+                Uri temp = new Uri(schemaObj["href"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Href = temp;
+            }
+
 
             if (schemaObj["contentType"] != null)
             { schema.ContentType = schemaObj["contentType"].ToObject<string>(); }
@@ -354,7 +368,14 @@ namespace TDHelpers
 
             PropertyForm schema = new PropertyForm();
 
-            if (schemaObj["href"] != null) schema.Href = schemaObj["href"].ToObject<Uri>();
+
+            if (schemaObj["href"] != null)
+            {
+
+                Uri temp = new Uri(schemaObj["href"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Href = temp;
+            }
+
             if (schemaObj["contentType"] != null)
             { schema.ContentType = schemaObj["contentType"].ToObject<string>(); }
             else
@@ -417,7 +438,14 @@ namespace TDHelpers
 
             ActionForm schema = new ActionForm();
 
-            if (schemaObj["href"] != null) schema.Href = schemaObj["href"].ToObject<Uri>();
+
+            if (schemaObj["href"] != null)
+            {
+
+                Uri temp = new Uri(schemaObj["href"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Href = temp;
+            }
+
             if (schemaObj["contentType"] != null)
             { schema.ContentType = schemaObj["contentType"].ToObject<string>(); }
             else
@@ -483,7 +511,15 @@ namespace TDHelpers
 
             EventForm schema = new EventForm();
 
-            if (schemaObj["href"] != null) schema.Href = schemaObj["href"].ToObject<Uri>();
+
+            if (schemaObj["href"] != null)
+            {
+
+                Uri temp = new Uri(schemaObj["href"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Href = temp;
+            }
+
+
             if (schemaObj["contentType"] != null)
             { schema.ContentType = schemaObj["contentType"].ToObject<string>(); }
             else
@@ -570,7 +606,14 @@ namespace TDHelpers
 
             Object[] schema = new object[1];
 
-            schema[0] = schemaObj.ToObject<Uri>();
+
+            if (schemaObj != null)
+            {
+
+                Uri temp = new Uri(schemaObj.ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema[0] = temp;
+            }
+
 
             return schema;
         }
