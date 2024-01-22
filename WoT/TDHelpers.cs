@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using WoT_Definitions;
+using WoT.Definitions;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 
-namespace TDHelpers
+namespace WoT.TDHelpers
 {
 
     //Converter to assign the corresponding DataSchema for a given schema
