@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TDHelpers;
+using WoT.TDHelpers;
 
-namespace WoT_Definitions
+namespace WoT.Definitions
 {
     public interface IDataSchema
     {

@@ -2,27 +2,28 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using WoT_Definitions;
+using WoT.Definitions;
+using WoT.Implementation;
 
 namespace WoT 
 {
-    interface IConsumer
+    public interface IConsumer
     {
         Task<IConsumedThing> Consume(ThingDescription td);
         Task<ThingDescription> RequestThingDescription(string url);
     }
 
-    interface IProducer
+    public interface IProducer
     {
         Task<IExposedThing> Produce(ThingDescription td);
     }
 
-    interface IServient: IConsumer, IProducer
+    public interface IServient: IConsumer, IProducer
     {
 
     }
-    
-    interface IInteractionOutput<T>
+
+    public interface IInteractionOutput<T>
     {
         Stream Data { get; }
         bool DataUsed { get; }
@@ -33,13 +34,13 @@ namespace WoT
 
     }
 
-    interface ISubscription
+    public interface ISubscription
     {
         bool Active { get; }
         Task Stop(InteractionOptions options);
     }
 
-    interface IConsumedThing
+    public interface IConsumedThing
     {
         Task<IInteractionOutput<T>> ReadProperty<T>(string propertyName, InteractionOptions? options);
         Task WriteProperty<T>(string propertyName, T value, InteractionOptions? options);
@@ -52,7 +53,7 @@ namespace WoT
 
     }
 
-    interface IExposedThing
+    public interface IExposedThing
     {
         IExposedThing SetPropertyReadHandler(string name, Action<InteractionOptions?> propertyReadHandler);
         IExposedThing SetPropertyWriteHandler<T>(string name, Action<IInteractionOutput<T>, InteractionOptions?> propertyWriteHandler);
@@ -69,7 +70,7 @@ namespace WoT
         ThingDescription GetThingDescription();
 
     }
-    struct InteractionOptions
+    public struct InteractionOptions
     {
         public uint formIndex;
         public Dictionary<string, object> uriVariables;
