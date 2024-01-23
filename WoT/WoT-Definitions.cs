@@ -138,7 +138,7 @@ namespace WoT.Definitions
     }
 
 
-    [JsonConverter(typeof(InteractionAffordanceConverter))] 
+    [JsonConverter(typeof(InteractionAffordanceConverter))]
     public class InteractionAffordance : IInteractionAffordance
     {
         [JsonProperty("@type")]
@@ -150,6 +150,7 @@ namespace WoT.Definitions
         public string OriginalJson { get; set; }
     }
 
+    
     public class PropertyAffordance : InteractionAffordance, IDataSchema
     {
         public object Const { get; set; }
@@ -162,7 +163,7 @@ namespace WoT.Definitions
         public string Format { get; set; }
         public string Type { get; set; }
         public Boolean Observable { get; set; }
-        public PropertyForm[] PropertyForm { get; set; }
+        public PropertyForm[] Forms { get; set; }
 
     }
 
@@ -173,7 +174,7 @@ namespace WoT.Definitions
         public Boolean Safe { get; set; }
         public Boolean Idempotent { get; set; }
         public Boolean Synchronous { get; set; }
-        public ActionForm[] ActionForm { get; set; }
+        public ActionForm[] Forms { get; set; }
 
 
     }
@@ -184,7 +185,7 @@ namespace WoT.Definitions
         public DataSchema Data { get; set; }
         public DataSchema DataResponse { get; set; }
         public DataSchema Cancellation { get; set; }
-        public EventForm[] EventForm { get; set; }
+        public EventForm[] Forms { get; set; }
 
     }
 
@@ -206,48 +207,48 @@ namespace WoT.Definitions
 
 
     [JsonConverter(typeof(PropertyFormConverter))]
-    public class PropertyForm
+    public class PropertyForm : Form
     {
-        public Uri Href { get; set; }
-        public string ContentType { get; set; }
-        public string ContentCoding { get; set; }
-        public string[] Security { get; set; }
-        public string[] Scopes { get; set; }
-        public AdditionalExpectedResponse AdditionalExpectedResponse { get; set; }
-        public string Subprotocol { get; set; }
-        public string OriginalJson { get; set; }
-        public string[] Op { get; set; }
+        public new Uri Href { get; set; }
+        public new string ContentType { get; set; }
+        public new string ContentCoding { get; set; }
+        public new string[] Security { get; set; }
+        public new string[] Scopes { get; set; }
+        public new AdditionalExpectedResponse AdditionalExpectedResponse { get; set; }
+        public new string Subprotocol { get; set; }
+        public new string OriginalJson { get; set; }
+        public new string[] Op { get; set; }
 
 
     }
 
     [JsonConverter(typeof(ActionFormConverter))]
-    public class ActionForm
+    public class ActionForm : Form
     {
-        public Uri Href { get; set; }
-        public string ContentType { get; set; }
-        public string ContentCoding { get; set; }
-        public string[] Security { get; set; }
-        public string[] Scopes { get; set; }
-        public AdditionalExpectedResponse AdditionalExpectedResponse { get; set; }
-        public string Subprotocol { get; set; }
-        public string OriginalJson { get; set; }
-        public string[] Op { get; set; }
+        public new Uri Href { get; set; }
+        public new string ContentType { get; set; }
+        public new string ContentCoding { get; set; }
+        public new string[] Security { get; set; }
+        public new string[] Scopes { get; set; }
+        public new AdditionalExpectedResponse AdditionalExpectedResponse { get; set; }
+        public new string Subprotocol { get; set; }
+        public new string OriginalJson { get; set; }
+        public new string[] Op { get; set; }
 
     }
 
     [JsonConverter(typeof(EventFormConverter))]
-    public class EventForm
+    public class EventForm : Form
     {
-        public Uri Href { get; set; }
-        public string ContentType { get; set; }
-        public string ContentCoding { get; set; }
-        public string[] Security { get; set; }
-        public string[] Scopes { get; set; }
-        public AdditionalExpectedResponse AdditionalExpectedResponse { get; set; }
-        public string Subprotocol { get; set; }
-        public string OriginalJson { get; set; }
-        public string[] Op { get; set; }
+        public new Uri Href { get; set; }
+        public new string ContentType { get; set; }
+        public new string ContentCoding { get; set; }
+        public new string[] Security { get; set; }
+        public new string[] Scopes { get; set; }
+        public new AdditionalExpectedResponse AdditionalExpectedResponse { get; set; }
+        public new string Subprotocol { get; set; }
+        public new string OriginalJson { get; set; }
+        public new string[] Op { get; set; }
     }
 
 

@@ -77,8 +77,8 @@ namespace WoT.TDHelpers
             {
                 var settings = new JsonSerializerSettings();
                 settings.Converters.Add(new DataSchemaTypeConverter());
-                serializer = JsonSerializer.CreateDefault(settings);
-                schema.Items = serializer.Deserialize<DataSchema[]>(new JTokenReader(schemaObj["items"]));
+                var newSerializer = JsonSerializer.CreateDefault(settings);
+                schema.Items = newSerializer.Deserialize<DataSchema[]>(new JTokenReader(schemaObj["items"]));
             }
 
 
@@ -191,8 +191,8 @@ namespace WoT.TDHelpers
             {
                 var settings = new JsonSerializerSettings();
                 settings.Converters.Add(new StringTypeConverter());
-                serializer = JsonSerializer.CreateDefault(settings);
-                schema.AtType = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
+                var newSerializer = JsonSerializer.CreateDefault(settings);
+                schema.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
             }
 
         }
@@ -264,12 +264,20 @@ namespace WoT.TDHelpers
             {
                 var settings = new JsonSerializerSettings();
                 settings.Converters.Add(new StringTypeConverter());
-                serializer = JsonSerializer.CreateDefault(settings);
-                schema.AtType = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
+                var newSerializer = JsonSerializer.CreateDefault(settings);
+                schema.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
             }
 
             if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string[]>();
-            if (schemaObj["proxy"] != null) schema.Proxy = schemaObj["proxy"].ToObject<Uri>();
+
+            if (schemaObj["proxy"] != null)
+            {
+
+                Uri temp = new Uri(schemaObj["proxy"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Proxy = temp;
+            }
+
+
 
         }
 
@@ -289,7 +297,7 @@ namespace WoT.TDHelpers
             //add default converter 
             var settings = new JsonSerializerSettings();
             settings.Converters.Add(new StringTypeConverter());
-            serializer = JsonSerializer.CreateDefault(settings);
+            var newSerializer = JsonSerializer.CreateDefault(settings);
 
 
             JToken schemaObj = JToken.Load(reader);
@@ -297,7 +305,12 @@ namespace WoT.TDHelpers
 
             Form schema = new Form();
 
-            if (schemaObj["href"] != null) schema.Href = schemaObj["href"].ToObject<Uri>();
+            if (schemaObj["href"] != null)
+            {
+
+                Uri temp = new Uri(schemaObj["href"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Href = temp;
+            }
 
             if (schemaObj["contentType"] != null)
             { schema.ContentType = schemaObj["contentType"].ToObject<string>(); }
@@ -319,11 +332,11 @@ namespace WoT.TDHelpers
             }
 
 
-            if (schemaObj["security"] != null) schema.Security = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["security"]));
+            if (schemaObj["security"] != null) schema.Security = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["security"]));
 
-            if (schemaObj["scopes"] != null) schema.Scopes = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["scopes"]));
+            if (schemaObj["scopes"] != null) schema.Scopes = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["scopes"]));
 
-            if (schemaObj["op"] != null) schema.Op = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["op"]));
+            if (schemaObj["op"] != null) schema.Op = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["op"]));
 
 
 
@@ -346,7 +359,7 @@ namespace WoT.TDHelpers
             //add default converter 
             var settings = new JsonSerializerSettings();
             settings.Converters.Add(new StringTypeConverter());
-            serializer = JsonSerializer.CreateDefault(settings);
+            var newSerializer = JsonSerializer.CreateDefault(settings);
 
             JToken schemaObj = JToken.Load(reader);
 
@@ -354,7 +367,13 @@ namespace WoT.TDHelpers
 
             PropertyForm schema = new PropertyForm();
 
-            if (schemaObj["href"] != null) schema.Href = schemaObj["href"].ToObject<Uri>();
+            if (schemaObj["href"] != null)
+            {
+
+                Uri temp = new Uri(schemaObj["href"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Href = temp;
+            }
+
             if (schemaObj["contentType"] != null)
             { schema.ContentType = schemaObj["contentType"].ToObject<string>(); }
             else
@@ -376,9 +395,9 @@ namespace WoT.TDHelpers
 
             schema.OriginalJson = schemaObj.ToString();
 
-            if (schemaObj["security"] != null) schema.Security = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["security"]));
+            if (schemaObj["security"] != null) schema.Security = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["security"]));
 
-            if (schemaObj["scopes"] != null) schema.Scopes = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["scopes"]));
+            if (schemaObj["scopes"] != null) schema.Scopes = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["scopes"]));
 
             if (schemaObj["op"] == null)
             { //default value handling
@@ -387,7 +406,7 @@ namespace WoT.TDHelpers
             }
             else
             {
-                schema.Op = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["op"]));
+                schema.Op = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["op"]));
             }
 
             return schema;
@@ -409,7 +428,7 @@ namespace WoT.TDHelpers
             //add default converter 
             var settings = new JsonSerializerSettings();
             settings.Converters.Add(new StringTypeConverter());
-            serializer = JsonSerializer.CreateDefault(settings);
+            var newSerializer = JsonSerializer.CreateDefault(settings);
 
             JToken schemaObj = JToken.Load(reader);
 
@@ -417,7 +436,13 @@ namespace WoT.TDHelpers
 
             ActionForm schema = new ActionForm();
 
-            if (schemaObj["href"] != null) schema.Href = schemaObj["href"].ToObject<Uri>();
+            if (schemaObj["href"] != null)
+            {
+
+                Uri temp = new Uri(schemaObj["href"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Href = temp;
+            }
+
             if (schemaObj["contentType"] != null)
             { schema.ContentType = schemaObj["contentType"].ToObject<string>(); }
             else
@@ -439,9 +464,9 @@ namespace WoT.TDHelpers
 
             schema.OriginalJson = schemaObj.ToString();
 
-            if (schemaObj["security"] != null) schema.Security = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["security"]));
+            if (schemaObj["security"] != null) schema.Security = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["security"]));
 
-            if (schemaObj["scopes"] != null) schema.Scopes = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["scopes"]));
+            if (schemaObj["scopes"] != null) schema.Scopes = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["scopes"]));
 
             if (schemaObj["op"] == null)
             { //default value handling
@@ -452,7 +477,7 @@ namespace WoT.TDHelpers
             }
             else
             {
-                schema.Op = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["op"]));
+                schema.Op = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["op"]));
             }
 
             return schema;
@@ -474,7 +499,7 @@ namespace WoT.TDHelpers
             //add default converter 
             var settings = new JsonSerializerSettings();
             settings.Converters.Add(new StringTypeConverter());
-            serializer = JsonSerializer.CreateDefault(settings);
+            var newSerializer = JsonSerializer.CreateDefault(settings);
 
 
             JToken schemaObj = JToken.Load(reader);
@@ -483,7 +508,14 @@ namespace WoT.TDHelpers
 
             EventForm schema = new EventForm();
 
-            if (schemaObj["href"] != null) schema.Href = schemaObj["href"].ToObject<Uri>();
+
+            if (schemaObj["href"] != null)
+            {
+
+                Uri temp = new Uri(schemaObj["href"].ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema.Href = temp;
+            }
+
             if (schemaObj["contentType"] != null)
             { schema.ContentType = schemaObj["contentType"].ToObject<string>(); }
             else
@@ -505,9 +537,9 @@ namespace WoT.TDHelpers
 
             schema.OriginalJson = schemaObj.ToString();
 
-            if (schemaObj["security"] != null) schema.Security = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["security"]));
+            if (schemaObj["security"] != null) schema.Security = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["security"]));
 
-            if (schemaObj["scopes"] != null) schema.Scopes = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["scopes"]));
+            if (schemaObj["scopes"] != null) schema.Scopes = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["scopes"]));
 
             if (schemaObj["op"] == null)
             { //default value handling
@@ -517,7 +549,7 @@ namespace WoT.TDHelpers
             }
             else
             {
-                schema.Op = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["op"]));
+                schema.Op = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["op"]));
             }
 
             return schema;
@@ -570,7 +602,13 @@ namespace WoT.TDHelpers
 
             Object[] schema = new object[1];
 
-            schema[0] = schemaObj.ToObject<Uri>();
+            if (schemaObj != null)
+            {
+
+                Uri temp = new Uri(schemaObj.ToObject<string>(), UriKind.RelativeOrAbsolute);
+                schema[0] = temp;
+            }
+
 
             return schema;
         }
@@ -669,10 +707,10 @@ namespace WoT.TDHelpers
             DataSchema[] schema = new DataSchema[schemaObj.Count()];
             var settings = new JsonSerializerSettings();
             settings.Converters.Add(new DataSchemaConverter());
-            serializer = JsonSerializer.CreateDefault(settings);
+            var newSerializer = JsonSerializer.CreateDefault(settings);
 
 
-            schema = serializer.Deserialize(new JTokenReader(schemaObj), objectType: typeof(DataSchema[])) as DataSchema[];
+            schema = newSerializer.Deserialize(new JTokenReader(schemaObj), objectType: typeof(DataSchema[])) as DataSchema[];
 
 
             return schema;
@@ -685,9 +723,9 @@ namespace WoT.TDHelpers
 
             var settings = new JsonSerializerSettings();
             settings.Converters.Add(new DataSchemaConverter());
-            serializer = JsonSerializer.CreateDefault(settings);
+            var newSerializer = JsonSerializer.CreateDefault(settings);
 
-            schema[0] = serializer.Deserialize(new JTokenReader(schemaObj), objectType: typeof(DataSchema)) as DataSchema;
+            schema[0] = newSerializer.Deserialize(new JTokenReader(schemaObj), objectType: typeof(DataSchema)) as DataSchema;
 
             return schema;
 
@@ -711,11 +749,11 @@ namespace WoT.TDHelpers
 
             switch (objectType.FullName)
             {
-                case "WoT_Definitions.PropertyAffordance":
+                case "WoT.Definitions.PropertyAffordance":
                     return FillPropertyAffordanceObject(schemaObj, serializer, reader);
-                case "WoT_Definitions.ActionAffordance":
+                case "WoT.Definitions.ActionAffordance":
                     return FillActionAffordanceObject(reader, schemaObj, serializer);
-                case "WoT_Definitions.EventAffordance":
+                case "WoT.Definitions.EventAffordance":
                     return FillEventAffordanceObject(schemaObj, serializer);
             }
             return null;
@@ -739,7 +777,7 @@ namespace WoT.TDHelpers
 
             if (schemaObj["observable"] != null) schema.Observable = schemaObj["observable"].ToObject<Boolean>();
 
-            if (schemaObj["forms"] != null) schema.PropertyForm = serializer.Deserialize(new JTokenReader(schemaObj["forms"]), objectType: typeof(PropertyForm[])) as PropertyForm[];
+            if (schemaObj["forms"] != null) schema.Forms = serializer.Deserialize(new JTokenReader(schemaObj["forms"]), objectType: typeof(PropertyForm[])) as PropertyForm[];
 
             return schema;
         }
@@ -757,7 +795,7 @@ namespace WoT.TDHelpers
 
 
 
-            if (schemaObj["forms"] != null) schema.ActionForm = serializer.Deserialize(new JTokenReader(schemaObj["forms"]), objectType: typeof(ActionForm[])) as ActionForm[];
+            if (schemaObj["forms"] != null) schema.Forms = serializer.Deserialize(new JTokenReader(schemaObj["forms"]), objectType: typeof(ActionForm[])) as ActionForm[];
 
 
             return schema;
@@ -772,7 +810,7 @@ namespace WoT.TDHelpers
             if (schemaObj["dataResponse"] != null) schema.DataResponse = serializer.Deserialize(new JTokenReader(schemaObj["dataResponse"]), objectType: typeof(DataSchema)) as DataSchema;
             if (schemaObj["cancellation"] != null) schema.Cancellation = serializer.Deserialize(new JTokenReader(schemaObj["cancellation"]), objectType: typeof(DataSchema)) as DataSchema;
 
-            if (schemaObj["forms"] != null) schema.EventForm = serializer.Deserialize(new JTokenReader(schemaObj["forms"]), objectType: typeof(EventForm[])) as EventForm[];
+            if (schemaObj["forms"] != null) schema.Forms = serializer.Deserialize(new JTokenReader(schemaObj["forms"]), objectType: typeof(EventForm[])) as EventForm[];
 
             return schema;
         }
@@ -782,14 +820,12 @@ namespace WoT.TDHelpers
             schema.Description = (string)schemaObj["description"];
             schema.Title = (string)schemaObj["title"];
 
-            //if (schemaObj["@type"] != null) schema.AtType = serializer.Deserialize(new JTokenReader(schemaObj["@type"]), objectType: typeof(AtTypeType)) as AtTypeType;
-
             if (schemaObj["@type"] != null)
             {
                 var settings = new JsonSerializerSettings();
                 settings.Converters.Add(new StringTypeConverter());
-                serializer = JsonSerializer.CreateDefault(settings);
-                schema.AtType = serializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
+                var newSerializer = JsonSerializer.CreateDefault(settings);
+                schema.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
             }
 
             if (schemaObj["titles"] != null) schema.Titles = schemaObj["titles"].ToObject<string[]>();
