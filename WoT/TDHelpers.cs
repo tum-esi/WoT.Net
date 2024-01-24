@@ -28,8 +28,8 @@ namespace WoT.TDHelpers
             if (value.Enum != null)             jo.Add("enum", JToken.FromObject(value.Enum));
             if (value.Format != null)           jo.Add("format", JToken.FromObject(value.Format));
             if (value.Type != null)             jo.Add("type", JToken.FromObject(value.Type));
-            jo.Add("titles", JToken.FromObject(value.ReadOnly));
-            jo.Add("titles", JToken.FromObject(value.WriteOnly));
+            jo.Add("readOnly", JToken.FromObject(value.ReadOnly));
+            jo.Add("writeOnly", JToken.FromObject(value.WriteOnly));
             switch (value.Type)
             {
                 case "object":
