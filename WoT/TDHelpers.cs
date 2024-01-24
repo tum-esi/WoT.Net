@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using WoT.Definitions;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using Newtonsoft.Json.Schema;
 
 namespace WoT.TDHelpers
 {
@@ -21,10 +22,9 @@ namespace WoT.TDHelpers
         {
             JsonReader reader2 = reader;
             JToken schemaObj = JToken.Load(reader2);
-            if (schemaObj.Type == JTokenType.Null) return null;
             string type = (string)schemaObj["type"]; //type of the given schema
 
-            switch (type)
+            switch(type)
             {
                 case "object":
                     return FillObjectSchemaObject(schemaObj, serializer);
@@ -40,11 +40,20 @@ namespace WoT.TDHelpers
                     return FillIntegerSchemaObject(schemaObj, serializer);
                 case "null":
                     return FillNullSchemaObject(schemaObj, serializer);
-            }
-            return null;
+                default:
+                    return FillDataSchemaObject(schemaObj, serializer);
+            };
         }
 
-        public NumberSchema FillNumberSchemaObject(JToken schemaObj, JsonSerializer serializer)
+        protected static DataSchema FillDataSchemaObject(JToken schemaObj, JsonSerializer serializer)
+        {
+            DataSchema schema = new DataSchema();
+            CommonFiller(schema, schemaObj, serializer);
+
+            return schema;
+        }
+
+        protected static NumberSchema FillNumberSchemaObject(JToken schemaObj, JsonSerializer serializer)
         {
             NumberSchema schema = new NumberSchema();
             CommonFiller(schema, schemaObj, serializer);
@@ -65,7 +74,7 @@ namespace WoT.TDHelpers
             return schema;
         }
 
-        public ArraySchema FillArraySchemaObject(JToken schemaObj, JsonSerializer serializer)
+        protected static ArraySchema FillArraySchemaObject(JToken schemaObj, JsonSerializer serializer)
         {
             ArraySchema schema = new ArraySchema();
             CommonFiller(schema, schemaObj, serializer);
@@ -89,7 +98,7 @@ namespace WoT.TDHelpers
             return schema;
         }
 
-        public BooleanSchema FillBooleanSchemaObject(JToken schemaObj, JsonSerializer serializer)
+        protected static BooleanSchema FillBooleanSchemaObject(JToken schemaObj, JsonSerializer serializer)
         {
             BooleanSchema schema = new BooleanSchema();
             CommonFiller(schema, schemaObj, serializer);
@@ -102,9 +111,7 @@ namespace WoT.TDHelpers
             return schema;
         }
 
-        //To Do: Throw an error if there is something wrong 
-
-        public IntegerSchema FillIntegerSchemaObject(JToken schemaObj, JsonSerializer serializer)
+        protected static IntegerSchema FillIntegerSchemaObject(JToken schemaObj, JsonSerializer serializer)
         {
             IntegerSchema schema = new IntegerSchema();
 
@@ -125,7 +132,7 @@ namespace WoT.TDHelpers
             return schema;
         }
 
-        public ObjectSchema FillObjectSchemaObject(JToken schemaObj, JsonSerializer serializer)
+        protected static ObjectSchema FillObjectSchemaObject(JToken schemaObj, JsonSerializer serializer)
         {
             ObjectSchema schema = new ObjectSchema();
             CommonFiller(schema, schemaObj, serializer);
@@ -140,7 +147,7 @@ namespace WoT.TDHelpers
             return schema;
         }
 
-        public StringSchema FillStringSchemaObject(JToken schemaObj, JsonSerializer serializer)
+        protected static StringSchema FillStringSchemaObject(JToken schemaObj, JsonSerializer serializer)
         {
             StringSchema schema = new StringSchema();
             CommonFiller(schema, schemaObj, serializer);
@@ -160,7 +167,7 @@ namespace WoT.TDHelpers
             return schema;
         }
 
-        public NullSchema FillNullSchemaObject(JToken schemaObj, JsonSerializer serializer)
+        protected static NullSchema FillNullSchemaObject(JToken schemaObj, JsonSerializer serializer)
         {
             NullSchema schema = new NullSchema();
             CommonFiller(schema, schemaObj, serializer);
@@ -174,7 +181,7 @@ namespace WoT.TDHelpers
         }
 
         // to fill the common properties of DataSchemas
-        public void CommonFiller(DataSchema schema, JToken schemaObj, JsonSerializer serializer)
+        protected static void CommonFiller(DataSchema schema, JToken schemaObj, JsonSerializer serializer)
         {
             schema.Description = (string)schemaObj["description"];
             schema.Title = (string)schemaObj["title"];
@@ -182,8 +189,8 @@ namespace WoT.TDHelpers
             schema.Format = (string)schemaObj["format"];
             if (schemaObj["readOnly"] != null) schema.ReadOnly = (bool)schemaObj["readOnly"];
             if (schemaObj["writeOnly"] != null) schema.WriteOnly = (bool)schemaObj["writeOnly"];
-            if (schemaObj["titles"] != null) schema.Titles = schemaObj["titles"].ToObject<string[]>();
-            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string[]>();
+            if (schemaObj["titles"] != null) schema.Titles = schemaObj["titles"].ToObject<MultiLanguage>();
+            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<MultiLanguage>();
             if (schemaObj["allOf"] != null) schema.AllOf = serializer.Deserialize(new JTokenReader(schemaObj["allOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
             if (schemaObj["oneOf"] != null) schema.OneOf = serializer.Deserialize(new JTokenReader(schemaObj["oneOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
 
@@ -194,11 +201,7 @@ namespace WoT.TDHelpers
                 var newSerializer = JsonSerializer.CreateDefault(settings);
                 schema.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
             }
-
         }
-
-
-
     }
 
     //Converter to assign the corresponding SecurityScheme for a given schema
@@ -219,24 +222,24 @@ namespace WoT.TDHelpers
             switch (type)
             {
                 case "nosec":
-                    return FillNoSecuritySchemeObject(schemaObj, serializer);
+                    return FillNoSecuritySchemeObject(schemaObj);
                 case "basic":
-                    return FillBasicSecuritySchemeObject(schemaObj, serializer);
+                    return FillBasicSecuritySchemeObject(schemaObj);
             }
             return null;
         }
 
-        public NoSecurityScheme FillNoSecuritySchemeObject(JToken schemaObj, JsonSerializer serializer)
+        protected static NoSecurityScheme FillNoSecuritySchemeObject(JToken schemaObj)
         {
             NoSecurityScheme schema = new NoSecurityScheme();
-            CommonFiller(schema, schemaObj, serializer);
+            CommonFiller(schema, schemaObj);
             return schema;
         }
 
-        public BasicSecurityScheme FillBasicSecuritySchemeObject(JToken schemaObj, JsonSerializer serializer)
+        protected static BasicSecurityScheme FillBasicSecuritySchemeObject(JToken schemaObj)
         {
             BasicSecurityScheme schema = new BasicSecurityScheme();
-            CommonFiller(schema, schemaObj, serializer);
+            CommonFiller(schema, schemaObj);
 
 
             //assigning default value
@@ -250,12 +253,11 @@ namespace WoT.TDHelpers
                 schema.In = "header";
             }
 
-
             return schema;
         }
 
         // to fill the common properties of SecuritySchemas
-        public void CommonFiller(SecurityScheme schema, JToken schemaObj, JsonSerializer serializer)
+        protected static void CommonFiller(SecurityScheme schema, JToken schemaObj)
         {
             schema.Description = (string)schemaObj["description"];
             schema.Scheme = (string)schemaObj["scheme"];
@@ -268,7 +270,7 @@ namespace WoT.TDHelpers
                 schema.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
             }
 
-            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string[]>();
+            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<MultiLanguage>();
 
             if (schemaObj["proxy"] != null)
             {
@@ -289,7 +291,8 @@ namespace WoT.TDHelpers
 
         public override void WriteJson(JsonWriter writer, Form value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            var jo = JObject.Parse(value.OriginalJson);
+            jo.WriteTo(writer);
         }
 
         public override Form ReadJson(JsonReader reader, Type objectType, Form existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -345,13 +348,16 @@ namespace WoT.TDHelpers
 
     }
 
-    //Converter for PropertyForm 
+    /// <summary>
+    /// Converter for PropertyForm
+    /// </summary>
     public class PropertyFormConverter : JsonConverter<PropertyForm>
     {
 
         public override void WriteJson(JsonWriter writer, PropertyForm value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            var jo = JObject.Parse(value.OriginalJson);
+            jo.WriteTo(writer);
         }
 
         public override PropertyForm ReadJson(JsonReader reader, Type objectType, PropertyForm existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -420,7 +426,8 @@ namespace WoT.TDHelpers
 
         public override void WriteJson(JsonWriter writer, ActionForm value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            var jo = JObject.Parse(value.OriginalJson);
+            jo.WriteTo(writer);
         }
 
         public override ActionForm ReadJson(JsonReader reader, Type objectType, ActionForm existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -491,7 +498,8 @@ namespace WoT.TDHelpers
 
         public override void WriteJson(JsonWriter writer, EventForm value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            var jo = JObject.Parse(value.OriginalJson);
+            jo.WriteTo(writer);
         }
 
         public override EventForm ReadJson(JsonReader reader, Type objectType, EventForm existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -558,15 +566,16 @@ namespace WoT.TDHelpers
     }
 
     //Converter to assign the correct type for a given @contex
-    public class AtContextConverter : JsonConverter<Object[]>
+    public class AtContextConverter : JsonConverter<object[]>
     {
 
-        public override void WriteJson(JsonWriter writer, Object[] value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object[] value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            JToken t = JToken.FromObject(value);
+            serializer.Serialize(writer, t);
         }
 
-        public override Object[] ReadJson(JsonReader reader, Type objectType, Object[] existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object[] ReadJson(JsonReader reader, Type objectType, object[] existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             JToken schemaObj = JToken.Load(reader);
             if (schemaObj.Type == JTokenType.Null) return null;
@@ -575,9 +584,9 @@ namespace WoT.TDHelpers
             switch (type.ToString())
             {
                 case "Array":
-                    return AtContextTypeArrayFiller(schemaObj, serializer);
+                    return AtContextTypeArrayFiller(schemaObj);
                 case "String":
-                    return AtContextTypeUriFiller(schemaObj, serializer);
+                    return AtContextTypeUriFiller(schemaObj);
 
             }
             return null;
@@ -586,30 +595,22 @@ namespace WoT.TDHelpers
 
 
 
-        public Object[] AtContextTypeArrayFiller(JToken schemaObj, JsonSerializer serializer)
+        protected static object[] AtContextTypeArrayFiller(JToken schemaObj)
         {
-
-            Object[] schema = new Object[schemaObj.Count()];
-
-            schema = schemaObj.ToObject<Object[]>();
-
+            object[] schema = schemaObj.ToObject<object[]>();
             return schema;
-
         }
 
-        public Object[] AtContextTypeUriFiller(JToken schemaObj, JsonSerializer serializer)
+        protected static object[] AtContextTypeUriFiller(JToken schemaObj)
         {
 
-            Object[] schema = new object[1];
+            object[] schema = new object[1];
 
             if (schemaObj != null)
             {
-
                 Uri temp = new Uri(schemaObj.ToObject<string>(), UriKind.RelativeOrAbsolute);
                 schema[0] = temp;
             }
-
-
             return schema;
         }
 
@@ -621,7 +622,8 @@ namespace WoT.TDHelpers
 
         public override void WriteJson(JsonWriter writer, string[] value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            JToken t = JToken.FromObject(value);
+            t.WriteTo(writer);
         }
 
         public override string[] ReadJson(JsonReader reader, Type objectType, string[] existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -633,42 +635,29 @@ namespace WoT.TDHelpers
             switch (type.ToString())
             {
                 case "Array":
-                    return ArrayFiller(schemaObj, serializer);
+                    return ArrayFiller(schemaObj);
                 case "String":
-                    return StringFiller(schemaObj, serializer);
+                    return StringFiller(schemaObj);
 
             }
             return null;
 
         }
 
-
-
-
-
-
-        public string[] ArrayFiller(JToken schemaObj, JsonSerializer serializer)
+        protected static string[] ArrayFiller(JToken schemaObj)
         {
-
-            string[] schema = new string[schemaObj.Count()];
-
-           
-
-            schema = schemaObj.ToObject<string[]>();
-
+            string[] schema = schemaObj.ToObject<string[]>();
             return schema;
 
         }
 
-        public string[] StringFiller(JToken schemaObj, JsonSerializer serializer)
+        protected static string[] StringFiller(JToken schemaObj)
         {
             string[] schema = new string[1];
             string tmp = schemaObj.ToObject<string>();
             schema[0] = tmp;
 
             return schema;
-
-
         }
     }
 
@@ -678,7 +667,8 @@ namespace WoT.TDHelpers
 
         public override void WriteJson(JsonWriter writer, DataSchema[] value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            JToken t = JToken.FromObject(value);
+            serializer.Serialize(writer, t);
         }
 
         public override DataSchema[] ReadJson(JsonReader reader, Type objectType, DataSchema[] existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -690,9 +680,9 @@ namespace WoT.TDHelpers
             switch (type.ToString())
             {
                 case "Object":
-                    return ObjectFiller(schemaObj, serializer);
+                    return ObjectFiller(schemaObj);
                 case "Array":
-                    return ArrayFiller(schemaObj, serializer);
+                    return ArrayFiller(schemaObj);
 
             }
             return null;
@@ -701,23 +691,18 @@ namespace WoT.TDHelpers
 
 
 
-        public DataSchema[] ArrayFiller(JToken schemaObj, JsonSerializer serializer)
+        protected static DataSchema[] ArrayFiller(JToken schemaObj)
         {
-
-            DataSchema[] schema = new DataSchema[schemaObj.Count()];
             var settings = new JsonSerializerSettings();
             settings.Converters.Add(new DataSchemaConverter());
             var newSerializer = JsonSerializer.CreateDefault(settings);
-
-
-            schema = newSerializer.Deserialize(new JTokenReader(schemaObj), objectType: typeof(DataSchema[])) as DataSchema[];
-
+            var schema = newSerializer.Deserialize(new JTokenReader(schemaObj), objectType: typeof(DataSchema[])) as DataSchema[];
 
             return schema;
 
         }
 
-        public DataSchema[] ObjectFiller(JToken schemaObj, JsonSerializer serializer)
+        protected static DataSchema[] ObjectFiller(JToken schemaObj)
         {
             DataSchema[] schema = new DataSchema[1];
 
@@ -732,116 +717,266 @@ namespace WoT.TDHelpers
 
         }
     }
-
-    //Converter to assign the corresponding InteractionAffordance for a given schema
-    public class InteractionAffordanceConverter : JsonConverter<InteractionAffordance>
+    public class PropertyAffordanceConverter : JsonConverter<PropertyAffordance>
     {
-
-        public override void WriteJson(JsonWriter writer, InteractionAffordance value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, PropertyAffordance value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            var jo = JObject.Parse(value.OriginalJson);
+            jo.WriteTo(writer);
         }
 
-        public override InteractionAffordance ReadJson(JsonReader reader, Type objectType, InteractionAffordance existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override PropertyAffordance ReadJson(JsonReader reader, Type objectType, PropertyAffordance existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            JToken schemaObj = JToken.Load(reader);
-            if (schemaObj.Type == JTokenType.Null) return null;
+            JsonReader reader2 = reader;
+            JToken propertyObj = JToken.Load(reader2);
+            string type = (string)propertyObj["type"]; //type of the given schema
 
-            switch (objectType.FullName)
+            switch (type)
             {
-                case "WoT.Definitions.PropertyAffordance":
-                    return FillPropertyAffordanceObject(schemaObj, serializer, reader);
-                case "WoT.Definitions.ActionAffordance":
-                    return FillActionAffordanceObject(reader, schemaObj, serializer);
-                case "WoT.Definitions.EventAffordance":
-                    return FillEventAffordanceObject(schemaObj, serializer);
+                case "object":
+                    return FillObjectPropertyAffordanceObject(propertyObj, serializer);
+                case "array":
+                    return FillArrayPropertyAffordanceObject(propertyObj, serializer);
+                case "string":
+                    return FillStringPropertyAffordanceObject(propertyObj, serializer);
+                case "boolean":
+                    return FillBooleanPropertyAffordanceObject(propertyObj, serializer);
+                case "number":
+                    return FillNumberPropertyAffordanceObject(propertyObj, serializer);
+                case "integer":
+                    return FillIntegerPropertyAffordanceObject(propertyObj, serializer);
+                case "null":
+                    return FillNullPropertyAffordanceObject(propertyObj, serializer);
+                default:
+                    return FillPropertyAffordanceObject(propertyObj, serializer);
+            };
+        }
+
+        protected static PropertyAffordance FillPropertyAffordanceObject(JToken propObj, JsonSerializer serializer)
+        {
+            PropertyAffordance propertyAffordance = new PropertyAffordance();
+            CommonFiller(propertyAffordance, propObj, serializer);
+
+            return propertyAffordance;
+        }
+        protected static NumberPropertyAffordance FillNumberPropertyAffordanceObject(JToken propObj, JsonSerializer serializer)
+        {
+            NumberPropertyAffordance schema = new NumberPropertyAffordance();
+            CommonFiller(schema, propObj, serializer);
+
+
+            if (propObj["minimum"] != null) schema.Minimum = (double)propObj["minimum"];
+            if (propObj["maximum"] != null) schema.Maximum = (double)propObj["maximum"];
+            if (propObj["multipleOf"] != null) schema.MultipleOf = (double)propObj["multipleOf"];
+            if (propObj["exclusiveMinimum"] != null) schema.ExclusiveMinimum = (double)propObj["exclusiveMinimum"];
+            if (propObj["exclusiveMaximum"] != null) schema.ExclusiveMaximum = (double)propObj["exclusiveMaximum"];
+
+            // to make sure const, default, and enum types match the schema type they belong to
+            if (propObj["const"] != null) schema.Const = propObj["const"].ToObject<double>();
+            if (propObj["default"] != null) schema.Default = propObj["default"].ToObject<double>();
+            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<double[]>();
+
+
+            return schema;
+        }
+
+        protected static ArrayPropertyAffordance FillArrayPropertyAffordanceObject(JToken propObj, JsonSerializer serializer)
+        {
+            ArrayPropertyAffordance schema = new ArrayPropertyAffordance();
+            CommonFiller(schema, propObj, serializer);
+
+            if (propObj["minItems"] != null) schema.MinItems = (uint)propObj["minItems"];
+            if (propObj["maxItems"] != null) schema.MaxItems = (uint)propObj["maxItems"];
+
+            if (propObj["items"] != null)
+            {
+                var settings = new JsonSerializerSettings();
+                settings.Converters.Add(new DataSchemaTypeConverter());
+                var newSerializer = JsonSerializer.CreateDefault(settings);
+                schema.Items = newSerializer.Deserialize<DataSchema[]>(new JTokenReader(propObj["items"]));
             }
-            return null;
-        }
-
-        public PropertyAffordance FillPropertyAffordanceObject(JToken schemaObj, JsonSerializer serializer, JsonReader reader)
-        {
-            PropertyAffordance schema = new PropertyAffordance();
-            CommonFiller(schema, schemaObj, serializer);
-
-            if (schemaObj["const"] != null) schema.Const = schemaObj["const"];
-            if (schemaObj["default"] != null) schema.Default = schemaObj["default"];
-            if (schemaObj["unit"] != null) schema.Unit = schemaObj["unit"].ToObject<string>();
-            if (schemaObj["enum"] != null) schema.Enum = schemaObj["enum"].ToObject<Object[]>();
-            if (schemaObj["readOnly"] != null) schema.ReadOnly = schemaObj["readOnly"].ToObject<bool>();
-            if (schemaObj["writeOnly"] != null) schema.WriteOnly = schemaObj["writeOnly"].ToObject<bool>();
-            if (schemaObj["oneOf"] != null) schema.OneOf = serializer.Deserialize(new JTokenReader(schemaObj["oneOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
-            if (schemaObj["format"] != null) schema.Format = schemaObj["format"].ToObject<string>();
-            if (schemaObj["type"] != null) schema.Type = schemaObj["type"].ToObject<string>();
 
 
-            if (schemaObj["observable"] != null) schema.Observable = schemaObj["observable"].ToObject<Boolean>();
-
-            if (schemaObj["forms"] != null) schema.Forms = serializer.Deserialize(new JTokenReader(schemaObj["forms"]), objectType: typeof(PropertyForm[])) as PropertyForm[];
+            if (propObj["const"] != null) schema.Const = propObj["const"];
+            if (propObj["default"] != null) schema.Default = propObj["default"];
+            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<Object[]>();
 
             return schema;
         }
 
-        public ActionAffordance FillActionAffordanceObject(JsonReader reader, JToken schemaObj, JsonSerializer serializer)
+        protected static BooleanPropertyAffordance FillBooleanPropertyAffordanceObject(JToken propObj, JsonSerializer serializer)
         {
-            ActionAffordance schema = new ActionAffordance();
-            CommonFiller(schema, schemaObj, serializer);
-            if (schemaObj["input"] != null) schema.Input = serializer.Deserialize(new JTokenReader(schemaObj["input"]), objectType: typeof(DataSchema)) as DataSchema;
-            if (schemaObj["output"] != null) schema.Output = serializer.Deserialize(new JTokenReader(schemaObj["output"]), objectType: typeof(DataSchema)) as DataSchema;
-            if (schemaObj["safe"] != null) schema.Safe = schemaObj["safe"].ToObject<Boolean>();
-            if (schemaObj["idempotent"] != null) schema.Idempotent = schemaObj["idempotent"].ToObject<Boolean>();
-            if (schemaObj["synchronous"] != null) schema.Synchronous = schemaObj["synchronous"].ToObject<Boolean>();
+            BooleanPropertyAffordance schema = new BooleanPropertyAffordance();
+            CommonFiller(schema, propObj, serializer);
 
-
-
-
-            if (schemaObj["forms"] != null) schema.Forms = serializer.Deserialize(new JTokenReader(schemaObj["forms"]), objectType: typeof(ActionForm[])) as ActionForm[];
-
+            // to make sure const, default, and enum types match the schema type they belong to
+            if (propObj["const"] != null) schema.Const = propObj["const"].ToObject<bool>();
+            if (propObj["default"] != null) schema.Default = propObj["default"].ToObject<bool>();
+            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<bool[]>();
 
             return schema;
         }
 
-        public EventAffordance FillEventAffordanceObject(JToken schemaObj, JsonSerializer serializer)
+        protected static IntegerPropertyAffordance FillIntegerPropertyAffordanceObject(JToken propObj, JsonSerializer serializer)
         {
-            EventAffordance schema = new EventAffordance();
-            CommonFiller(schema, schemaObj, serializer);
-            if (schemaObj["subscription"] != null) schema.Subscription = serializer.Deserialize(new JTokenReader(schemaObj["subscription"]), objectType: typeof(DataSchema)) as DataSchema;
-            if (schemaObj["data"] != null) schema.Data = serializer.Deserialize(new JTokenReader(schemaObj["data"]), objectType: typeof(DataSchema)) as DataSchema;
-            if (schemaObj["dataResponse"] != null) schema.DataResponse = serializer.Deserialize(new JTokenReader(schemaObj["dataResponse"]), objectType: typeof(DataSchema)) as DataSchema;
-            if (schemaObj["cancellation"] != null) schema.Cancellation = serializer.Deserialize(new JTokenReader(schemaObj["cancellation"]), objectType: typeof(DataSchema)) as DataSchema;
+            IntegerPropertyAffordance schema = new IntegerPropertyAffordance();
 
-            if (schemaObj["forms"] != null) schema.Forms = serializer.Deserialize(new JTokenReader(schemaObj["forms"]), objectType: typeof(EventForm[])) as EventForm[];
+            CommonFiller(schema, propObj, serializer);
+
+
+            if (propObj["minimum"] != null) schema.Minimum = (int)propObj["minimum"];
+            if (propObj["maximum"] != null) schema.Maximum = (int)propObj["maximum"];
+            if (propObj["multipleOf"] != null) schema.MultipleOf = (int)propObj["multipleOf"];
+            if (propObj["exclusiveMinimum"] != null) schema.ExclusiveMinimum = (int)propObj["exclusiveMinimum"];
+            if (propObj["exclusiveMaximum"] != null) schema.ExclusiveMaximum = (int)propObj["exclusiveMaximum"];
+
+            // to make sure const, default, and enum types match the schema type they belong to
+            if (propObj["const"] != null) schema.Const = propObj["const"].ToObject<int>();
+            if (propObj["default"] != null) schema.Default = propObj["default"].ToObject<int>();
+            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<int[]>();
 
             return schema;
         }
 
-        public void CommonFiller(InteractionAffordance schema, JToken schemaObj, JsonSerializer serializer)
+        protected static ObjectPropertyAffordance FillObjectPropertyAffordanceObject(JToken propObj, JsonSerializer serializer)
         {
-            schema.Description = (string)schemaObj["description"];
-            schema.Title = (string)schemaObj["title"];
+            ObjectPropertyAffordance schema = new ObjectPropertyAffordance();
+            CommonFiller(schema, propObj, serializer);
 
-            if (schemaObj["@type"] != null)
+            if (propObj["required"] != null) schema.Required = propObj["required"].ToObject<string[]>();
+            if (propObj["properties"] != null) schema.Properties = serializer.Deserialize(new JTokenReader(propObj["properties"]), objectType: typeof(Dictionary<string, DataSchema>)) as Dictionary<string, DataSchema>;
+
+            if (propObj["const"] != null) schema.Const = propObj["const"];
+            if (propObj["default"] != null) schema.Default = propObj["default"];
+            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<Object[]>();
+
+            return schema;
+        }
+
+        protected static StringPropertyAffordance FillStringPropertyAffordanceObject(JToken propObj, JsonSerializer serializer)
+        {
+            StringPropertyAffordance schema = new StringPropertyAffordance();
+            CommonFiller(schema, propObj, serializer);
+
+            schema.Pattern = (string)propObj["pattern"];
+            schema.ContentEncoding = (string)propObj["contentEncoding"];
+            schema.ContentMediaType = (string)propObj["contentMediaType"];
+
+            if (propObj["minLength"] != null) schema.MinLength = (uint)propObj["minLength"];
+            if (propObj["maxLength"] != null) schema.MaxLength = (uint)propObj["maxLength"];
+
+            // to make sure const, default, and enum types match the schema type they belong to
+            if (propObj["const"] != null) schema.Const = propObj["const"].ToObject<string>();
+            if (propObj["default"] != null) schema.Default = propObj["default"].ToObject<string>();
+            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<string[]>();
+
+            return schema;
+        }
+
+        protected static NullPropertyAffordance FillNullPropertyAffordanceObject(JToken propObj, JsonSerializer serializer)
+        {
+            NullPropertyAffordance schema = new NullPropertyAffordance();
+            CommonFiller(schema, propObj, serializer);
+            return schema;
+        }
+
+        // to fill the common properties of PropertyAffordance
+        protected static void CommonFiller(PropertyAffordance propertyAffordance, JToken propObj, JsonSerializer serializer)
+        {
+            propertyAffordance.Description = (string)propObj["description"];
+            propertyAffordance.Title = (string)propObj["title"];
+            propertyAffordance.Unit = (string)propObj["unit"];
+            propertyAffordance.Format = (string)propObj["format"];
+            if (propObj["readOnly"] != null) propertyAffordance.ReadOnly = (bool)propObj["readOnly"];
+            if (propObj["writeOnly"] != null) propertyAffordance.WriteOnly = (bool)propObj["writeOnly"];
+            if (propObj["titles"] != null) propertyAffordance.Titles = propObj["titles"].ToObject<MultiLanguage>();
+            if (propObj["descriptions"] != null) propertyAffordance.Descriptions = propObj["descriptions"].ToObject<MultiLanguage>();
+            if (propObj["allOf"] != null) propertyAffordance.AllOf = serializer.Deserialize(new JTokenReader(propObj["allOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
+            if (propObj["oneOf"] != null) propertyAffordance.OneOf = serializer.Deserialize(new JTokenReader(propObj["oneOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
+            if (propObj["@type"] != null)
             {
                 var settings = new JsonSerializerSettings();
                 settings.Converters.Add(new StringTypeConverter());
                 var newSerializer = JsonSerializer.CreateDefault(settings);
-                schema.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["@type"]));
+                propertyAffordance.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(propObj["@type"]));
+            }
+            propertyAffordance.OriginalJson = propObj.ToString();
+        }
+    }
+    public class ActionAffordanceConverter : JsonConverter<ActionAffordance>
+    {
+        public override ActionAffordance ReadJson(JsonReader reader, Type objectType, ActionAffordance existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            JToken actionAffordanceObj = JToken.Load(reader);
+            if (actionAffordanceObj.Type == JTokenType.Null) return null;
+            ActionAffordance actionAffordance = new ActionAffordance
+            {
+                Description = (string)actionAffordanceObj["description"],
+                Title = (string)actionAffordanceObj["title"]
+            };
+
+            if (actionAffordanceObj["@type"] != null)
+            {
+                var settings = new JsonSerializerSettings();
+                settings.Converters.Add(new StringTypeConverter());
+                var newSerializer = JsonSerializer.CreateDefault(settings);
+                actionAffordance.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(actionAffordanceObj["@type"]));
             }
 
-            if (schemaObj["titles"] != null) schema.Titles = schemaObj["titles"].ToObject<string[]>();
-            if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<string[]>();
-
-            schema.OriginalJson = schemaObj.ToString();
-
-
-
-
-
+            if (actionAffordanceObj["titles"] != null)          actionAffordance.Titles = actionAffordanceObj["titles"].ToObject<MultiLanguage>();
+            if (actionAffordanceObj["descriptions"] != null)    actionAffordance.Descriptions = actionAffordanceObj["descriptions"].ToObject<MultiLanguage>();
+            if (actionAffordanceObj["input"] != null)           actionAffordance.Input = serializer.Deserialize(new JTokenReader(actionAffordanceObj["input"]), objectType: typeof(DataSchema)) as DataSchema;
+            if (actionAffordanceObj["output"] != null)          actionAffordance.Output = serializer.Deserialize(new JTokenReader(actionAffordanceObj["output"]), objectType: typeof(DataSchema)) as DataSchema;
+            if (actionAffordanceObj["safe"] != null)            actionAffordance.Safe = actionAffordanceObj["safe"].ToObject<bool>();
+            if (actionAffordanceObj["idempotent"] != null)      actionAffordance.Idempotent = actionAffordanceObj["idempotent"].ToObject<bool>();
+            if (actionAffordanceObj["synchronous"] != null)     actionAffordance.Synchronous = actionAffordanceObj["synchronous"].ToObject<bool>();
+            if (actionAffordanceObj["forms"] != null)           actionAffordance.Forms = serializer.Deserialize(new JTokenReader(actionAffordanceObj["forms"]), objectType: typeof(ActionForm[])) as ActionForm[];
+            actionAffordance.OriginalJson = actionAffordanceObj.ToString();
+            return actionAffordance;
         }
 
-
+        public override void WriteJson(JsonWriter writer, ActionAffordance value, JsonSerializer serializer)
+        {
+            var jo = JObject.Parse(value.OriginalJson);
+            jo.WriteTo(writer);
+        }
     }
+    public class EventAffordanceConverter : JsonConverter<EventAffordance>
+    {
+        public override EventAffordance ReadJson(JsonReader reader, Type objectType, EventAffordance existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            JToken eventAffordanceObj = JToken.Load(reader);
+            if (eventAffordanceObj.Type == JTokenType.Null) return null;
+            EventAffordance eventAffordance = new EventAffordance
+            {
+                Description = (string)eventAffordanceObj["description"],
+                Title = (string)eventAffordanceObj["title"]
+            };
 
+            if (eventAffordanceObj["@type"] != null)
+            {
+                var settings = new JsonSerializerSettings();
+                settings.Converters.Add(new StringTypeConverter());
+                var newSerializer = JsonSerializer.CreateDefault(settings);
+                eventAffordance.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(eventAffordanceObj["@type"]));
+            }
+            if (eventAffordanceObj["titles"] != null)       eventAffordance.Titles = eventAffordanceObj["titles"].ToObject<MultiLanguage>();
+            if (eventAffordanceObj["descriptions"] != null) eventAffordance.Descriptions = eventAffordanceObj["descriptions"].ToObject<MultiLanguage>();
+            if (eventAffordanceObj["subscription"] != null) eventAffordance.Subscription = serializer.Deserialize(new JTokenReader(eventAffordanceObj["subscription"]), objectType: typeof(DataSchema)) as DataSchema;
+            if (eventAffordanceObj["data"] != null)         eventAffordance.Data = serializer.Deserialize(new JTokenReader(eventAffordanceObj["data"]), objectType: typeof(DataSchema)) as DataSchema;
+            if (eventAffordanceObj["dataResponse"] != null) eventAffordance.DataResponse = serializer.Deserialize(new JTokenReader(eventAffordanceObj["dataResponse"]), objectType: typeof(DataSchema)) as DataSchema;
+            if (eventAffordanceObj["cancellation"] != null) eventAffordance.Cancellation = serializer.Deserialize(new JTokenReader(eventAffordanceObj["cancellation"]), objectType: typeof(DataSchema)) as DataSchema;
+            if (eventAffordanceObj["forms"] != null)        eventAffordance.Forms = serializer.Deserialize(new JTokenReader(eventAffordanceObj["forms"]), objectType: typeof(EventForm[])) as EventForm[];
+            eventAffordance.OriginalJson =                  eventAffordanceObj.ToString();
+            return eventAffordance;
+        }
+
+        public override void WriteJson(JsonWriter writer, EventAffordance value, JsonSerializer serializer)
+        {
+            var jo = JObject.Parse(value.OriginalJson);
+            jo.WriteTo(writer);
+        }
+    }
 }
 
 
