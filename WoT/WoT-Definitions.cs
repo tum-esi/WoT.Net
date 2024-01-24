@@ -35,7 +35,6 @@ namespace WoT.Definitions
         string Type { get; }
 
     }
-
     public interface IArraySchema: IDataSchema
     {
         DataSchema[] Items { get; set; }

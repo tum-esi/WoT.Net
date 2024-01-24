@@ -15,7 +15,61 @@ namespace WoT.TDHelpers
 
         public override void WriteJson(JsonWriter writer, DataSchema value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            JObject jo = new JObject();
+            if (value.AtType != null )          jo.Add("@type", JToken.FromObject(value.AtType));
+            if (value.Title != null)            jo.Add("title",  JToken.FromObject(value.Title));
+            if (value.Description != null)      jo.Add("description", JToken.FromObject(value.Description));
+            if (value.Descriptions != null)     jo.Add("descriptions", JToken.FromObject(value.Descriptions));
+            if (value.Const != null)            jo.Add("const", JToken.FromObject(value.Const));
+            if (value.Default != null)          jo.Add("default", JToken.FromObject(value.Default));
+            if (value.Unit != null)             jo.Add("unit", JToken.FromObject(value.Unit));
+            if (value.OneOf != null)            jo.Add("oneOf", JToken.FromObject(value.OneOf));
+            if (value.AllOf != null)            jo.Add("allOf", JToken.FromObject(value.AllOf));
+            if (value.Enum != null)             jo.Add("enum", JToken.FromObject(value.Enum));
+            if (value.Format != null)           jo.Add("format", JToken.FromObject(value.Format));
+            if (value.Type != null)             jo.Add("type", JToken.FromObject(value.Type));
+            jo.Add("titles", JToken.FromObject(value.ReadOnly));
+            jo.Add("titles", JToken.FromObject(value.WriteOnly));
+            switch (value.Type)
+            {
+                case "object":
+                    if ((value as ObjectSchema).Properties != null) jo.Add("items", JToken.FromObject((value as ObjectSchema).Properties));
+                    if ((value as ObjectSchema).Required != null)   jo.Add("minItems", JToken.FromObject((value as ObjectSchema).Required));
+                    break;
+                case "array":
+                    if ((value as ArraySchema).Items != null)       jo.Add("items", JToken.FromObject((value as ArraySchema).Items));
+                    if ((value as ArraySchema).MinItems != null)    jo.Add("minItems", JToken.FromObject((value as ArraySchema).MinItems));
+                    if ((value as ArraySchema).MaxItems != null)    jo.Add("maxItems", JToken.FromObject((value as ArraySchema).MaxItems));
+                    break;
+                case "string":
+                    if ((value as StringSchema).MinLength != null)          jo.Add("minimum", JToken.FromObject((value as StringSchema).MinLength));
+                    if ((value as StringSchema).MaxLength != null)          jo.Add("exclusiveMinimum", JToken.FromObject((value as StringSchema).MaxLength));
+                    if ((value as StringSchema).Pattern != null)            jo.Add("maximum", JToken.FromObject((value as StringSchema).Pattern));
+                    if ((value as StringSchema).ContentEncoding != null)    jo.Add("exclusiveMaximum", JToken.FromObject((value as StringSchema).ContentEncoding));
+                    if ((value as StringSchema).ContentMediaType != null)   jo.Add("multipleOf", JToken.FromObject((value as StringSchema).ContentMediaType));
+                    break;
+                case "boolean":
+                    break;
+                case "number":
+                    if ((value as NumberSchema).Minimum != null)            jo.Add("minimum", JToken.FromObject((value as NumberSchema).Minimum));
+                    if ((value as NumberSchema).ExclusiveMinimum != null)   jo.Add("exclusiveMinimum", JToken.FromObject((value as NumberSchema).ExclusiveMinimum));
+                    if ((value as NumberSchema).Maximum != null)            jo.Add("maximum", JToken.FromObject((value as NumberSchema).Maximum));
+                    if ((value as NumberSchema).ExclusiveMaximum != null)   jo.Add("exclusiveMaximum", JToken.FromObject((value as NumberSchema).ExclusiveMaximum));
+                    if ((value as NumberSchema).MultipleOf != null)         jo.Add("multipleOf", JToken.FromObject((value as NumberSchema).MultipleOf));
+                    break;
+                case "integer":
+                    if ((value as IntegerSchema).Minimum != null)           jo.Add("minimum", JToken.FromObject((value as IntegerSchema).Minimum));
+                    if ((value as IntegerSchema).ExclusiveMinimum != null)  jo.Add("exclusiveMinimum", JToken.FromObject((value as IntegerSchema).ExclusiveMinimum));
+                    if ((value as IntegerSchema).Maximum != null)           jo.Add("maximum", JToken.FromObject((value as IntegerSchema).Maximum));
+                    if ((value as IntegerSchema).ExclusiveMaximum != null)  jo.Add("exclusiveMaximum", JToken.FromObject((value as IntegerSchema).ExclusiveMaximum));
+                    if ((value as IntegerSchema).MultipleOf != null)        jo.Add("multipleOf", JToken.FromObject((value as IntegerSchema).MultipleOf));
+                    break;
+                case "null":
+                    break;
+                default:
+                    break;
+            };
+            jo.WriteTo(writer);
         }
 
         public override DataSchema ReadJson(JsonReader reader, Type objectType, DataSchema existingValue, bool hasExistingValue, JsonSerializer serializer)
