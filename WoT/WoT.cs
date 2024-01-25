@@ -23,12 +23,24 @@ namespace WoT
 
     }
 
+    /// <summary>
+    /// An Interface for InteractionOutputs with no output data
+    /// </summary>
+    public interface IInteractionOutput
+    {
+        Stream Data { get; }
+        bool DataUsed { get; }
+        Form Form { get; }
+        IDataSchema Schema { get; }
+        Task<byte[]> ArrayBuffer();
+        Task Value();
+    }
     public interface IInteractionOutput<T>
     {
         Stream Data { get; }
         bool DataUsed { get; }
         Form Form { get; }
-        DataSchema Schema { get; }
+        IDataSchema Schema { get; }
         Task<byte[]> ArrayBuffer();
         Task<T> Value();
 
@@ -42,10 +54,12 @@ namespace WoT
 
     public interface IConsumedThing
     {
-        Task<IInteractionOutput<T>> ReadProperty<T>(string propertyName, InteractionOptions? options);
-        Task WriteProperty<T>(string propertyName, T value, InteractionOptions? options);
+        Task<IInteractionOutput<T>> ReadProperty<T>(string propertyName, InteractionOptions? options = null);
+        Task WriteProperty<T>(string propertyName, T value, InteractionOptions? options = null);
+        Task<IInteractionOutput> InvokeAction(string actionName, InteractionOptions? options = null);
+        Task<IInteractionOutput> InvokeAction<U>(string actionName, U parameters, InteractionOptions? options = null);
         Task<IInteractionOutput<T>> InvokeAction<T>(string actionName, InteractionOptions? options = null);
-        Task<IInteractionOutput<T>> InvokeAction<T>(string actionName, T parameters, InteractionOptions? options = null);
+        Task<IInteractionOutput<T>> InvokeAction<T, U>(string actionName, U parameters, InteractionOptions? options = null);
         Task<ISubscription> ObserveProperty<T>(string propertyName, Action<T> listener, InteractionOptions? options = null);
         Task<ISubscription> ObserveProperty<T>(string propertyName, Action<T> listener, Action<Exception> onerror, InteractionOptions? options = null);
         Task<ISubscription> SubscribeEvent<T>(string eventName, Action<T> listener, InteractionOptions? options = null);
@@ -72,7 +86,7 @@ namespace WoT
     }
     public struct InteractionOptions
     {
-        public uint formIndex;
+        public uint? formIndex;
         public Dictionary<string, object> uriVariables;
         public object data;
 
