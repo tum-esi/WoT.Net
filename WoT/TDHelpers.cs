@@ -235,7 +235,7 @@ namespace WoT.TDHelpers
         }
 
         // to fill the common properties of DataSchemas
-        protected static void CommonFiller(DataSchema schema, JToken schemaObj, JsonSerializer serializer)
+        protected static void CommonFiller<T>(T schema, JToken schemaObj, JsonSerializer serializer) where T: DataSchema
         {
             schema.Description = (string)schemaObj["description"];
             schema.Title = (string)schemaObj["title"];
@@ -311,7 +311,7 @@ namespace WoT.TDHelpers
         }
 
         // to fill the common properties of SecuritySchemas
-        protected static void CommonFiller(SecurityScheme schema, JToken schemaObj)
+        protected static void CommonFiller<T>(T schema, JToken schemaObj) where T: SecurityScheme
         {
             schema.Description = (string)schemaObj["description"];
             schema.Scheme = (string)schemaObj["scheme"];
@@ -437,7 +437,8 @@ namespace WoT.TDHelpers
             if (schemaObj["contentType"] != null)
             { schema.ContentType = schemaObj["contentType"].ToObject<string>(); }
             else
-            {//Default value handling
+            {
+                //Default value handling
                 schema.ContentType = "application/json";
             }
             if (schemaObj["contentCoding"] != null) schema.ContentCoding = schemaObj["contentCoding"].ToObject<string>();
@@ -935,7 +936,7 @@ namespace WoT.TDHelpers
         }
 
         // to fill the common properties of PropertyAffordance
-        protected static void CommonFiller(PropertyAffordance propertyAffordance, JToken propObj, JsonSerializer serializer)
+        protected static void CommonFiller<T>(T propertyAffordance, JToken propObj, JsonSerializer serializer) where T: PropertyAffordance
         {
             propertyAffordance.Description = (string)propObj["description"];
             propertyAffordance.Title = (string)propObj["title"];
@@ -947,6 +948,7 @@ namespace WoT.TDHelpers
             if (propObj["descriptions"] != null) propertyAffordance.Descriptions = propObj["descriptions"].ToObject<MultiLanguage>();
             if (propObj["allOf"] != null) propertyAffordance.AllOf = serializer.Deserialize(new JTokenReader(propObj["allOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
             if (propObj["oneOf"] != null) propertyAffordance.OneOf = serializer.Deserialize(new JTokenReader(propObj["oneOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
+            if (propObj["forms"] != null) propertyAffordance.Forms = serializer.Deserialize(new JTokenReader(propObj["forms"]), objectType: typeof(PropertyForm[])) as PropertyForm[];
             if (propObj["@type"] != null)
             {
                 var settings = new JsonSerializerSettings();
