@@ -1,6 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using WoT;
+using WoT.Definitions;
+using WoT.Implementation;
 
-WoT.Implementation.SimpleHTTPConsumer consumer = new WoT.Implementation.SimpleHTTPConsumer();
-var td = await consumer.RequestThingDescription("http://remotelab.esi.cit.tum.de:8080/virtual-coffee-machine-1_4");
-Console.WriteLine(td.ToString());
+SimpleHTTPConsumer consumer = new SimpleHTTPConsumer();
+ThingDescription td = await consumer.RequestThingDescription("http://plugfest.thingweb.io:8083/smart-coffee-machine");
+SimpleConsumedThing? consumedThing = await consumer.Consume(td) as SimpleConsumedThing;
+if(consumedThing != null) await consumedThing.WriteProperty<int>("availableResourceLevel", 100 ,new InteractionOptions { uriVariables = new Dictionary<string, object> { { "id", "water" } } });
+Console.WriteLine("Done");
