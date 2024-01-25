@@ -322,15 +322,6 @@ namespace WoT.Definitions
     [JsonConverter(typeof(PropertyFormConverter))]
     public class PropertyForm : Form
     {
-        public new Uri Href { get; set; }
-        public new string ContentType { get; set; }
-        public new string ContentCoding { get; set; }
-        public new string[] Security { get; set; }
-        public new string[] Scopes { get; set; }
-        public new AdditionalExpectedResponse? AdditionalExpectedResponse { get; set; }
-        public new string Subprotocol { get; set; }
-        public new string OriginalJson { get; set; }
-        public new string[] Op { get; set; }
 
 
     }
@@ -338,30 +329,13 @@ namespace WoT.Definitions
     [JsonConverter(typeof(ActionFormConverter))]
     public class ActionForm : Form
     {
-        public new Uri Href { get; set; }
-        public new string ContentType { get; set; }
-        public new string ContentCoding { get; set; }
-        public new string[] Security { get; set; }
-        public new string[] Scopes { get; set; }
-        public new AdditionalExpectedResponse? AdditionalExpectedResponse { get; set; }
-        public new string Subprotocol { get; set; }
-        public new string OriginalJson { get; set; }
-        public new string[] Op { get; set; }
 
     }
 
     [JsonConverter(typeof(EventFormConverter))]
     public class EventForm : Form
     {
-        public new Uri Href { get; set; }
-        public new string ContentType { get; set; }
-        public new string ContentCoding { get; set; }
-        public new string[] Security { get; set; }
-        public new string[] Scopes { get; set; }
-        public new AdditionalExpectedResponse? AdditionalExpectedResponse { get; set; }
-        public new string Subprotocol { get; set; }
-        public new string OriginalJson { get; set; }
-        public new string[] Op { get; set; }
+
     }
 
 
