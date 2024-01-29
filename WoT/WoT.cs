@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using WoT.Definitions;
-using WoT.Implementation;
 
 namespace WoT 
 {
@@ -49,7 +48,7 @@ namespace WoT
     public interface ISubscription
     {
         bool Active { get; }
-        Task Stop(InteractionOptions? options);
+        Task Stop(InteractionOptions? options = null);
     }
 
     public interface IConsumedThing

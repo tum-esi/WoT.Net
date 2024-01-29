@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using System;
 using System.Text;
@@ -11,10 +10,7 @@ using System.Threading.Tasks;
 using Tavis.UriTemplates;
 using WoT.Definitions;
 using WoT.Errors;
-using System.Runtime.CompilerServices;
-using System.Data;
 using System.Threading;
-using System.Xml.Linq;
 
 namespace WoT.Implementation
 {
@@ -368,7 +364,7 @@ namespace WoT.Implementation
                     throw new NotFoundError($"Event {eventName} was not found in TD. TD Title: {_td.Title}.");
 
                 Form[] forms = eventAffordance.Forms;
-                Form form = FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+                Form form = FindSuitableForm(forms, "subscribeevent", "http", options, "application/json", "longpoll");
 
                 if (options.HasValue && options.Value.uriVariables != null)
                     form = HandleUriVariables(form, options.Value.uriVariables);
@@ -421,7 +417,7 @@ namespace WoT.Implementation
                     throw new NotFoundError($"Event {eventName} was not found in TD. TD Title: {_td.Title}.");
 
                 Form[] forms = eventAffordance.Forms;
-                Form form = FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+                Form form = FindSuitableForm(forms, "subscribeevent", "http", options, "application/json", "longpoll");
 
                 if (options.HasValue && options.Value.uriVariables != null)
                     form = HandleUriVariables(form, options.Value.uriVariables);
@@ -477,7 +473,7 @@ namespace WoT.Implementation
                     throw new NotFoundError($"Event {eventName} was not found in TD. TD Title: {_td.Title}.");
 
                 Form[] forms = eventAffordance.Forms;
-                Form form = FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+                Form form = FindSuitableForm(forms, "subscribeevent", "http", options, "application/json", "longpoll");
 
                 if (options.HasValue && options.Value.uriVariables != null)
                     form = HandleUriVariables(form, options.Value.uriVariables);
@@ -533,7 +529,7 @@ namespace WoT.Implementation
                     throw new NotFoundError($"Event {eventName} was not found in TD. TD Title: {_td.Title}.");
 
                 Form[] forms = eventAffordance.Forms;
-                Form form = FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+                Form form = FindSuitableForm(forms, "subscribeevent", "http", options, "application/json", "longpoll");
 
                 if (options.HasValue && options.Value.uriVariables != null)
                     form = HandleUriVariables(form, options.Value.uriVariables);
