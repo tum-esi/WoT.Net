@@ -19,8 +19,8 @@ Our short-term goal is to implement the functionalities of a WoT Consumer, i.e. 
 We will focus first on HTTP Things but aim to implement functionality for HTTPS, CoAP, CoAPS, and MQTT in the future.
 
 ## Roadmap
-- [ ] TD Deserializing and Parsing 
-- [ ] HTTP Consumer
+- [X] TD Deserializing and Parsing 
+- [X] HTTP Consumer (works only with `"application\json"`, `"longpoll"` and no security)
 - [ ] HTTPS Consumer
 - [ ] CoAP Consumer
 - [ ] CoAPS Consumer
