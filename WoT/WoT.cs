@@ -49,7 +49,7 @@ namespace WoT
     public interface ISubscription
     {
         bool Active { get; }
-        Task Stop(InteractionOptions options);
+        Task Stop(InteractionOptions? options);
     }
 
     public interface IConsumedThing
@@ -60,10 +60,12 @@ namespace WoT
         Task<IInteractionOutput> InvokeAction<U>(string actionName, U parameters, InteractionOptions? options = null);
         Task<IInteractionOutput<T>> InvokeAction<T>(string actionName, InteractionOptions? options = null);
         Task<IInteractionOutput<T>> InvokeAction<T, U>(string actionName, U parameters, InteractionOptions? options = null);
-        Task<ISubscription> ObserveProperty<T>(string propertyName, Action<T> listener, InteractionOptions? options = null);
-        Task<ISubscription> ObserveProperty<T>(string propertyName, Action<T> listener, Action<Exception> onerror, InteractionOptions? options = null);
-        Task<ISubscription> SubscribeEvent<T>(string eventName, Action<T> listener, InteractionOptions? options = null);
-        Task<ISubscription> SubscribeEvent<T>(string eventName, Action<T> listener, Action<Exception> onerror, InteractionOptions? options = null);
+        Task<ISubscription> ObserveProperty<T>(string propertyName, Action<IInteractionOutput<T>> listener, InteractionOptions? options = null);
+        Task<ISubscription> ObserveProperty<T>(string propertyName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror, InteractionOptions? options = null);
+        Task<ISubscription> SubscribeEvent(string eventName, Action listener, InteractionOptions? options = null);
+        Task<ISubscription> SubscribeEvent(string eventName, Action listener, Action<Exception> onerror, InteractionOptions? options = null);
+        Task<ISubscription> SubscribeEvent<T>(string eventName, Action<IInteractionOutput<T>> listener, InteractionOptions? options = null);
+        Task<ISubscription> SubscribeEvent<T>(string eventName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror, InteractionOptions? options = null);
 
     }
 
