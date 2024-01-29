@@ -12,17 +12,22 @@ using Tavis.UriTemplates;
 using WoT.Definitions;
 using WoT.Errors;
 using System.Runtime.CompilerServices;
+using System.Data;
+using System.Threading;
+using System.Xml.Linq;
 
 namespace WoT.Implementation
 {
     public class SimpleHTTPConsumer : IConsumer
     {
-        public readonly HttpClient httpClient;
         private readonly JsonSerializer _serializer;
+        public readonly HttpClient httpClient;
+        
         public SimpleHTTPConsumer()
         {
             httpClient = new HttpClient();
             _serializer = new JsonSerializer();
+            
         }
         public async Task<IConsumedThing> Consume(ThingDescription td)
         {
@@ -53,13 +58,21 @@ namespace WoT.Implementation
 
     public class SimpleConsumedThing : IConsumedThing
     {
+
+        private readonly Dictionary<string, ISubscription> _activeSubscriptions;
+        private readonly Dictionary<string, ISubscription> _activeObservations;
         private readonly ThingDescription _td;
         private readonly SimpleHTTPConsumer _consumer;
         public SimpleConsumedThing(ThingDescription td, SimpleHTTPConsumer consumer)
         {
             _td = td;
             _consumer = consumer;
+            _activeSubscriptions = new Dictionary<string, ISubscription>();
+            _activeObservations = new Dictionary<string, ISubscription>();
+
         }
+
+        /****************************************************** Action Operations ******************************************************/
         public async Task<IInteractionOutput> InvokeAction(string actionName, InteractionOptions? options = null)
         {
             var actions = this._td.Actions;
@@ -72,7 +85,7 @@ namespace WoT.Implementation
             else
             {
                 // find suitable form
-                form = FindSuitableForm(actionAffordance.Forms, null, "http", "application/json", options);
+                form = FindSuitableForm(actionAffordance.Forms, null, "http", options, "application/json");
                 // Handle UriVariables
                 if (options.HasValue && options.Value.uriVariables != null) form = HandleUriVariables(form, options.Value.uriVariables);
 
@@ -98,7 +111,7 @@ namespace WoT.Implementation
             else
             {
                 // find suitable form
-                form = FindSuitableForm(actionAffordance.Forms, null, "http", "application/json", options);
+                form = FindSuitableForm(actionAffordance.Forms, null, "http", options);
                 // Handle UriVariables
                 if (options.HasValue && options.Value.uriVariables != null) form = HandleUriVariables(form, options.Value.uriVariables);
 
@@ -111,6 +124,7 @@ namespace WoT.Implementation
                 return output;
             }
         }
+
         public async Task<IInteractionOutput<T>> InvokeAction<T>(string actionName, InteractionOptions? options = null)
         {
             var actions = this._td.Actions;
@@ -123,7 +137,7 @@ namespace WoT.Implementation
             else
             {
                 // find suitable form
-                form = FindSuitableForm(actionAffordance.Forms, null, "http", "application/json", options);
+                form = FindSuitableForm(actionAffordance.Forms, null, "http", options);
                 // Handle UriVariables
                 if (options.HasValue && options.Value.uriVariables != null) form = HandleUriVariables(form, options.Value.uriVariables);
 
@@ -150,7 +164,7 @@ namespace WoT.Implementation
             else
             {
                 // find suitable form
-                form = FindSuitableForm(actionAffordance.Forms, null, "http", "application/json", options);
+                form = FindSuitableForm(actionAffordance.Forms, null, "http", options);
                 // Handle UriVariables
                 if (options.HasValue && options.Value.uriVariables != null) form = HandleUriVariables(form, options.Value.uriVariables);
 
@@ -165,15 +179,7 @@ namespace WoT.Implementation
             }
         }
 
-        public Task<ISubscription> ObserveProperty<T>(string propertyName, Action<T> listener, InteractionOptions? options = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ISubscription> ObserveProperty<T>(string propertyName, Action<T> listener, Action<Exception> onerror, InteractionOptions? options = null)
-        {
-            throw new NotImplementedException();
-        }
+        /****************************************************** Property Operations ******************************************************/
 
         public async Task<IInteractionOutput<T>> ReadProperty<T>(string propertyName, InteractionOptions? options = null)
         {
@@ -189,7 +195,7 @@ namespace WoT.Implementation
             {
                 if (propertyAffordance.WriteOnly == true) throw new Exception($"Cannot read writeOnly property {propertyName}");
                 // find suitable form
-                form = FindSuitableForm(propertyAffordance.Forms, "readproperty", "http", "application/json", options);
+                form = FindSuitableForm(propertyAffordance.Forms, "readproperty", "http", options);
                 // Handle UriVariables
                 if (options.HasValue && options.Value.uriVariables != null) form = HandleUriVariables(form, options.Value.uriVariables);
 
@@ -197,19 +203,9 @@ namespace WoT.Implementation
                 HttpResponseMessage interactionResponse = await _consumer.httpClient.GetAsync(form.Href);
                 interactionResponse.EnsureSuccessStatusCode();
                 Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
-                InteractionOutput <T> output = new InteractionOutput<T>(propertyAffordance, form, responseStream);
+                InteractionOutput<T> output = new InteractionOutput<T>(propertyAffordance, form, responseStream);
                 return output;
             }
-        }
-
-        public Task<ISubscription> SubscribeEvent<T>(string eventName, Action<T> listener, InteractionOptions? options = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ISubscription> SubscribeEvent<T>(string eventName, Action<T> listener, Action<Exception> onerror, InteractionOptions? options = null)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task WriteProperty<T>(string propertyName, T value, InteractionOptions? options)
@@ -226,7 +222,7 @@ namespace WoT.Implementation
             {
                 if (propertyAffordance.ReadOnly == true) throw new Exception($"Cannot read writeOnly property {propertyName}");
                 // find suitable form
-                form = FindSuitableForm(propertyAffordance.Forms, "readproperty", "http", "application/json", options);
+                form = FindSuitableForm(propertyAffordance.Forms, "readproperty", "http", options);
                 // Handle UriVariables
                 if (options.HasValue && options.Value.uriVariables != null) form = HandleUriVariables(form, options.Value.uriVariables);
 
@@ -240,9 +236,362 @@ namespace WoT.Implementation
             }
         }
 
+        public async Task<ISubscription> ObserveProperty<T>(string propertyName, Action<IInteractionOutput<T>> listener, InteractionOptions? options = null)
+        {
+            Subscription subscription = null;
+            PropertyAffordance propertyAffordance = null;
+            try
+            {
+                if (listener.GetType() == typeof(Action))
+                    throw new TypeError("listener for event " + propertyName + " specified is not a function.");
+
+                if (_activeSubscriptions.ContainsKey(propertyName))
+                    throw new NotAllowedError("Event " + propertyName + " has an already active subscription.");
+
+                if (!_td.Properties.TryGetValue(propertyName, out propertyAffordance))
+                    throw new NotFoundError("Property " + propertyName + " was not found in TD. TD Title:" + _td.Title + ".");
+
+                SimpleConsumedThing simpleConsumedThing = this;
+                Form[] forms = propertyAffordance.Forms;
+                Form form = simpleConsumedThing.FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+
+                if (options.HasValue && options.Value.uriVariables != null)
+                    form = HandleUriVariables(form, options.Value.uriVariables);
+
+                subscription = new Subscription(Subscription.SubscriptionType.Observation, propertyName, propertyAffordance, form, this);
+                try
+                {
+                    var task = Task.Run(async () =>
+                    {
+                        while (subscription.Active)
+                        {
+                            subscription.StopObservation += (sender, args) => subscription.tokenSource.Cancel();
+                            HttpResponseMessage interactionResponse = await _consumer.httpClient.GetAsync(form.Href, subscription.CancellationToken);
+                            interactionResponse.EnsureSuccessStatusCode();
+                            Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
+                            InteractionOutput<T> output = new InteractionOutput<T>(propertyAffordance, form, responseStream);
+                            listener.Invoke(output);
+                        }
+                    }, subscription.CancellationToken);
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine("Unobserved to property: " + propertyName + " of TD " + _td.Title);
+                }
+                return subscription;
+            }
+            catch (TypeError e)
+            {
+                throw e;
+            }
+            catch (NotAllowedError e)
+            {
+                Console.WriteLine(e.ToString() + " The subscription is ignored");
+                return null;
+            }
+        }
+
+        public async Task<ISubscription> ObserveProperty<T>(string propertyName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror, InteractionOptions? options = null)
+        {
+            Subscription subscription = null;
+            PropertyAffordance propertyAffordance = null;
+            try
+            {
+                if (listener.GetType() == typeof(Action))           
+                    throw new TypeError("listener for event " + propertyName + " specified is not a function.");
+
+                if (_activeSubscriptions.ContainsKey(propertyName)) 
+                    throw new NotAllowedError("Event " + propertyName + " has an already active subscription.");
+
+                if (!_td.Properties.TryGetValue(propertyName, out propertyAffordance)) 
+                    throw new NotFoundError("Property " + propertyName + " was not found in TD. TD Title:" + _td.Title + ".");
+
+                SimpleConsumedThing simpleConsumedThing = this;
+                Form[] forms = propertyAffordance.Forms;
+                Form form = simpleConsumedThing.FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+
+                if (options.HasValue && options.Value.uriVariables != null)
+                    form = HandleUriVariables(form, options.Value.uriVariables);
+                
+                subscription = new Subscription(Subscription.SubscriptionType.Observation, propertyName, propertyAffordance, form, this);
+                try
+                {
+                    var task = Task.Run(async () =>
+                    {
+                        while (subscription.Active)
+                        {
+                            subscription.StopObservation += (sender, args) => subscription.tokenSource.Cancel();
+                            HttpResponseMessage interactionResponse = await _consumer.httpClient.GetAsync(form.Href, subscription.CancellationToken);
+                            interactionResponse.EnsureSuccessStatusCode();
+                            Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
+                            InteractionOutput<T> output = new InteractionOutput<T>(propertyAffordance, form, responseStream);
+                            listener.Invoke(output);
+                        }
+                    }, subscription.CancellationToken);
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine("Unobserved to property: " + propertyName + " of TD " + _td.Title);
+                }
+                catch (HttpRequestException e)
+                {
+                    onerror(e);
+                }
+                return subscription;
+            }
+            catch (TypeError e)
+            {
+                throw e;
+            }
+            catch (NotAllowedError e)
+            {
+                Console.WriteLine(e.ToString() + " The observation is ignored");
+                return null;
+            }
+        }
+
+        /****************************************************** Event Operations ******************************************************/
+        
+        public async Task<ISubscription> SubscribeEvent(string eventName, Action listener, InteractionOptions? options = null)
+        {
+            Subscription subscription = null;
+            EventAffordance eventAffordance = null;
+            try
+            {
+                if (listener.GetType() == typeof(Action))
+                    throw new TypeError($"listener for event {eventName} specified is not a function.");
+
+                if (_activeSubscriptions.ContainsKey(eventName))
+                    throw new NotAllowedError($"Event {eventName} has an already active subscription.");
+
+                if (!_td.Events.TryGetValue(eventName, out eventAffordance))
+                    throw new NotFoundError($"Event {eventName} was not found in TD. TD Title: {_td.Title}.");
+
+                Form[] forms = eventAffordance.Forms;
+                Form form = FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+
+                if (options.HasValue && options.Value.uriVariables != null)
+                    form = HandleUriVariables(form, options.Value.uriVariables);
+
+                subscription = new Subscription(Subscription.SubscriptionType.Event, eventName, eventAffordance, form, this);
+                try
+                {
+                    var task = Task.Run(async () =>
+                    {
+                        while (subscription.Active)
+                        {
+                            subscription.StopObservation += (sender, args) => subscription.tokenSource.Cancel();
+                            HttpResponseMessage interactionResponse = await _consumer.httpClient.GetAsync(form.Href, subscription.CancellationToken);
+                            interactionResponse.EnsureSuccessStatusCode();
+                            listener.Invoke();
+                        }
+                    }, subscription.CancellationToken);
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine($"Unsubscribed to event: {eventName} of TD {_td.Title}");
+                }
+              
+                return subscription;
+            }
+            catch (TypeError e)
+            {
+                throw e;
+            }
+            catch (NotAllowedError e)
+            {
+                Console.WriteLine(e.ToString() + " The subscription is ignored");
+                return null;
+            }
+        }
+
+        public async Task<ISubscription> SubscribeEvent(string eventName, Action listener, Action<Exception> onerror, InteractionOptions? options = null)
+        {
+            Subscription subscription = null;
+            EventAffordance eventAffordance = null;
+            try
+            {
+                if (listener.GetType() == typeof(Action))
+                    throw new TypeError($"listener for event {eventName} specified is not a function.");
+
+                if (_activeSubscriptions.ContainsKey(eventName))
+                    throw new NotAllowedError($"Event {eventName} has an already active subscription.");
+
+                if (!_td.Events.TryGetValue(eventName, out eventAffordance))
+                    throw new NotFoundError($"Event {eventName} was not found in TD. TD Title: {_td.Title}.");
+
+                Form[] forms = eventAffordance.Forms;
+                Form form = FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+
+                if (options.HasValue && options.Value.uriVariables != null)
+                    form = HandleUriVariables(form, options.Value.uriVariables);
+
+                subscription = new Subscription(Subscription.SubscriptionType.Event, eventName, eventAffordance, form, this);
+                try
+                {
+                    var task = Task.Run(async () =>
+                    {
+                        while (subscription.Active)
+                        {
+                            subscription.StopObservation += (sender, args) => subscription.tokenSource.Cancel();
+                            HttpResponseMessage interactionResponse = await _consumer.httpClient.GetAsync(form.Href, subscription.CancellationToken);
+                            interactionResponse.EnsureSuccessStatusCode();
+                            listener.Invoke();
+                        }
+                    }, subscription.CancellationToken);
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine($"Unsubscribed to event: {eventName} of TD {_td.Title}");
+                }
+                catch (HttpRequestException e)
+                {
+                    onerror(e);
+                }
+                return subscription;
+            }
+            catch (TypeError e)
+            {
+                throw e;
+            }
+            catch (NotAllowedError e)
+            {
+                Console.WriteLine(e.ToString() + " The subscription is ignored");
+                return null;
+            }
+        }
+
+        public async Task<ISubscription> SubscribeEvent<T>(string eventName, Action<IInteractionOutput<T>> listener, InteractionOptions? options = null)
+        {
+            Subscription subscription = null;
+            EventAffordance eventAffordance = null;
+            try
+            {
+                if (listener.GetType() == typeof(Action))
+                    throw new TypeError($"listener for event {eventName} specified is not a function.");
+
+                if (_activeSubscriptions.ContainsKey(eventName))
+                    throw new NotAllowedError($"Event {eventName} has an already active subscription.");
+
+                if (!_td.Events.TryGetValue(eventName, out eventAffordance))
+                    throw new NotFoundError($"Event {eventName} was not found in TD. TD Title: {_td.Title}.");
+
+                Form[] forms = eventAffordance.Forms;
+                Form form = FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+
+                if (options.HasValue && options.Value.uriVariables != null)
+                    form = HandleUriVariables(form, options.Value.uriVariables);
+
+                subscription = new Subscription(Subscription.SubscriptionType.Event, eventName, eventAffordance, form, this);
+                try
+                {
+                    var task = Task.Run(async () =>
+                    {
+                        while (subscription.Active)
+                        {
+                            subscription.StopObservation += (sender, args) => subscription.tokenSource.Cancel();
+                            HttpResponseMessage interactionResponse = await _consumer.httpClient.GetAsync(form.Href, subscription.CancellationToken);
+                            interactionResponse.EnsureSuccessStatusCode();
+                            Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
+                            InteractionOutput<T> output = new InteractionOutput<T>(eventAffordance.Data, form, responseStream);
+                            listener.Invoke(output);
+                        }
+                    }, subscription.CancellationToken);
+                }
+
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine($"Unsubscribed to event: {eventName} of TD {_td.Title}");
+                }
+
+                return subscription;
+            }
+            catch (TypeError e)
+            {
+                throw e;
+            }
+            catch (NotAllowedError e)
+            {
+                Console.WriteLine(e.ToString() + " The subscription is ignored");
+                return null;
+            }
+        }
+
+        public async Task<ISubscription> SubscribeEvent<T>(string eventName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror, InteractionOptions? options = null)
+        {
+            Subscription subscription = null;
+            EventAffordance eventAffordance = null;
+            try
+            {
+                if (listener.GetType() == typeof(Action))
+                    throw new TypeError($"listener for event {eventName} specified is not a function.");
+
+                if (_activeSubscriptions.ContainsKey(eventName))
+                    throw new NotAllowedError($"Event {eventName} has an already active subscription.");
+
+                if (!_td.Events.TryGetValue(eventName, out eventAffordance))
+                    throw new NotFoundError($"Event {eventName} was not found in TD. TD Title: {_td.Title}.");
+
+                Form[] forms = eventAffordance.Forms;
+                Form form = FindSuitableForm(forms, "observeproperty", "http", options, "application/json", "longpoll");
+
+                if (options.HasValue && options.Value.uriVariables != null)
+                    form = HandleUriVariables(form, options.Value.uriVariables);
+
+                subscription = new Subscription(Subscription.SubscriptionType.Event, eventName, eventAffordance, form, this);
+                try
+                {
+                    var task = Task.Run(async () =>
+                    {
+                        while (subscription.Active)
+                        {
+                            subscription.StopObservation += (sender, args) => subscription.tokenSource.Cancel();
+                            HttpResponseMessage interactionResponse = await _consumer.httpClient.GetAsync(form.Href, subscription.CancellationToken);
+                            interactionResponse.EnsureSuccessStatusCode();
+                            Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
+                            InteractionOutput<T> output = new InteractionOutput<T>(eventAffordance.Data, form, responseStream);
+                            listener.Invoke(output);
+                        }
+                    }, subscription.CancellationToken);
+                }
+
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine($"Unsubscribed to event: {eventName} of TD {_td.Title}");
+                }
+
+                catch (HttpRequestException e)
+                {
+                    onerror(e);
+                }
+
+                return subscription;
+            }
+            catch (TypeError e)
+            {
+                throw e;
+            }
+            catch (NotAllowedError e)
+            {
+                Console.WriteLine(e.ToString() + " The subscription is ignored");
+                return null;
+            }
+        }
+
+        /****************************************************** Utility Methods ******************************************************/
         public ThingDescription GetThingDescription() { return _td; }
 
-        public void AddCredential(string id, string password)
+        public bool HasActiveListeners()
+        {
+            return _activeObservations.Count > 0 || _activeSubscriptions.Count > 0;
+        }
+
+        public void AddCredentials(string id, string password)
+        {
+
+        }
+
+        public void RemoveCredentials(string id)
         {
 
         }
@@ -260,7 +609,7 @@ namespace WoT.Implementation
             return form;
         }
 
-        protected Form FindSuitableForm(Form[] forms, string op, string scheme, string contentType, InteractionOptions? options = null)
+        protected Form FindSuitableForm(Form[] forms, string op, string scheme, InteractionOptions? options = null, string contentType = "application/json", string subprotocol = null)
         {
             Form[] filteredForms = forms;
             Form form = null;
@@ -270,18 +619,31 @@ namespace WoT.Implementation
                 {
                     uint index = options.Value.formIndex.Value;
                     if (index >= 0 && index < forms.Length) form = forms[index];
+                    if (op          != null && form.Op.Contains(op) && 
+                        contentType != null && form.ContentType == contentType &&
+                        subprotocol != null && form.Subprotocol == subprotocol &&
+                        scheme      != form.Href.Scheme && form.Href.Scheme == "scheme") return form;
                 }
             }
 
-            if (op != null) { filteredForms = filteredForms.Where((f) => f.Op.Contains(op)).ToArray(); }
-            if (scheme != null) { filteredForms = filteredForms.Where((f) => f.Href.Scheme == scheme).ToArray(); }
-            if (contentType != null) { filteredForms = filteredForms.Where((f) => f.ContentType == contentType).ToArray(); }
+            if (op != null)             { filteredForms = filteredForms.Where((f) => f.Op.Contains(op)).ToArray(); }
+            if (scheme != null)         { filteredForms = filteredForms.Where((f) => f.Href.Scheme == scheme).ToArray(); }
+            if (contentType != null)    { filteredForms = filteredForms.Where((f) => f.ContentType == contentType).ToArray(); }
+            if (subprotocol != null)    { filteredForms = filteredForms.Where((f) => f.Subprotocol == subprotocol).ToArray(); }
 
             if (filteredForms.Length > 0) form = filteredForms[0];
             return form;
         }
 
-        
+        public void RemoveObservation(string name)
+        {
+            _activeObservations.Remove(name);
+        }
+
+        public void RemoveSubscription(string name)
+        {
+            _activeSubscriptions.Remove(name);
+        }
     }
 
     public class InteractionOutput : IInteractionOutput
@@ -422,6 +784,54 @@ namespace WoT.Implementation
                 }
             });
             return await task;
+        }
+    }
+    public class Subscription : ISubscription
+    {
+        private readonly SubscriptionType _type;
+        private readonly string _name;
+        private readonly InteractionAffordance _interaction;
+        private readonly Form _form;
+        private readonly SimpleConsumedThing _thing;
+        private bool _active;
+        private CancellationToken _cancellationToken;
+        public CancellationTokenSource tokenSource;
+
+        public event EventHandler StopEvent;
+        public event EventHandler StopObservation;
+        public enum SubscriptionType
+        {
+            Event,
+            Observation
+        }
+
+        public Subscription(SubscriptionType type, string name, InteractionAffordance interaction, Form form, SimpleConsumedThing thing)
+        {
+            _type = type;
+            _name = name;
+            _interaction = interaction;
+            _thing = thing;
+            _active = true;
+            tokenSource = new CancellationTokenSource();
+            _cancellationToken = tokenSource.Token;
+        }
+
+        public bool Active => _active;
+        public CancellationToken CancellationToken => _cancellationToken;
+
+        public async Task Stop(InteractionOptions? options = null)
+        {
+            _active = false;
+            if (_type == SubscriptionType.Event)
+            {
+                _thing.RemoveSubscription(_name);
+                this.StopEvent?.Invoke(this, EventArgs.Empty);
+            }
+            if (_type == SubscriptionType.Observation)
+            {
+                _thing.RemoveObservation(_name);
+                this.StopObservation?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 }
