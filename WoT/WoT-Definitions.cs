@@ -37,6 +37,7 @@ namespace WoT.Definitions
     }
     public interface IArraySchema: IDataSchema
     {
+
         DataSchema[] Items { get; set; }
         uint? MinItems { get; set; }
         uint? MaxItems { get; set; }
@@ -105,6 +106,7 @@ namespace WoT.Definitions
     [JsonConverter(typeof(DataSchemaConverter))]
     public class DataSchema : IDataSchema
     {
+        public DataSchema() { }
         [JsonProperty("@type")]
         public string[] AtType { get; set; }
         public string Title { get; set; }
@@ -127,6 +129,7 @@ namespace WoT.Definitions
     }
     public class ArraySchema : DataSchema, IArraySchema
     {
+        public ArraySchema() { }
         public new readonly string Type = "array";
         public DataSchema[] Items { get; set; }
         public uint? MinItems { get; set; }
@@ -134,6 +137,7 @@ namespace WoT.Definitions
     }
     public class BooleanSchema : DataSchema, IBooleanSchema
     {
+        public BooleanSchema() { }
         public new readonly string Type = "boolean";
         public new bool Const { get; set; }
         public new bool Default { get; set; }
@@ -141,6 +145,7 @@ namespace WoT.Definitions
     }
     public class NumberSchema : DataSchema, INumberSchema
     {
+        public NumberSchema() { }
         public new readonly string Type = "number";
         public double? Minimum { get; set; }
         public double? ExclusiveMinimum { get; set; }
@@ -153,6 +158,7 @@ namespace WoT.Definitions
     }
     public class IntegerSchema : DataSchema, IIntegerSchema
     {
+        public IntegerSchema() { }
         public new readonly string Type = "integer";
         public int? Minimum { get; set; }
         public int? ExclusiveMinimum { get; set; }
@@ -165,12 +171,14 @@ namespace WoT.Definitions
     }
     public class ObjectSchema : DataSchema, IObjectSchema
     {
+        public ObjectSchema() { }
         public new readonly string Type = "object";
         public Dictionary<string, DataSchema> Properties { get; set; }
         public string[] Required { get; set; }
     }
     public class StringSchema : DataSchema, IStringSchema
     {
+        public StringSchema() { }
         public new readonly string Type = "string";
         public uint? MinLength { get; set; }
         public uint? MaxLength { get; set; }
@@ -184,11 +192,13 @@ namespace WoT.Definitions
     }
     public class NullSchema : DataSchema
     {
+        public NullSchema() { }
         public new readonly string Type = "null";
 
     }
     public class InteractionAffordance : IInteractionAffordance
     {
+        public InteractionAffordance() { }
         [JsonProperty("@type")]
         public string[] AtType { get; set; }
         public string Title { get; set; }
@@ -202,6 +212,7 @@ namespace WoT.Definitions
     [JsonConverter(typeof(PropertyAffordanceConverter))]
     public class PropertyAffordance : InteractionAffordance, IDataSchema
     {
+        public PropertyAffordance() { }
         public object Const { get; set; }
         public object Default { get; set; }
         public string Unit { get; set; }
@@ -218,6 +229,7 @@ namespace WoT.Definitions
     }
     public class ArrayPropertyAffordance : PropertyAffordance, IArraySchema
     {
+        public ArrayPropertyAffordance() { }
         public new readonly string Type = "array";
         public DataSchema[] Items { get; set; }
         public uint? MinItems { get; set; }
@@ -225,6 +237,7 @@ namespace WoT.Definitions
     }
     public class BooleanPropertyAffordance : PropertyAffordance, IBooleanSchema
     {
+        public BooleanPropertyAffordance() { }
         public new readonly string Type = "boolean";
         public new bool Const { get; set; }
         public new bool Default { get; set; }
@@ -232,6 +245,7 @@ namespace WoT.Definitions
     }
     public class NumberPropertyAffordance : PropertyAffordance, INumberSchema
     {
+        public NumberPropertyAffordance() { }
         public new readonly string Type = "number";
         public double? Minimum { get; set; }
         public double? ExclusiveMinimum { get; set; }
@@ -244,6 +258,7 @@ namespace WoT.Definitions
     }
     public class IntegerPropertyAffordance : PropertyAffordance, IIntegerSchema
     {
+        public IntegerPropertyAffordance() { }
         public new readonly string Type = "integer";
         public int? Minimum { get; set; }
         public int? ExclusiveMinimum { get; set; }
@@ -256,12 +271,14 @@ namespace WoT.Definitions
     }
     public class ObjectPropertyAffordance : PropertyAffordance, IObjectSchema
     {
+        public ObjectPropertyAffordance() { }
         public new readonly string Type = "object";
         public Dictionary<string, DataSchema> Properties { get; set; }
         public string[] Required { get; set; }
     }
     public class StringPropertyAffordance : PropertyAffordance, IStringSchema
     {
+        public StringPropertyAffordance() { }
         public new readonly string Type = "string";
         public uint? MinLength { get; set; }
         public uint? MaxLength { get; set; }
@@ -276,12 +293,14 @@ namespace WoT.Definitions
     public class NullPropertyAffordance : PropertyAffordance
     {
         public new readonly string Type = "null";
+        public NullPropertyAffordance() { }
 
     }
 
     [JsonConverter(typeof(ActionAffordanceConverter))]
     public class ActionAffordance : InteractionAffordance
     {
+        public ActionAffordance() { }
         public DataSchema Input { get; set; }
         public DataSchema Output { get; set; }
         public bool Safe { get; set; }
@@ -295,6 +314,7 @@ namespace WoT.Definitions
     [JsonConverter(typeof(EventAffordanceConverter))]
     public class EventAffordance : InteractionAffordance
     {
+        public EventAffordance() { }
         public DataSchema Subscription { get; set; }
         public DataSchema Data { get; set; }
         public DataSchema DataResponse { get; set; }
@@ -306,6 +326,7 @@ namespace WoT.Definitions
     [JsonConverter(typeof(FormConverter))]
     public class Form
     {
+        public Form() { }
         public Uri Href { get; set; }
         public string ContentType { get; set; }
         public string ContentCoding { get; set; }
@@ -322,20 +343,20 @@ namespace WoT.Definitions
     [JsonConverter(typeof(PropertyFormConverter))]
     public class PropertyForm : Form
     {
-
+        public PropertyForm() { }
 
     }
 
     [JsonConverter(typeof(ActionFormConverter))]
     public class ActionForm : Form
     {
-
+        public ActionForm() { }
     }
 
     [JsonConverter(typeof(EventFormConverter))]
     public class EventForm : Form
     {
-
+        public EventForm() { }
     }
 
 
@@ -409,11 +430,13 @@ namespace WoT.Definitions
 
     public class NoSecurityScheme : SecurityScheme
     {
+        public NoSecurityScheme() { }
         public new readonly string Scheme = "nosec";
     }
 
     public class BasicSecurityScheme : SecurityScheme
     {
+        public BasicSecurityScheme() { }
         public new readonly string Scheme = "basic";
         public string Name { get; set; }
         public string In { get; set; }
@@ -424,6 +447,7 @@ namespace WoT.Definitions
     /// </summary>
     public class ThingDescription
     {
+        public ThingDescription() { }
         /// <summary>
         /// JSON-LD keyword to define short-hand names called terms that are used throughout a TD document.
         /// </summary>
