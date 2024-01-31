@@ -943,6 +943,7 @@ namespace WoT.TDHelpers
             propertyAffordance.Unit = (string)propObj["unit"];
             propertyAffordance.Format = (string)propObj["format"];
             if (propObj["readOnly"] != null) propertyAffordance.ReadOnly = (bool)propObj["readOnly"];
+            if (propObj["observable"] != null) propertyAffordance.Observable = (bool)propObj["observable"];
             if (propObj["writeOnly"] != null) propertyAffordance.WriteOnly = (bool)propObj["writeOnly"];
             if (propObj["titles"] != null) propertyAffordance.Titles = propObj["titles"].ToObject<MultiLanguage>();
             if (propObj["descriptions"] != null) propertyAffordance.Descriptions = propObj["descriptions"].ToObject<MultiLanguage>();
