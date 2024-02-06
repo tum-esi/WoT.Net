@@ -447,49 +447,153 @@ namespace WoT.Definitions
     /// </summary>
     public class ThingDescription
     {
+        /// <summary>
+        /// Base Constructor
+        /// </summary>
         public ThingDescription() { }
+        
+        [JsonProperty("@context")]
+        [JsonConverter(typeof(AtContextConverter))]
         /// <summary>
         /// JSON-LD keyword to define short-hand names called terms that are used throughout a TD document.
         /// </summary>
-        [JsonProperty("@context")]
-        [JsonConverter(typeof(AtContextConverter))]
         public object[] AtContext { get; set; }
+
         [JsonProperty("@type")]
         [JsonConverter(typeof(StringTypeConverter))]
+        ///<summary>
+        ///JSON-LD keyword to label the object with semantic tags (or types).
+        ///<summary>
         public string[] AtType { get; set; }
+
         /// <summary>
         /// Identifier of the Thing in form of a URI [<see href="https://www.rfc-editor.org/rfc/rfc3986">RFC3986</see>] (e.g., stable URI, temporary and mutable URI, URI with local IP address, URN, etc.).
         /// </summary>
         public string Id { get; set; }
+
         /// <summary>
         /// Provides a human-readable title (e.g., display a text for UI representation) based on a default language.
         /// </summary>
         public string Title { get; set; }
+
         /// <summary>
         /// Provides multi-language human-readable titles (e.g., display a text for UI representation in different languages). Also see <seealso cref="MultiLanguage"/>
         /// </summary>
         public MultiLanguage Titles { get; set; }
+
+        /// <summary>
+        /// Provides additional (human-readable) information based on a default language.
+        /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// Can be used to support (human-readable) information in different languages. Also see <seealso cref="MultiLanguage"/>.
+        /// </summary>
         public MultiLanguage Descriptions { get; set; }
+
+        /// <summary>
+        /// Provides version information.
+        /// </summary>
         public VersionInfo? Version { get; set; }
+
+        /// <summary>
+        /// Provides information when the TD instance was created.
+        /// </summary>
         public DateTime? Created { get; set; }
+
+        /// <summary>
+        /// Provides information when the TD instance was last modified.
+        /// </summary>
         public DateTime? Modified { get; set; }
+
+        /// <summary>
+        /// Provides information about the TD maintainer as URI scheme (e.g., mailto [<see href="https://www.rfc-editor.org/rfc/rfc6068">RFC6068</see>], tel [<see href="https://www.rfc-editor.org/rfc/rfc3966">RFC3966</see>], https [<see href="https://www.rfc-editor.org/rfc/rfc9112">RFC9112</see>]).
+        /// </summary>
         public Uri Support { get; set; }
+
+        /// <summary>
+        ///  Define the base URI that is used for all relative URI references throughout a TD document.
+        ///  <remarks>
+        ///  In TD instances, all relative URIs are resolved relative to the base URI using the algorithm defined in [<see href="https://www.rfc-editor.org/rfc/rfc3986">RFC3986</see>].
+        ///  <para>
+        ///  <c>base</c> does not affect the URIs used in <c>@context</c> and the IRIs used within Linked Data [<see href="https://www.w3.org/DesignIssues/LinkedData.html">LINKED-DATA</see>] graphs that are relevant when semantic processing is applied to TD instances.
+        ///  </para>
+        ///  </remarks>
+        /// </summary>
         public Uri Base { get; set; }
+
+        /// <summary>
+        /// All Property-based Interaction Affordances of the Thing.
+        /// </summary>
+        /// <see cref="InteractionAffordance"/>
+        /// <see cref="PropertyAffordance"/>
         public Dictionary<string, PropertyAffordance> Properties { get; set; }
+
+        /// <summary>
+        /// All Action-based Interaction Affordances of the Thing. 
+        /// </summary>
+        /// <see cref="InteractionAffordance"/>
+        /// <see cref="ActionAffordance"/>
         public Dictionary<string, ActionAffordance> Actions { get; set; }
+
+        /// <summary>
+        /// All Event-based Interaction Affordances of the Thing. 
+        /// </summary>
+        /// <see cref="InteractionAffordance"/>
+        /// <see cref="EventAffordance"/>
         public Dictionary<string, EventAffordance> Events { get; set; }
+
+        /// <summary>
+        /// Provides Web links to arbitrary resources that relate to the specified Thing Description.
+        /// </summary>
         public Link[] Links { get; set; }
+
+        /// <summary>
+        /// Set of form hypermedia controls that describe how an operation can be performed. Forms are serializations of Protocol Bindings. Thing level forms are used to describe endpoints for a group of interaction affordances.
+        /// </summary>
         public Form[] Forms { get; set; }
+
         [JsonConverter(typeof(StringTypeConverter))]
+        /// <summary>
+        /// Set of security definition names, chosen from those defined in <c>securityDefinitions</c>. These must all be satisfied for access to resources.
+        /// </summary>
+        /// <seealso cref="SecurityDefinitions"/>
         public string[] Security { get; set; }
+
+        /// <summary>
+        /// Set of named security configurations (<c>definitions</c> only). Not actually applied unless names are used in a security name-value pair.
+        /// </summary>
+        /// <seealso cref="Security"/>
+        /// <seealso cref="SecurityScheme"/>
         public Dictionary<string, SecurityScheme> SecurityDefinitions { get; set; }
+
         [JsonConverter(typeof(StringTypeConverter))]
+        /// <summary>
+        /// Indicates the WoT Profile mechanisms followed by this Thing Description and the corresponding Thing implementation.
+        /// </summary>
         public string[] Profile { get; set; }
+
+        /// <summary>
+        /// Set of named data schemas. To be used in a <c>schema</c> name-value pair inside an <c>AdditionalExpectedResponse</c> object.
+        /// </summary>
+        /// <seealso cref="DataSchema"/>
+        /// <seealso cref="AdditionalExpectedResponse"/>
         public Dictionary<string, DataSchema> SchemaDefinitions { get; set; }
+
+        /// <summary>
+        /// Define URI template variables according to [<see href="https://www.rfc-editor.org/rfc/rfc6570">RFC6570</see>] as collection based on <seealso cref="DataSchema">DataSchema</seealso> declarations.
+        /// </summary>
+        /// <remark>
+        /// The Thing level <c>uriVariables</c> can be used in Thing level <c>forms</c> or in Interaction Affordances.
+        /// The individual variables DataSchema cannot be an ObjectSchema or an ArraySchema since each variable needs to be serialized to a string inside the <c>href</c> upon the execution of the operation.
+        /// If the same variable is both declared in Thing level uriVariables and in Interaction Affordance level, the Interaction Affordance level variable takes precedence. 
+        /// </remarks>
+        /// <seealso cref="DataSchema"/>
         public Dictionary<string, DataSchema> UriVariables { get; set; }
 
-        //any properties not matching the explicitly defined in properties will be captured in the AdditionalProperties dictionary.
+        /// <summary>
+        /// Any properties not matching the explicitly defined in properties will be captured in the AdditionalProperties dictionary.
+        /// </summary>
         [JsonExtensionData]
         public Dictionary<string, JToken> AdditionalProperties { get; set; }
     }
