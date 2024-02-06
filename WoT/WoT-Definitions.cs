@@ -7,15 +7,21 @@ using WoT.TDHelpers;
 namespace WoT.Definitions
 {
     /// <summary>
-    /// A Map providing a set of human-readable texts in different languages identified by language tags described in [<see href="https://www.rfc-editor.org/rfc/rfc5646">BCP47</see>]. See 6.3.2 Human-Readable Metadata for example usages of this container in a Thing Description instance.
-    /// <para>
-    ///  Each name of the MultiLanguage Map MUST be a language tag as defined in [<see href="https://www.rfc-editor.org/rfc/rfc5646">BCP47</see>]. Each value of the MultiLanguage Map MUST be of type string.
-    /// </para>
+    /// A Map providing a set of human-readable texts in different languages identified by language tags described in [<see href="https://www.rfc-editor.org/rfc/rfc5646">BCP47</see>].
     /// </summary>
+    /// <remarks>
+    ///  <see href="https://www.w3.org/TR/wot-thing-description11/#titles-descriptions-serialization-json">See 6.3.2 Human-Readable Metadata</see> for example usages of this container in a Thing Description instance.
+    ///  Each name of the MultiLanguage Map MUST be a language tag as defined in [<see href="https://www.rfc-editor.org/rfc/rfc5646">BCP47</see>].
+    ///  Each value of the MultiLanguage Map MUST be of type string.
+    /// </remarks>
     public class MultiLanguage : Dictionary<string, string>
     {
 
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IDataSchema
     {
         [JsonProperty("@type")]
@@ -103,25 +109,103 @@ namespace WoT.Definitions
 
     }
 
+
+    /// <summary>
+    /// Metadata that describes the data format used. It can be used for validation.
+    /// </summary>
     [JsonConverter(typeof(DataSchemaConverter))]
     public class DataSchema : IDataSchema
     {
+        /// <summary>
+        /// Base Constructor
+        /// </summary>
         public DataSchema() { }
+
+        /// <summary>
+        /// JSON-LD keyword to label the object with semantic tags (or types)
+        /// </summary>
         [JsonProperty("@type")]
         public string[] AtType { get; set; }
+
+        /// <summary>
+        /// Provides a human-readable title (e.g., display a text for UI representation) based on a default language.
+        /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Provides multi-language human-readable titles (e.g., display a text for UI representation in different languages).
+        /// </summary>
+        /// <seealso cref="MultiLanguage"/>
         public MultiLanguage Titles { get; set; }
+
+        /// <summary>
+        /// Provides additional (human-readable) information based on a default language.
+        /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// Can be used to support (human-readable) information in different languages.
+        /// </summary>
+        /// <seealso cref="MultiLanguage"/>
         public MultiLanguage Descriptions { get; set; }
+
+        /// <summary>
+        /// Provides a constant value.
+        /// </summary>
         public object Const { get; set; }
+
+        /// <summary>
+        /// Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        /// The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public object Default { get; set; }
+
+        /// <summary>
+        /// Provides unit information that is used, e.g., in international science, engineering, and business.
+        /// </summary>
+        /// <remarks>
+        /// To preserve uniqueness, it is recommended that the value of the unit points to a semantic definition (also see Section <see href="https://www.w3.org/TR/wot-thing-description11/#semantic-annotations-example-version-units">Semantic Annotations</see>).
+        /// </remarks>
         public string Unit { get; set; }
+
+        /// <summary>
+        /// Used to ensure that the data is valid against one of the specified schemas in the array.
+        /// </summary>
+        /// <remarks>
+        /// This can be used to describe multiple input or output schemas.
+        /// </remarks>
         public IDataSchema[] OneOf { get; set; }
+
+        /// <summary>
+        /// Used to ensure that the data is valid against all of the specified schemas in the array.
+        /// </summary>
         public IDataSchema[] AllOf { get; set; }
+
+        /// <summary>
+        /// Restricted set of values provided as an array.
+        /// </summary>
         public object[] Enum { get; set; }
+
+        /// <summary>
+        /// Boolean value that is a hint to indicate whether a property interaction / value is read only (=true) or not (=false).
+        /// </summary>
         public bool ReadOnly { get; set; }
+
+        /// <summary>
+        /// Boolean value that is a hint to indicate whether a property interaction / value is write only (=true) or not (=false).
+        /// </summary>
         public bool WriteOnly { get; set; }
+
+        /// <summary>
+        /// Allows validation based on a format pattern such as "date-time", "email", "uri", etc.
+        /// </summary>
         public string Format { get; set; }
+
+        /// <summary>
+        /// Assignment of JSON-based data types compatible with JSON Schema (one of boolean, integer, number, string, object, array, or null).
+        /// </summary>
         public string Type { get; }
 
 
@@ -451,19 +535,19 @@ namespace WoT.Definitions
         /// Base Constructor
         /// </summary>
         public ThingDescription() { }
-        
-        [JsonProperty("@context")]
-        [JsonConverter(typeof(AtContextConverter))]
+
         /// <summary>
         /// JSON-LD keyword to define short-hand names called terms that are used throughout a TD document.
         /// </summary>
+        [JsonProperty("@context")]
+        [JsonConverter(typeof(AtContextConverter))]
         public object[] AtContext { get; set; }
 
-        [JsonProperty("@type")]
-        [JsonConverter(typeof(StringTypeConverter))]
         ///<summary>
         ///JSON-LD keyword to label the object with semantic tags (or types).
         ///<summary>
+        [JsonProperty("@type")]
+        [JsonConverter(typeof(StringTypeConverter))]
         public string[] AtType { get; set; }
 
         /// <summary>
