@@ -38,6 +38,8 @@
     "globalMetadata": {
       "_appName": "WoT.Net",
       "_appTitle": "WoT.Net",
+      "_appLogoPath":"images/wot_dot_net_logo.png",
+      "_appFaviconPath":"images/favicon.ico",
       "_enableSearch": true,
       "pdf": true
     }
