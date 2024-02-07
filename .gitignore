@@ -3,3 +3,7 @@
 **/bin
 **/obj
 .DS_Store
+
+# Ignore documentation Generation Output
+WoT/docGeneration/api
+WoT/docGeneration/_site
