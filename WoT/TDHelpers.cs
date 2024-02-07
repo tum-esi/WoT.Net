@@ -24,7 +24,6 @@ namespace WoT.TDHelpers
             if (value.Default != null)          jo.Add("default", JToken.FromObject(value.Default));
             if (value.Unit != null)             jo.Add("unit", JToken.FromObject(value.Unit));
             if (value.OneOf != null)            jo.Add("oneOf", JToken.FromObject(value.OneOf));
-            if (value.AllOf != null)            jo.Add("allOf", JToken.FromObject(value.AllOf));
             if (value.Enum != null)             jo.Add("enum", JToken.FromObject(value.Enum));
             if (value.Format != null)           jo.Add("format", JToken.FromObject(value.Format));
             if (value.Type != null)             jo.Add("type", JToken.FromObject(value.Type));
@@ -145,9 +144,9 @@ namespace WoT.TDHelpers
             }
 
 
-            if (schemaObj["const"] != null) schema.Const = schemaObj["const"];
-            if (schemaObj["default"] != null) schema.Default = schemaObj["default"];
-            if (schemaObj["enum"] != null) schema.Enum = schemaObj["enum"].ToObject<Object[]>();
+            if (schemaObj["const"] != null) schema.Const = schemaObj["const"].ToObject<List<object>>();
+            if (schemaObj["default"] != null) schema.Default = schemaObj["default"].ToObject<List<object>>();
+            if (schemaObj["enum"] != null) schema.Enum = schemaObj["enum"].ToObject<List<object>[]>();
 
             return schema;
         }
@@ -194,9 +193,9 @@ namespace WoT.TDHelpers
             if (schemaObj["required"] != null) schema.Required = schemaObj["required"].ToObject<string[]>();
             if (schemaObj["properties"] != null) schema.Properties = serializer.Deserialize(new JTokenReader(schemaObj["properties"]), objectType: typeof(Dictionary<string, DataSchema>)) as Dictionary<string, DataSchema>;
 
-            if (schemaObj["const"] != null) schema.Const = schemaObj["const"];
-            if (schemaObj["default"] != null) schema.Default = schemaObj["default"];
-            if (schemaObj["enum"] != null) schema.Enum = schemaObj["enum"].ToObject<Object[]>();
+            if (schemaObj["const"] != null) schema.Const = schemaObj["const"].ToObject<Dictionary<string, object>>();
+            if (schemaObj["default"] != null) schema.Default = schemaObj["default"].ToObject<Dictionary<string, object>>();
+            if (schemaObj["enum"] != null) schema.Enum = schemaObj["enum"].ToObject<Dictionary<string, object>[]>();
 
             return schema;
         }
@@ -245,7 +244,6 @@ namespace WoT.TDHelpers
             if (schemaObj["writeOnly"] != null) schema.WriteOnly = (bool)schemaObj["writeOnly"];
             if (schemaObj["titles"] != null) schema.Titles = schemaObj["titles"].ToObject<MultiLanguage>();
             if (schemaObj["descriptions"] != null) schema.Descriptions = schemaObj["descriptions"].ToObject<MultiLanguage>();
-            if (schemaObj["allOf"] != null) schema.AllOf = serializer.Deserialize(new JTokenReader(schemaObj["allOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
             if (schemaObj["oneOf"] != null) schema.OneOf = serializer.Deserialize(new JTokenReader(schemaObj["oneOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
 
             if (schemaObj["@type"] != null)
@@ -378,16 +376,21 @@ namespace WoT.TDHelpers
             schema.OriginalJson = schemaObj.ToString();
             if (schemaObj["contentCoding"] != null) schema.ContentCoding = schemaObj["contentCoding"].ToObject<string>();
             if (schemaObj["subprotocol"] != null) schema.Subprotocol = schemaObj["subprotocol"].ToObject<string>();
-            if (schemaObj["additionalExpectedResponse"] != null)
+
+            if (schemaObj["response"] != null)
             {
-                schema.AdditionalExpectedResponse = schemaObj["additionalExpectedResponse"].ToObject<AdditionalExpectedResponse>();
-            }
-            else
-            { //Default value handling
-                string contentType = schema.ContentType;
-                schema.AdditionalExpectedResponse = new AdditionalExpectedResponse(contentType);
+                schema.Response = schemaObj["response"].ToObject<ExpectedResponse>();
             }
 
+            if (schemaObj["additionalExpectedResponse"] != null)
+            {
+                schema.AdditionalExpectedResponse = schemaObj["additionalExpectedResponse"].ToObject<AdditionalExpectedResponse[]>();
+                //Default value handling
+                for (int i = 0; i < schema.AdditionalExpectedResponse.Length; i++)
+                {
+                    if (schema.AdditionalExpectedResponse[i].ContentType == null) schema.AdditionalExpectedResponse[i].ContentType = schema.ContentType;
+                }
+            }
 
             if (schemaObj["security"] != null) schema.Security = newSerializer.Deserialize<string[]>(new JTokenReader(schemaObj["security"]));
 
@@ -444,14 +447,19 @@ namespace WoT.TDHelpers
             if (schemaObj["contentCoding"] != null) schema.ContentCoding = schemaObj["contentCoding"].ToObject<string>();
             if (schemaObj["subprotocol"] != null) schema.Subprotocol = schemaObj["subprotocol"].ToObject<string>();
 
+            if (schemaObj["response"] != null)
+            {
+                schema.Response = schemaObj["response"].ToObject<ExpectedResponse>();
+            }
+
             if (schemaObj["additionalExpectedResponse"] != null)
             {
-                schema.AdditionalExpectedResponse = schemaObj["additionalExpectedResponse"].ToObject<AdditionalExpectedResponse>();
-            }
-            else
-            {//Default value handling
-                string contentType = schema.ContentType;
-                schema.AdditionalExpectedResponse = new AdditionalExpectedResponse(contentType);
+                schema.AdditionalExpectedResponse = schemaObj["additionalExpectedResponse"].ToObject<AdditionalExpectedResponse[]>();
+                //Default value handling
+                for (int i = 0; i < schema.AdditionalExpectedResponse.Length; i++)
+                {
+                    if (schema.AdditionalExpectedResponse[i].ContentType == null) schema.AdditionalExpectedResponse[i].ContentType = schema.ContentType;
+                }
             }
 
             schema.OriginalJson = schemaObj.ToString();
@@ -514,14 +522,19 @@ namespace WoT.TDHelpers
             if (schemaObj["contentCoding"] != null) schema.ContentCoding = schemaObj["contentCoding"].ToObject<string>();
             if (schemaObj["subprotocol"] != null) schema.Subprotocol = schemaObj["subprotocol"].ToObject<string>();
 
+            if (schemaObj["response"] != null)
+            {
+                schema.Response = schemaObj["response"].ToObject<ExpectedResponse>();
+            }
+
             if (schemaObj["additionalExpectedResponse"] != null)
             {
-                schema.AdditionalExpectedResponse = schemaObj["additionalExpectedResponse"].ToObject<AdditionalExpectedResponse>();
-            }
-            else
-            {//Default value handling
-                string contentType = schema.ContentType;
-                schema.AdditionalExpectedResponse = new AdditionalExpectedResponse(contentType);
+                schema.AdditionalExpectedResponse = schemaObj["additionalExpectedResponse"].ToObject<AdditionalExpectedResponse[]>();
+                //Default value handling
+                for (int i = 0; i < schema.AdditionalExpectedResponse.Length; i++)
+                {
+                    if (schema.AdditionalExpectedResponse[i].ContentType == null) schema.AdditionalExpectedResponse[i].ContentType = schema.ContentType;
+                }
             }
 
             schema.OriginalJson = schemaObj.ToString();
@@ -588,14 +601,19 @@ namespace WoT.TDHelpers
             if (schemaObj["contentCoding"] != null) schema.ContentCoding = schemaObj["contentCoding"].ToObject<string>();
             if (schemaObj["subprotocol"] != null) schema.Subprotocol = schemaObj["subprotocol"].ToObject<string>();
 
+            if (schemaObj["response"] != null)
+            {
+                schema.Response = schemaObj["response"].ToObject<ExpectedResponse>();
+            }
+
             if (schemaObj["additionalExpectedResponse"] != null)
             {
-                schema.AdditionalExpectedResponse = schemaObj["additionalExpectedResponse"].ToObject<AdditionalExpectedResponse>();
-            }
-            else
-            {//Default value handling
-                string contentType = schema.ContentType;
-                schema.AdditionalExpectedResponse = new AdditionalExpectedResponse(contentType);
+                schema.AdditionalExpectedResponse = schemaObj["additionalExpectedResponse"].ToObject<AdditionalExpectedResponse[]>();
+                //Default value handling
+                for (int i = 0; i < schema.AdditionalExpectedResponse.Length; i++)
+                {
+                    if (schema.AdditionalExpectedResponse[i].ContentType == null) schema.AdditionalExpectedResponse[i].ContentType = schema.ContentType;
+                }
             }
 
             schema.OriginalJson = schemaObj.ToString();
@@ -852,9 +870,9 @@ namespace WoT.TDHelpers
             }
 
 
-            if (propObj["const"] != null) schema.Const = propObj["const"];
-            if (propObj["default"] != null) schema.Default = propObj["default"];
-            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<Object[]>();
+            if (propObj["const"] != null) schema.Const = propObj["const"].ToObject<List<object>>();
+            if (propObj["default"] != null) schema.Default = propObj["default"].ToObject<List<object>>();
+            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<List<object>[]>();
 
             return schema;
         }
@@ -901,9 +919,9 @@ namespace WoT.TDHelpers
             if (propObj["required"] != null) schema.Required = propObj["required"].ToObject<string[]>();
             if (propObj["properties"] != null) schema.Properties = serializer.Deserialize(new JTokenReader(propObj["properties"]), objectType: typeof(Dictionary<string, DataSchema>)) as Dictionary<string, DataSchema>;
 
-            if (propObj["const"] != null) schema.Const = propObj["const"];
-            if (propObj["default"] != null) schema.Default = propObj["default"];
-            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<Object[]>();
+            if (propObj["const"] != null) schema.Const = propObj["const"].ToObject<Dictionary<string, object>>();
+            if (propObj["default"] != null) schema.Default = propObj["default"].ToObject<Dictionary<string, object>>();
+            if (propObj["enum"] != null) schema.Enum = propObj["enum"].ToObject<Dictionary<string, object>[]>();
 
             return schema;
         }
@@ -947,7 +965,6 @@ namespace WoT.TDHelpers
             if (propObj["writeOnly"] != null) propertyAffordance.WriteOnly = (bool)propObj["writeOnly"];
             if (propObj["titles"] != null) propertyAffordance.Titles = propObj["titles"].ToObject<MultiLanguage>();
             if (propObj["descriptions"] != null) propertyAffordance.Descriptions = propObj["descriptions"].ToObject<MultiLanguage>();
-            if (propObj["allOf"] != null) propertyAffordance.AllOf = serializer.Deserialize(new JTokenReader(propObj["allOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
             if (propObj["oneOf"] != null) propertyAffordance.OneOf = serializer.Deserialize(new JTokenReader(propObj["oneOf"]), objectType: typeof(DataSchema[])) as DataSchema[];
             if (propObj["forms"] != null) propertyAffordance.Forms = serializer.Deserialize(new JTokenReader(propObj["forms"]), objectType: typeof(PropertyForm[])) as PropertyForm[];
             if (propObj["@type"] != null)
