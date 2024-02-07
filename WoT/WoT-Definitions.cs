@@ -10,7 +10,7 @@ namespace WoT.Definitions
     /// A Map providing a set of human-readable texts in different languages identified by language tags described in [<see href="https://www.rfc-editor.org/rfc/rfc5646">BCP47</see>].
     /// </summary>
     /// <remarks>
-    ///  <see href="https://www.w3.org/TR/wot-thing-description11/#titles-descriptions-serialization-json">See 6.3.2 Human-Readable Metadata</see> for example usages of this container in a Thing Description instance.
+    ///  See <see href="https://www.w3.org/TR/wot-thing-description11/#titles-descriptions-serialization-json">6.3.2 Human-Readable Metadata</see> for example usages of this container in a Thing Description instance.
     ///  Each name of the MultiLanguage Map MUST be a language tag as defined in [<see href="https://www.rfc-editor.org/rfc/rfc5646">BCP47</see>].
     ///  Each value of the MultiLanguage Map MUST be of type string.
     /// </remarks>
@@ -30,10 +30,25 @@ namespace WoT.Definitions
         MultiLanguage Titles { get; set; }
         string Description { get; set; }
         MultiLanguage Descriptions { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         object Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         object Default { get; set; }
         string Unit { get; set; }
         IDataSchema[] OneOf { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         object[] Enum { get; set; }
         bool ReadOnly { get; set; }
         bool WriteOnly { get; set; }
@@ -41,57 +56,153 @@ namespace WoT.Definitions
         string Type { get; }
 
     }
-    public interface IArraySchema: IDataSchema
+    public interface IArraySchema : IDataSchema
     {
 
         DataSchema[] Items { get; set; }
         uint? MinItems { get; set; }
         uint? MaxItems { get; set; }
 
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
+        new List<object> Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        new List<object> Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        new List<object>[] Enum { get; set; }
+
     }
-    public interface IBooleanSchema
+    public interface IBooleanSchema : IDataSchema
     {
-        bool Const { get; set; }
-        bool Default { get; set; }
-        bool[] Enum { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
+        new bool Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        new bool Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        new bool[] Enum { get; set; }
     }
-    public interface INumberSchema
+    public interface INumberSchema : IDataSchema
     {
         double? Minimum { get; set; }
         double? ExclusiveMinimum { get; set; }
         double? Maximum { get; set; }
         double? ExclusiveMaximum { get; set; }
         double? MultipleOf { get; set; }
-        double? Const { get; set; }
-        double? Default { get; set; }
-        double[] Enum { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
+        new double? Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        new double? Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        new double[] Enum { get; set; }
     }
-    public interface IIntegerSchema
+    public interface IIntegerSchema : IDataSchema
     {
         int? Minimum { get; set; }
         int? ExclusiveMinimum { get; set; }
         int? Maximum { get; set; }
         int? ExclusiveMaximum { get; set; }
         int? MultipleOf { get; set; }
-        int? Const { get; set; }
-        int? Default { get; set; }
-        int[] Enum { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
+        new int? Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        new int? Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        new int[] Enum { get; set; }
     }
-    public interface IObjectSchema
+    public interface IObjectSchema : IDataSchema
     {
         Dictionary<string, DataSchema> Properties { get; set; }
         string[] Required { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
+        new Dictionary<string, DataSchema> Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        new Dictionary<string, DataSchema> Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        new Dictionary<string, DataSchema>[] Enum { get; set; }
     }
-    public interface IStringSchema
+    public interface IStringSchema : IDataSchema
     {
         uint? MinLength { get; set; }
         uint? MaxLength { get; set; }
         string Pattern { get; set; }
         string ContentEncoding { get; set; }
         string ContentMediaType { get; set; }
-        string Const { get; set; }
-        string Default { get; set; }
-        string[] Enum { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
+        new string Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        new string Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        new string[] Enum { get; set; }
 
     }
     public interface IInteractionAffordance
@@ -117,166 +228,462 @@ namespace WoT.Definitions
     public class DataSchema : IDataSchema
     {
         /// <summary>
-        /// Base Constructor
+        ///     Base Constructor
         /// </summary>
         public DataSchema() { }
 
         /// <summary>
-        /// JSON-LD keyword to label the object with semantic tags (or types)
+        ///     JSON-LD keyword to label the object with semantic tags (or types)
         /// </summary>
         [JsonProperty("@type")]
         public string[] AtType { get; set; }
 
         /// <summary>
-        /// Provides a human-readable title (e.g., display a text for UI representation) based on a default language.
+        ///     Provides a human-readable title (e.g., display a text for UI representation) based on a default language.
         /// </summary>
         public string Title { get; set; }
 
         /// <summary>
-        /// Provides multi-language human-readable titles (e.g., display a text for UI representation in different languages).
+        ///     Provides multi-language human-readable titles (e.g., display a text for UI representation in different languages).
         /// </summary>
         /// <seealso cref="MultiLanguage"/>
         public MultiLanguage Titles { get; set; }
 
         /// <summary>
-        /// Provides additional (human-readable) information based on a default language.
+        ///     Provides additional (human-readable) information based on a default language.
         /// </summary>
         public string Description { get; set; }
 
         /// <summary>
-        /// Can be used to support (human-readable) information in different languages.
+        ///     Can be used to support (human-readable) information in different languages.
         /// </summary>
         /// <seealso cref="MultiLanguage"/>
         public MultiLanguage Descriptions { get; set; }
 
         /// <summary>
-        /// Provides a constant value.
+        ///     Provides a constant value.
         /// </summary>
         public object Const { get; set; }
 
         /// <summary>
-        /// Supply a default value. 
+        ///     Supply a default value. 
         /// </summary>
         /// <remarks>
-        /// The value SHOULD validate against the data schema in which it resides.
+        ///     The value SHOULD validate against the data schema in which it resides.
         /// </remarks>
         public object Default { get; set; }
 
         /// <summary>
-        /// Provides unit information that is used, e.g., in international science, engineering, and business.
+        ///     Provides unit information that is used, e.g., in international science, engineering, and business.
         /// </summary>
         /// <remarks>
-        /// To preserve uniqueness, it is recommended that the value of the unit points to a semantic definition (also see Section <see href="https://www.w3.org/TR/wot-thing-description11/#semantic-annotations-example-version-units">Semantic Annotations</see>).
+        ///     To preserve uniqueness, it is recommended that the value of the unit points to a semantic definition (also see Section <see href="https://www.w3.org/TR/wot-thing-description11/#semantic-annotations-example-version-units">Semantic Annotations</see>).
         /// </remarks>
         public string Unit { get; set; }
 
         /// <summary>
-        /// Used to ensure that the data is valid against one of the specified schemas in the array.
+        ///     Used to ensure that the data is valid against one of the specified schemas in the array.
         /// </summary>
         /// <remarks>
-        /// This can be used to describe multiple input or output schemas.
+        ///     This can be used to describe multiple input or output schemas.
         /// </remarks>
         public IDataSchema[] OneOf { get; set; }
 
         /// <summary>
-        /// Used to ensure that the data is valid against all of the specified schemas in the array.
+        ///     Used to ensure that the data is valid against all of the specified schemas in the array.
         /// </summary>
         public IDataSchema[] AllOf { get; set; }
 
         /// <summary>
-        /// Restricted set of values provided as an array.
+        ///     Restricted set of values provided as an array.
         /// </summary>
         public object[] Enum { get; set; }
 
         /// <summary>
-        /// Boolean value that is a hint to indicate whether a property interaction / value is read only (=true) or not (=false).
+        ///     Boolean value that is a hint to indicate whether a property interaction / value is read only (=true) or not (=false).
         /// </summary>
         public bool ReadOnly { get; set; }
 
         /// <summary>
-        /// Boolean value that is a hint to indicate whether a property interaction / value is write only (=true) or not (=false).
+        ///     Boolean value that is a hint to indicate whether a property interaction / value is write only (=true) or not (=false).
         /// </summary>
         public bool WriteOnly { get; set; }
 
         /// <summary>
-        /// Allows validation based on a format pattern such as "date-time", "email", "uri", etc.
+        ///     Allows validation based on a format pattern such as "date-time", "email", "uri", etc.
         /// </summary>
         public string Format { get; set; }
 
         /// <summary>
-        /// Assignment of JSON-based data types compatible with JSON Schema (one of boolean, integer, number, string, object, array, or null).
+        ///     Assignment of JSON-based data types compatible with JSON Schema (one of boolean, integer, number, string, object, array, or null).
         /// </summary>
         public string Type { get; }
 
 
 
     }
+
+    /// <summary>
+    ///     Metadata describing data of type <c>array</c>.
+    /// </summary>
+    /// <remarks>
+    ///     This Subclass is indicated by the value <c>"array"</c> assigned to <c>Type</c> in <see cref="DataSchema">DataSchema</see> instances.
+    /// </remarks>
     public class ArraySchema : DataSchema, IArraySchema
     {
+        /// <summary>
+        ///     Base Constructor
+        /// </summary>
         public ArraySchema() { }
+
+        /// <summary>
+        ///     Assignment of JSON-based data types compatible with JSON Schema.
+        /// </summary>
+        /// <value>
+        ///     <c>"array"</c>
+        /// </value>
         public new readonly string Type = "array";
+
+        /// <summary>
+        ///  	Used to define the characteristics of an array.
+        /// </summary>
         public DataSchema[] Items { get; set; }
+
+        /// <summary>
+        ///     Defines the minimum number of items that have to be in the array.
+        /// </summary>
         public uint? MinItems { get; set; }
+
+        /// <summary>
+        ///     Defines the maximum number of items that have to be in the array.
+        /// </summary>
         public uint? MaxItems { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
+        public new List<object> Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        public new List<object> Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        public new List<object>[] Enum { get; set; }
     }
+
+    /// <summary>
+    ///     Metadata describing data of type <c>boolean</c>.
+    /// </summary>
+    /// <remarks>
+    ///     This Subclass is indicated by the value <c>"boolean"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
+    /// </remarks>
     public class BooleanSchema : DataSchema, IBooleanSchema
     {
+        /// <summary>
+        ///     Base Constructor
+        /// </summary>
         public BooleanSchema() { }
+
+        /// <summary>
+        ///     Assignment of JSON-based data types compatible with JSON Schema.
+        /// </summary>
+        /// <value>
+        ///     <c>"boolean"</c>
+        /// </value>
         public new readonly string Type = "boolean";
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         public new bool Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public new bool Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         public new bool[] Enum { get; set; }
     }
+
+    /// <summary>
+    ///     Metadata describing data of type <c>number</c>.
+    /// </summary>
+    /// <remarks>
+    ///     This Subclass is indicated by the value <c>"number"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
+    /// </remarks>
     public class NumberSchema : DataSchema, INumberSchema
     {
+        /// <summary>
+        ///     Base Constructor
+        /// </summary>
         public NumberSchema() { }
+
+        /// <summary>
+        ///     Assignment of JSON-based data types compatible with JSON Schema.
+        /// </summary>
+        /// <value>
+        ///     <c>"number"</c>
+        /// </value>
         public new readonly string Type = "number";
+
+        /// <summary>
+        ///     Specifies a minimum numeric value, representing an inclusive lower limit.
+        /// </summary>
         public double? Minimum { get; set; }
+
+        /// <summary>
+        /// Specifies a minimum numeric value, representing an exclusive lower limit.
+        /// </summary>
         public double? ExclusiveMinimum { get; set; }
+
+        /// <summary>
+        /// Specifies a maximum numeric value, representing an inclusive upper limit.
+        /// </summary>
         public double? Maximum { get; set; }
+
+        /// <summary>
+        /// Specifies a maximum numeric value, representing an exclusive upper limit.
+        /// </summary>
         public double? ExclusiveMaximum { get; set; }
+
+        /// <summary>
+        ///  	Specifies the multipleOf value number. The value must strictly greater than 0.
+        /// </summary>
         public double? MultipleOf { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         public new double? Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public new double? Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         public new double[] Enum { get; set; }  
     }
+
+    /// <summary>
+    ///     Metadata describing data of type <c>integer</c>.
+    /// </summary>
+    /// <remarks>
+    ///     This Subclass is indicated by the value <c>"integer"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
+    /// </remarks>
     public class IntegerSchema : DataSchema, IIntegerSchema
     {
+        /// <summary>
+        ///     Base Constructor
+        /// </summary>
         public IntegerSchema() { }
+
+        /// <summary>
+        ///     Assignment of JSON-based data types compatible with JSON Schema.
+        /// </summary>
+        /// <value>
+        ///     <c>"integer"</c>
+        /// </value>
         public new readonly string Type = "integer";
+
+        /// <summary>
+        ///     Specifies a minimum numeric value, representing an inclusive lower limit.
+        /// </summary>
         public int? Minimum { get; set; }
+
+        /// <summary>
+        /// Specifies a minimum numeric value, representing an exclusive lower limit.
+        /// </summary>
         public int? ExclusiveMinimum { get; set; }
+
+        /// <summary>
+        /// Specifies a maximum numeric value, representing an inclusive upper limit.
+        /// </summary>
         public int? Maximum { get; set; }
+
+        /// <summary>
+        /// Specifies a maximum numeric value, representing an exclusive upper limit.
+        /// </summary>
         public int? ExclusiveMaximum { get; set; }
+
+        /// <summary>
+        ///  	Specifies the multipleOf value number. The value must strictly greater than 0.
+        /// </summary>
         public int? MultipleOf { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         public new int? Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public new int? Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         public new int[] Enum { get; set; }
     }
+
+    /// <summary>
+    ///     Metadata describing data of type <c>object</c>.
+    /// </summary>
+    /// <remarks>
+    ///     This Subclass is indicated by the value <c>"object"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
+    ///     JSON <c>object</c> type is NOT the same as <c>object</c> type in C#. JSON <c>object</c> map to <c>Dictionary<string, object></c>.
+    /// </remarks>
     public class ObjectSchema : DataSchema, IObjectSchema
     {
+        /// <summary>
+        ///     Base Constructor
+        /// </summary>
         public ObjectSchema() { }
+
+        /// <summary>
+        ///     Assignment of JSON-based data types compatible with JSON Schema.
+        /// </summary>
+        /// <value>
+        ///     <c>"integer"</c>
+        /// </value>
         public new readonly string Type = "object";
+
+        /// <summary>
+        /// Data schema nested definitions.
+        /// </summary>
         public Dictionary<string, DataSchema> Properties { get; set; }
+
+        /// <summary>
+        /// Defines which members of the object type are mandatory, i.e. which members are mandatory in the payload that is to be sent (e.g. <c>input</c> of <c>invokeaction</c>, <c>writeproperty</c>) and what members will be definitely delivered in the payload that is being received (e.g. <c>output</c> of <c>invokeaction</c>, <c>readproperty</c>)
+        /// </summary>
         public string[] Required { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
+        public new Dictionary<string, DataSchema> Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        public new Dictionary<string, DataSchema> Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        public new Dictionary<string, DataSchema>[] Enum { get; set; }
     }
+
+    /// <summary>
+    ///     Metadata describing data of type <c>string</c>.
+    /// </summary>
+    /// <remarks>
+    ///     This Subclass is indicated by the value <c>"string"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
+    /// </remarks>
     public class StringSchema : DataSchema, IStringSchema
     {
+        /// <summary>
+        ///     Base Constructor
+        /// </summary>
         public StringSchema() { }
+
+        /// <summary>
+        ///     Assignment of JSON-based data types compatible with JSON Schema.
+        /// </summary>
+        /// <value>
+        ///     <c>"string"</c>
+        /// </value>
         public new readonly string Type = "string";
+
+        /// <summary>
+        /// Specifies the minimum length of a string.
+        /// </summary>
         public uint? MinLength { get; set; }
+
+        /// <summary>
+        /// Specifies the maximum length of a string.
+        /// </summary>
         public uint? MaxLength { get; set; }
+
+        /// <summary>
+        /// Provides a regular expression to express constraints of the string value. The regular expression must follow the [<see href="https://tc39.es/ecma262/multipage/">ECMA-262</see>] dialect.
+        /// </summary>
         public string Pattern { get; set; }
+
+        /// <summary>
+        /// Specifies the encoding used to store the contents, as specified in [<see href="https://www.rfc-editor.org/rfc/rfc2045">RFC2045</see>] (Section 6.1) and [<see href="https://www.rfc-editor.org/rfc/rfc4648">RFC4648</see>].
+        /// </summary>
         public string ContentEncoding { get; set; }
+
+        /// <summary>
+        /// Specifies the MIME type of the contents of a string value, as described in [<see href="https://www.rfc-editor.org/rfc/rfc2046">RFC2046</see>].
+        /// </summary>
         public string ContentMediaType { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         public new string Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public new string Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         public new string[] Enum { get; set; }
 
     }
+
+    /// <summary>
+    ///     Metadata describing data of type <c>null</c>.
+    /// </summary>
+    /// <remarks>
+    ///     This Subclass is indicated by the value <c>"null"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
+    ///     This Subclass describes only one acceptable value, namely null.
+    ///     It is important to note that null does not mean the absence of a value. It is analogous to null in JavaScript, None in Python, null in Java, null in C# and nil in Ruby programming languages.
+    ///     It can be used as part of a oneOf declaration, where it is used to indicate, that the data can also be <c>null</c>.
+    /// </remarks>
     public class NullSchema : DataSchema
     {
+        /// <summary>
+        /// Base Constructor
+        /// </summary>
         public NullSchema() { }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public new readonly string Type = "null";
 
     }
@@ -297,11 +704,26 @@ namespace WoT.Definitions
     public class PropertyAffordance : InteractionAffordance, IDataSchema
     {
         public PropertyAffordance() { }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         public object Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public object Default { get; set; }
         public string Unit { get; set; }
         public IDataSchema[] OneOf { get; set; }
         public IDataSchema[] AllOf { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         public object[] Enum { get; set; }
         public bool ReadOnly { get; set; }
         public bool WriteOnly { get; set; }
@@ -318,13 +740,46 @@ namespace WoT.Definitions
         public DataSchema[] Items { get; set; }
         public uint? MinItems { get; set; }
         public uint? MaxItems { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
+        public new List<object> Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        public new List<object> Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        public new List<object>[] Enum { get; set; }
     }
     public class BooleanPropertyAffordance : PropertyAffordance, IBooleanSchema
     {
         public BooleanPropertyAffordance() { }
         public new readonly string Type = "boolean";
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         public new bool Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public new bool Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         public new bool[] Enum { get; set; }
     }
     public class NumberPropertyAffordance : PropertyAffordance, INumberSchema
@@ -336,8 +791,23 @@ namespace WoT.Definitions
         public double? Maximum { get; set; }
         public double? ExclusiveMaximum { get; set; }
         public double? MultipleOf { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         public new double? Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public new double? Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         public new double[] Enum { get; set; }
     }
     public class IntegerPropertyAffordance : PropertyAffordance, IIntegerSchema
@@ -349,8 +819,23 @@ namespace WoT.Definitions
         public int? Maximum { get; set; }
         public int? ExclusiveMaximum { get; set; }
         public int? MultipleOf { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         public new int? Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public new int? Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         public new int[] Enum { get; set; }
     }
     public class ObjectPropertyAffordance : PropertyAffordance, IObjectSchema
@@ -359,6 +844,20 @@ namespace WoT.Definitions
         public new readonly string Type = "object";
         public Dictionary<string, DataSchema> Properties { get; set; }
         public string[] Required { get; set; }
+        public new Dictionary<string, DataSchema> Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
+        public new Dictionary<string, DataSchema> Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
+        public new Dictionary<string, DataSchema>[] Enum { get; set; }
     }
     public class StringPropertyAffordance : PropertyAffordance, IStringSchema
     {
@@ -369,8 +868,23 @@ namespace WoT.Definitions
         public string Pattern { get; set; }
         public string ContentEncoding { get; set; }
         public string ContentMediaType { get; set; }
+
+        /// <summary>
+        ///     Provides a constant value.
+        /// </summary>
         public new string Const { get; set; }
+
+        /// <summary>
+        ///     Supply a default value. 
+        /// </summary>
+        /// <remarks>
+        ///     The value SHOULD validate against the data schema in which it resides.
+        /// </remarks>
         public new string Default { get; set; }
+
+        /// <summary>
+        ///     Restricted set of values provided as an array.
+        /// </summary>
         public new string[] Enum { get; set; }
 
     }
