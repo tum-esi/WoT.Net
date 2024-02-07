@@ -14,7 +14,7 @@ using System.Threading;
 
 namespace WoT.Implementation
 {
-    public class SimpleHTTPConsumer : IConsumer
+    public class SimpleHTTPConsumer : IConsumer, IDiscovery
     {
         private readonly JsonSerializer _serializer;
         public readonly HttpClient httpClient;
@@ -42,6 +42,22 @@ namespace WoT.Implementation
             HttpResponseMessage tdResponse = await httpClient.GetAsync(tdUrl);
             tdResponse.EnsureSuccessStatusCode();
             Console.WriteLine($"Info: Fetched TD from {url} successfully");
+            Console.WriteLine($"Info: Parsing TD");
+            HttpContent body = tdResponse.Content;
+            string tdData = await body.ReadAsStringAsync();
+            TextReader reader = new StringReader(tdData);
+            ThingDescription td = _serializer.Deserialize(reader, typeof(ThingDescription)) as ThingDescription;
+            Console.WriteLine($"Info: Parsed TD successfully");
+            return td;
+        }
+
+        public async Task<ThingDescription> RequestThingDescription(Uri tdUrl)
+        {
+            if (tdUrl.Scheme != "http") throw new Exception($"The protocol for accessing the TD url {tdUrl.OriginalString} is not HTTP");
+            Console.WriteLine($"Info: Fetching TD from {tdUrl.OriginalString}");
+            HttpResponseMessage tdResponse = await httpClient.GetAsync(tdUrl);
+            tdResponse.EnsureSuccessStatusCode();
+            Console.WriteLine($"Info: Fetched TD from {tdUrl.OriginalString} successfully");
             Console.WriteLine($"Info: Parsing TD");
             HttpContent body = tdResponse.Content;
             string tdData = await body.ReadAsStringAsync();

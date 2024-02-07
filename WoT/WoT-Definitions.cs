@@ -1253,7 +1253,7 @@ namespace WoT.Definitions
         ///     <item><c>"query"</c></item>
         ///     <item><c>"body"</c></item>
         ///     <item><c>"cookie"</c></item>
-        ///     <item><c>"cookie"</c></item>
+        ///     <item><c>"auto"</c></item>
         /// </list>
         /// </para>
         /// </value>
