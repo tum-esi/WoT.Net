@@ -11,13 +11,14 @@
 	  <PackageId>WoT.Net</PackageId>
 	  <Product>WoT.Net</Product>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
-	  <PackageProjectUrl>https://github.com/tum-esi/WoT.Net</PackageProjectUrl>
+	  <PackageProjectUrl>https://tum-esi.github.io/WoT.Net/</PackageProjectUrl>
 	  <Description>A .NET Standard 2.0 implementation of the W3C Web of Things (WoT) Scripting API</Description>
 	  <RepositoryUrl>https://github.com/tum-esi/WoT.Net</RepositoryUrl>
 	  <PackageIcon>wot_dot_net_logo.png</PackageIcon>
 	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	  <PackageLicenseFile>LICENSE</PackageLicenseFile>
 	  <PackageTags>Web of Things; WoT; IoT; HTTP</PackageTags>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+	  <None Include="docGeneration\images\wot_dot_net_logo.png">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </None>
   </ItemGroup>
 
   <ItemGroup>

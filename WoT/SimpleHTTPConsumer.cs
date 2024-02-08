@@ -230,7 +230,7 @@ namespace WoT.Implementation
             }
         }
 
-        public async Task WriteProperty<T>(string propertyName, T value, InteractionOptions? options)
+        public async Task WriteProperty<T>(string propertyName, T value, InteractionOptions? options = null)
         {
             var properties = this._td.Properties;
             Form form;
@@ -267,7 +267,7 @@ namespace WoT.Implementation
                 if (listener.GetType() == typeof(Action))
                     throw new TypeError("listener for event " + propertyName + " specified is not a function.");
 
-                if (_activeSubscriptions.ContainsKey(propertyName))
+                if (_activeObservations.ContainsKey(propertyName))
                     throw new NotAllowedError("Event " + propertyName + " has an already active subscription.");
 
                 if (!_td.Properties.TryGetValue(propertyName, out propertyAffordance))
@@ -322,7 +322,7 @@ namespace WoT.Implementation
                 if (listener.GetType() == typeof(Action))           
                     throw new TypeError("listener for event " + propertyName + " specified is not a function.");
 
-                if (_activeSubscriptions.ContainsKey(propertyName)) 
+                if (_activeObservations.ContainsKey(propertyName)) 
                     throw new NotAllowedError("Event " + propertyName + " has an already active subscription.");
 
                 if (!_td.Properties.TryGetValue(propertyName, out propertyAffordance)) 
@@ -606,9 +606,7 @@ namespace WoT.Implementation
         /// <summary>
         /// Indicates if there are active subscriptions for observations or events
         /// </summary>
-        /// <value>
-        /// wether there are active subscriptions
-        /// </value>
+        /// <value>there are active subscriptions</value>
         public bool HasActiveListeners { get => _activeObservations.Count > 0 || _activeSubscriptions.Count > 0; }
         
 
@@ -670,6 +668,16 @@ namespace WoT.Implementation
 
             if (filteredForms.Length > 0) form = filteredForms[0];
             return form;
+        }
+
+        public void AddObservation(string name, Subscription sub)
+        {
+            _activeObservations.Add(name, sub);
+        }
+
+        public void AddSubscription(string name, Subscription sub)
+        {
+            _activeSubscriptions.Add(name, sub);
         }
 
         public void RemoveObservation(string name)
@@ -864,6 +872,16 @@ namespace WoT.Implementation
             _active = true;
             tokenSource = new CancellationTokenSource();
             _cancellationToken = tokenSource.Token;
+            switch(_type)
+            {
+                case SubscriptionType.Event:
+                    _thing.AddSubscription(_name, this);
+                    break;
+                case SubscriptionType.Observation:
+                    _thing.AddObservation(_name, this);
+                    break;
+            }
+            
         }
 
         public bool Active => _active;
