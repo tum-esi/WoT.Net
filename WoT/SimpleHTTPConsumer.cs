@@ -14,17 +14,22 @@ using System.Threading;
 
 namespace WoT.Implementation
 {
-    public class SimpleHTTPConsumer : IConsumer, IDiscovery
+    /// <summary>
+    /// A simple WoT Consumer that is capable of requesting TDs only from HTTP resources und consumes them to generate <see cref="SimpleConsumedThing"/>
+    /// </summary>
+    public class SimpleHTTPConsumer : IConsumer, IRequester
     {
         private readonly JsonSerializer _serializer;
         public readonly HttpClient httpClient;
         
+        /// <inheritdoc/>
         public SimpleHTTPConsumer()
         {
             httpClient = new HttpClient();
             _serializer = new JsonSerializer();
             
         }
+
         public async Task<IConsumedThing> Consume(ThingDescription td)
         {
             Task<SimpleConsumedThing> task = Task.Run(() =>
@@ -68,6 +73,12 @@ namespace WoT.Implementation
         }
     }
 
+    /// <summary>
+    /// A representation of a consumed Thing that is capable of interacting only with HTTP resources.
+    /// </summary>
+    /// <remarks>
+    /// This simple Consumed Thing class can only handle HTTP request and responses, <c>"application/json"</c> content type, and <c>"observeproperty"</c> and <c>"subscribeevent"</c> using long polling
+    /// </remarks>
     public class SimpleConsumedThing : IConsumedThing
     {
 
@@ -81,7 +92,6 @@ namespace WoT.Implementation
             _consumer = consumer;
             _activeSubscriptions = new Dictionary<string, ISubscription>();
             _activeObservations = new Dictionary<string, ISubscription>();
-
         }
 
         /****************************************************** Action Operations ******************************************************/
@@ -192,7 +202,7 @@ namespace WoT.Implementation
         }
 
         /****************************************************** Property Operations ******************************************************/
-
+        
         public async Task<IInteractionOutput<T>> ReadProperty<T>(string propertyName, InteractionOptions? options = null)
         {
             var properties = this._td.Properties;
@@ -201,17 +211,17 @@ namespace WoT.Implementation
             if (!properties.TryGetValue(propertyName, out var propertyAffordance))
             {
                 // 4. If interaction is undefined, reject promise with a NotFoundError and stop.
-                throw new Exception($"Property {propertyName} not found in TD with ID {_td.Id}");
+                throw new NotFoundError($"Property {propertyName} not found in TD with ID {_td.Id}");
             }
             else
             {
-                if (propertyAffordance.WriteOnly == true) throw new Exception($"Cannot read writeOnly property {propertyName}");
+                if (propertyAffordance.WriteOnly == true) throw new NotAllowedError($"Cannot read writeOnly property {propertyName}");
                 // find suitable form
                 form = FindSuitableForm(propertyAffordance.Forms, "readproperty", "http", options);
                 // Handle UriVariables
                 if (options.HasValue && options.Value.uriVariables != null) form = HandleUriVariables(form, options.Value.uriVariables);
 
-                if (form == null) throw new Exception($"Could not find a form that allows reading property {propertyName}");
+                if (form == null) throw new NotFoundError($"Could not find a form that allows reading property {propertyName}");
                 HttpResponseMessage interactionResponse = await _consumer.httpClient.GetAsync(form.Href);
                 interactionResponse.EnsureSuccessStatusCode();
                 Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
@@ -593,19 +603,34 @@ namespace WoT.Implementation
         /****************************************************** Utility Methods ******************************************************/
         public ThingDescription GetThingDescription() { return _td; }
 
-        public bool HasActiveListeners()
-        {
-            return _activeObservations.Count > 0 || _activeSubscriptions.Count > 0;
-        }
+        /// <summary>
+        /// Indicates if there are active subscriptions for observations or events
+        /// </summary>
+        /// <value>
+        /// wether there are active subscriptions
+        /// </value>
+        public bool HasActiveListeners { get => _activeObservations.Count > 0 || _activeSubscriptions.Count > 0; }
+        
 
+        /// <summary>
+        /// Add credentials for a Thing with given ID
+        /// </summary>
+        /// <param name="id">Thing ID</param>
+        /// <param name="password"></param>
+        /// <exception cref="NotImplementedException"></exception>
         public void AddCredentials(string id, string password)
         {
-
+            throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Removes credentials for a Thing with given ID
+        /// </summary>
+        /// <param name="id">Thing ID</param>
+        /// <exception cref="NotImplementedException"></exception>
         public void RemoveCredentials(string id)
         {
-
+            throw new NotImplementedException ();
         }
 
         protected Form HandleUriVariables(Form form, Dictionary<string, object> uriVariavles)
@@ -667,7 +692,7 @@ namespace WoT.Implementation
         }
         public Stream Data => null;
 
-        public bool DataUsed => true;
+        public bool DataUsed => false;
 
         public Form Form => _form;
 
@@ -682,6 +707,11 @@ namespace WoT.Implementation
             return null;
         }
     }
+
+    /// <summary>
+    /// An implementation of <see cref="IInteractionOutput{T}"/>
+    /// </summary>
+    /// <typeparam name="T">output data type</typeparam>
     public class InteractionOutput<T> : IInteractionOutput<T>
     {
         private readonly Form _form;
@@ -798,6 +828,10 @@ namespace WoT.Implementation
             return await task;
         }
     }
+
+    /// <summary>
+    /// An implementation of <see cref="ISubscription"/>
+    /// </summary>
     public class Subscription : ISubscription
     {
         private readonly SubscriptionType _type;
@@ -811,6 +845,10 @@ namespace WoT.Implementation
 
         public event EventHandler StopEvent;
         public event EventHandler StopObservation;
+
+        /// <summary>
+        /// Subscription Types
+        /// </summary>
         public enum SubscriptionType
         {
             Event,

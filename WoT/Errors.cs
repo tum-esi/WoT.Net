@@ -4,7 +4,7 @@ using System.Text;
 
 namespace WoT.Errors
 {
-    class EvalError : Exception
+    public class EvalError : Exception
     {
         public EvalError() : base() { }
         public EvalError(string messsage) : base(messsage) { }
@@ -15,7 +15,7 @@ namespace WoT.Errors
         }
 
     }
-    class RangeError : Exception
+    public class RangeError : Exception
     {
         public RangeError() : base() { }
         public RangeError(string messsage) : base(messsage) { }
@@ -26,7 +26,7 @@ namespace WoT.Errors
         }
 
     }
-    class ReferenceError : Exception
+    public class ReferenceError : Exception
     {
         public ReferenceError() : base() { }
         public ReferenceError(string messsage) : base(messsage) { }
@@ -37,7 +37,7 @@ namespace WoT.Errors
         }
 
     }
-    class TypeError : Exception
+    public class TypeError : Exception
     {
         public TypeError() : base() { }
         public TypeError(string messsage) : base(messsage) { }
@@ -47,7 +47,7 @@ namespace WoT.Errors
             return $"TypeError: {this.Message}";
         }
     }
-    class URIError : Exception
+    public class URIError : Exception
     {
         public URIError() : base() { }
         public URIError(string messsage) : base(messsage) { }
@@ -58,7 +58,7 @@ namespace WoT.Errors
         }
 
     }
-    class NotFoundError : Exception
+    public class NotFoundError : Exception
     {
         public NotFoundError() : base() { }
         public NotFoundError(string messsage) : base(messsage) { }
@@ -69,7 +69,7 @@ namespace WoT.Errors
         }
     }
 
-    class NotSupportedError : Exception
+    public class NotSupportedError : Exception
     {
         public NotSupportedError() : base() { }
         public NotSupportedError(string messsage) : base(messsage) { }
@@ -80,7 +80,7 @@ namespace WoT.Errors
         }
     }
 
-    class SyntaxErrpr : Exception
+    public class SyntaxErrpr : Exception
     {
         public SyntaxErrpr() : base() { }
         public SyntaxErrpr(string messsage) : base(messsage) { }
@@ -91,7 +91,7 @@ namespace WoT.Errors
         }
     }
 
-    class NotReadableError: Exception
+    public class NotReadableError: Exception
     {
         public NotReadableError() : base() { }
         public NotReadableError(string messsage) : base(messsage) { }
@@ -102,7 +102,7 @@ namespace WoT.Errors
         }
     }
 
-    class OperationError : Exception
+    public class OperationError : Exception
     {
         public OperationError() : base() { }
         public OperationError(string messsage) : base(messsage) { }
@@ -113,7 +113,7 @@ namespace WoT.Errors
         }
     }
 
-    class NotAllowedError : Exception
+    public class NotAllowedError : Exception
     {
         public NotAllowedError() : base() { }
         public NotAllowedError(string messsage) : base(messsage) { }

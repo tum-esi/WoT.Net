@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using WoT.Definitions;
+using WoT.Errors;
 
 namespace WoT 
 {
@@ -67,14 +68,53 @@ namespace WoT
     /// <summary>
     /// An interface for InteractionOutputs with no output data
     /// </summary>
+    /// <remarks>
+    /// As this <c>InteractionOutput</c> interface represents and output with no data, all properties of this interface will be set to <c>null</c>
+    /// </remarks>
     public interface IInteractionOutput
     {
-        
+        /// <summary>
+        /// Represents the raw payload in WoT Interactions as a <see cref="Stream"/>
+        /// </summary>
+        /// <value>
+        /// <c>null</c>
+        /// </value>
         Stream Data { get; }
+
+        /// <summary>
+        /// Tells whether the data stream has been disturbed
+        /// </summary>
+        /// <value>
+        /// <c>false</c>
+        /// </value>
         bool DataUsed { get; }
+
+        /// <summary>
+        /// Represents the <see cref="Form"/> selected from the <see cref="ThingDescription"/> for this WoT <see cref="InteractionAffordance"/>
+        /// </summary>
+        /// <value>
+        /// <c>selected form</c>
+        /// </value>
         Form Form { get; }
+
+        /// <summary>
+        /// Represents the <see cref="DataSchema"/> of the payload.
+        /// </summary>
+        /// <value>
+        /// <c>null</c>
+        /// </value>
         IDataSchema Schema { get; }
+
+        /// <summary>
+        /// Returns data stream as array of bytes
+        /// </summary>
+        /// <returns><see cref="Task"/> that resolves with empty array</returns>
         Task<byte[]> ArrayBuffer();
+
+        /// <summary>
+        /// Parses the data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="WoT.Definitions.Form"/>.
+        /// </summary>
+        /// <returns><see cref="Task"/> with no output</returns>
         Task Value();
     }
 
@@ -85,13 +125,47 @@ namespace WoT
     public interface IInteractionOutput<T>
     {
         /// <summary>
-        /// 
+        /// Represents the raw payload in WoT Interactions as a <see cref="Stream"/>
         /// </summary>
+        /// <value>
+        /// <c>output data stream</c>
+        /// </value>
         Stream Data { get; }
+
+        /// <summary>
+        /// Tells whether the data stream has been disturbed
+        /// </summary>
+        /// <value>
+        /// <c>data stream distribution status</c>
+        /// </value>
         bool DataUsed { get; }
+
+        /// <summary>
+        /// Represents the <see cref="Form"/> selected from the <see cref="ThingDescription"/> for this WoT <see cref="InteractionAffordance"/>
+        /// </summary>
+        /// <value>
+        /// <c>selected <see cref="WoT.Definitions.Form"/></c>
+        /// </value>
         Form Form { get; }
+
+        /// <summary>
+        /// Represents the <see cref="DataSchema"/> of the payload.
+        /// </summary>
+        /// <value>
+        /// <c>schema of payload used for validation</c>
+        /// </value>
         IDataSchema Schema { get; }
+
+        /// <summary>
+        /// Returns data stream as array of bytes
+        /// </summary>
+        /// <returns><see cref="Task"/> that resolves with data represented as <c>byte[]</c></returns>
         Task<byte[]> ArrayBuffer();
+
+        /// <summary>
+        /// Parses the data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="WoT.Definitions.Form"/>.
+        /// </summary>
+        /// <returns><see cref="Task"/> that resolves to data of type <typeparamref name="T"/></returns>
         Task<T> Value();
 
     }
@@ -104,6 +178,12 @@ namespace WoT
     /// </remarks>
     public interface ISubscription
     {
+        /// <summary>
+        /// Describes if the current <c>Subscription</c> is active or not
+        /// </summary>
+        /// <value>
+        /// current state of <c>Subscription</c>
+        /// </value>
         bool Active { get; }
 
         /// <summary>
@@ -175,15 +255,60 @@ namespace WoT
         /// <param name="options">additional options for performing the interaction</param>
         /// <returns><see cref="Task"/> that resolves with <see cref="IInteractionOutput{T}"/> representing value of response payload</returns>
         Task<IInteractionOutput<T>> InvokeAction<T, U>(string actionName, U parameters, InteractionOptions? options = null);
+
+        /// <summary>
+        /// Makes a request for Property value change notifications.
+        /// </summary>
+        /// <typeparam name="T">type of Property value</typeparam>
+        /// <param name="propertyName">name of Property to be observed</param>
+        /// <param name="listener">a callback function that is executed once a Property value change was notified; takes <see cref="IInteractionOutput{T}"/> as input representing received data</param>
+        /// <param name="options">additional options for performing the interaction</param>
+        /// <returns><see cref="Task"/> that resolves with <see cref="ISubscription"/> representing the active subscription</returns>
+        /// <exception cref="NotAllowedError"/>
         Task<ISubscription> ObserveProperty<T>(string propertyName, Action<IInteractionOutput<T>> listener, InteractionOptions? options = null);
+
+        /// <inheritdoc cref="ObserveProperty{T}(string, Action{IInteractionOutput{T}}, InteractionOptions?)"/>
+        /// <param name="onerror">a callback function that executed if the request fails; takes <see cref="Exception"/> as input</param>
         Task<ISubscription> ObserveProperty<T>(string propertyName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror, InteractionOptions? options = null);
+
+        /// <summary>
+        /// Makes a request for subscribing to Event notifications that do not provide data.
+        /// </summary>
+        /// <param name="eventName">name of Event</param>
+        /// <param name="listener">a callback function that is executed once notified. Does not take any parameters</param>
+        /// <param name="options">additional options for performing the interaction</param>
+        /// <returns><see cref="Task"/> that resolves with <see cref="ISubscription"/> representing the active subscription</returns>
         Task<ISubscription> SubscribeEvent(string eventName, Action listener, InteractionOptions? options = null);
+
+        /// <inheritdoc cref="ObserveProperty{T}(string, Action{IInteractionOutput{T}}, InteractionOptions?)"/>
+        /// <param name="onerror">a callback function that executed if the request fails; takes <see cref="Exception"/> as input</param>
         Task<ISubscription> SubscribeEvent(string eventName, Action listener, Action<Exception> onerror, InteractionOptions? options = null);
+
+        /// <summary>
+        /// Makes a request for subscribing to Event notifications that provide data.
+        /// </summary>
+        /// <typeparam name="T">type of received payload data</typeparam>
+        /// <param name="eventName">name of Event</param>
+        /// <param name="listener">a callback function that is executed once notified. Takes <see cref="IInteractionOutput{T}"/> as input representing received data</param>
+        /// <param name="options">additional options for performing the interaction</param>
+        /// <returns><see cref="Task"/> that resolves with <see cref="ISubscription"/> representing the active subscription</returns>
         Task<ISubscription> SubscribeEvent<T>(string eventName, Action<IInteractionOutput<T>> listener, InteractionOptions? options = null);
+
+        /// <inheritdoc cref="SubscribeEvent{T}(string, Action{IInteractionOutput{T}}, InteractionOptions?)"/>
+        /// <param name="onerror">a callback function that executed if the request fails; takes <see cref="Exception"/> as input</param>
         Task<ISubscription> SubscribeEvent<T>(string eventName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror, InteractionOptions? options = null);
+
+        /// <summary>
+        /// Returns the <see cref="ThingDescription"/> of the <see cref="IConsumedThing"/> object that represents the Thing Description of the <see cref="IConsumedThing"/>. Applications may consult the Thing metadata stored in <see cref="ThingDescription"/> in order to introspect its capabilities before interacting with it.
+        /// </summary>
+        /// <returns>TD of Consumed Thing</returns>
+        ThingDescription GetThingDescription();
 
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IExposedThing
     {
         IExposedThing SetPropertyReadHandler(string name, Action<InteractionOptions?> propertyReadHandler);
@@ -201,10 +326,25 @@ namespace WoT
         ThingDescription GetThingDescription();
 
     }
+
+    /// <summary>
+    /// Holds the interaction options that need to be exposed for application scripts.
+    /// </summary>
     public struct InteractionOptions
     {
+        /// <summary>
+        /// Represents an application hint for which Form definition, identified by this index, of the TD to use for the given WoT interaction.
+        /// </summary>
         public uint? formIndex;
+
+        /// <summary>
+        /// Represents the URI template variables to be used with the WoT Interaction
+        /// </summary>
         public Dictionary<string, object> uriVariables;
+
+        /// <summary>
+        /// Represents additional opaque data that needs to be passed to the interaction.
+        /// </summary>
         public object data;
 
     }
