@@ -9,7 +9,7 @@
    id="svg5"
    inkscape:version="1.1 (c68e22c387, 2021-05-23)"
    sodipodi:docname="WoT_DoT_Net_Logo_no_background.svg"
-   inkscape:export-filename="C:\Phd\Git\WoT.Net\WoT\images\wot_dot_net_logo.png"
+   inkscape:export-filename="C:\Phd\Git\WoT.Net\WoT\docGeneration\images\wot_dot_net_logo.png"
    inkscape:export-xdpi="5.6508427"
    inkscape:export-ydpi="5.6508427"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -28,54 +28,78 @@
      showgrid="false"
      inkscape:zoom="0.73762626"
      inkscape:cx="265.03937"
-     inkscape:cy="317.91167"
+     inkscape:cy="317.91168"
      inkscape:window-width="1920"
      inkscape:window-height="991"
      inkscape:window-x="-9"
      inkscape:window-y="-9"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g16785" />
+     inkscape:current-layer="layer1" />
   <defs
-     id="defs2" />
+     id="defs2">
+    <inkscape:path-effect
+       effect="powerclip"
+       id="path-effect1058"
+       is_visible="true"
+       lpeversion="1"
+       inverse="true"
+       flatten="false"
+       hide_clip="false"
+       message="Use fill-rule evenodd on &lt;b&gt;fill and stroke&lt;/b&gt; dialog if no flatten result after convert clip to paths." />
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1054">
+      <rect
+         style="display:none;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.752025;stroke-linecap:round;stroke-opacity:1"
+         id="rect1056"
+         width="135.67101"
+         height="49.229324"
+         x="38.88422"
+         y="101.10816"
+         rx="1.2930558"
+         ry="2.1307023"
+         d="M 40.177276,101.10816 H 173.26217 c 0.71635,0 1.29306,0.9503 1.29306,2.1307 v 44.96792 c 0,1.18041 -0.57671,2.13071 -1.29306,2.13071 H 40.177276 c -0.716353,0 -1.293056,-0.9503 -1.293056,-2.13071 v -44.96792 c 0,-1.1804 0.576703,-2.1307 1.293056,-2.1307 z" />
+      <path
+         id="lpe_path-effect1058"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.752025;stroke-linecap:round;stroke-opacity:1"
+         class="powerclip"
+         d="M 46.160883,63.37826 H 171.5674 V 188.78478 H 46.160883 Z m -5.983607,37.7299 c -0.716353,0 -1.293056,0.9503 -1.293056,2.1307 v 44.96792 c 0,1.18041 0.576703,2.13071 1.293056,2.13071 H 173.26217 c 0.71635,0 1.29306,-0.9503 1.29306,-2.13071 v -44.96792 c 0,-1.1804 -0.57671,-2.1307 -1.29306,-2.1307 z" />
+    </clipPath>
+  </defs>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-34.79348,-53.804344)">
     <circle
-       style="fill:none;fill-opacity:1;stroke:#00b2ff;stroke-width:1.7;stroke-linecap:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:none;fill-opacity:1;stroke:#00b2ff;stroke-width:1.7;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path15648"
-       cx="108.86414"
-       cy="126.08152"
-       r="56.85326" />
+       clip-path="url(#clipPath1054)"
+       inkscape:path-effect="#path-effect1058"
+       sodipodi:type="arc"
+       sodipodi:cx="108.86414"
+       sodipodi:cy="126.08152"
+       sodipodi:rx="56.85326"
+       sodipodi:ry="56.85326"
+       d="M 165.7174,126.08152 A 56.85326,56.85326 0 0 1 108.86414,182.93478 56.85326,56.85326 0 0 1 52.010883,126.08152 56.85326,56.85326 0 0 1 108.86414,69.22826 56.85326,56.85326 0 0 1 165.7174,126.08152 Z"
+       transform="translate(-2.1521835)" />
     <g
-       id="g16776"
+       id="g16779"
+       transform="translate(0,8.2500076)" />
+    <g
+       id="g16785"
        transform="translate(0,8.2500076)">
-      <g
-         id="g16779" />
-      <g
-         id="g16785">
-        <rect
-           style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.752024;stroke-linecap:round;stroke-opacity:1"
-           id="rect16651"
-           width="135.67123"
-           height="49.229324"
-           x="38.88422"
-           y="92.858154"
-           rx="1.2930558"
-           ry="2.1307023" />
-        <text
-           xml:space="preserve"
-           style="font-size:31.75px;line-height:1.25;font-family:'Berlin Sans FB Demi';-inkscape-font-specification:'Berlin Sans FB Demi';stroke-width:0.264583"
+      <text
+         xml:space="preserve"
+         style="font-size:31.75px;line-height:1.25;font-family:'Berlin Sans FB Demi';-inkscape-font-specification:'Berlin Sans FB Demi';stroke-width:0.264583"
+         x="41.119064"
+         y="127.84428"
+         id="text2206"><tspan
+           sodipodi:role="line"
+           id="tspan2204"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:31.75px;font-family:Corbel;-inkscape-font-specification:Corbel;fill:#00b2ff;fill-opacity:1;stroke-width:0.264583"
            x="41.119064"
-           y="127.84428"
-           id="text2206"><tspan
-             sodipodi:role="line"
-             id="tspan2204"
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:31.75px;font-family:Corbel;-inkscape-font-specification:Corbel;fill:#00b2ff;fill-opacity:1;stroke-width:0.264583"
-             x="41.119064"
-             y="127.84428">WOT.NET</tspan></text>
-      </g>
+           y="127.84428">WOT.NET</tspan></text>
     </g>
   </g>
 </svg>
