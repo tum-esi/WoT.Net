@@ -107,3 +107,5 @@ For a more detailed step-by-step explanation and documentation, feel free to vis
 - [ ] MQTT Consumer
 
 ... more in the future
+
+<!-- first commit -->
