@@ -7,3 +7,4 @@
 # Ignore documentation Generation Output
 WoT/docGeneration/api
 WoT/docGeneration/_site
+/WoT/binding-http/SimpleConsumedThing.cs

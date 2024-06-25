@@ -48,4 +48,9 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="binding-http/SimpleConsumedThing.cs" />
+  </ItemGroup>
+
 </Project>
