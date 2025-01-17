@@ -3,6 +3,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WoT.TDHelpers;
+using WoT.ProtocolBindings;
 
 namespace WoT.Definitions
 {
@@ -430,7 +431,7 @@ namespace WoT.Definitions
     {
         /// <inheritdoc/>
         public DataSchema() { }
-        
+
         [JsonProperty("@type")]
         public string[] AtType { get; set; }
         public string Title { get; set; }
@@ -442,7 +443,7 @@ namespace WoT.Definitions
         public string Unit { get; set; }
         public IDataSchema[] OneOf { get; set; }
         public object[] Enum { get; set; }
-        public bool ReadOnly { get; set; }      
+        public bool ReadOnly { get; set; }
         public bool WriteOnly { get; set; }
         public string Format { get; set; }
         public string Type { get; }
@@ -500,7 +501,7 @@ namespace WoT.Definitions
         public double? MultipleOf { get; set; }
         public new double? Const { get; set; }
         public new double? Default { get; set; }
-        public new double[] Enum { get; set; }  
+        public new double[] Enum { get; set; }
     }
 
     /// <summary>
@@ -946,6 +947,14 @@ namespace WoT.Definitions
         public string[] Op { get; set; }
 
 
+    }
+
+    public struct ClientAndForm
+    {
+        public IProtocolClient protocolClient { get; }
+        public Form form { get; }
+
+        public ClientAndForm(IProtocolClient protocolClient, Form form) { this.protocolClient = protocolClient; this.form = form; }
     }
 
     /// <summary>

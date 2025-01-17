@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using WoT.Definitions;
 using WoT.Errors;
+using WoT.ProtocolBindings;
 
 namespace WoT 
 {
@@ -18,7 +19,23 @@ namespace WoT
         /// <param name="td">TD of the client Thing</param>
         /// <returns> Task that resolves with an object implementing <see cref="IConsumedThing"/> interface </returns>
         /// <seealso href="https://www.w3.org/TR/wot-scripting-api/#the-consume-method">WoT Scripting API</seealso>
-        Task<IConsumedThing> Consume(ThingDescription td);
+
+
+        //AddClientFactory(string scheme);
+        //RemoveClientFactory(string scheme);
+        /// <summary>
+        /// Returns the <see cref="IProtocolClient"/> and <see cref="Form"/> available to the <see cref="IConsumedThing"/> object 
+        /// from the given forms, schemes and specifications.
+        /// </summary>
+        /// <returns>Protocol Client with matching Scheme</returns>
+        ClientAndForm GetClientFor(Form[] forms, string op, InteractionOptions? options = null, string contentType = "application/json", string subprotocol = "null");
+        IProtocolClient GetClientFor(Uri href);
+        void AddClient(IProtocolClient protocolClient);
+
+        void RemoveClient(string scheme);
+
+
+        IConsumedThing Consume(ThingDescription td);
     }
 
     /// <summary>
@@ -304,6 +321,7 @@ namespace WoT
         /// <returns>TD of Consumed Thing</returns>
         ThingDescription GetThingDescription();
 
+
     }
 
     /// <summary>
@@ -348,4 +366,6 @@ namespace WoT
         public object data;
 
     }
+
+
 }
