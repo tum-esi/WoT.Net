@@ -1,17 +1,12 @@
-using Newtonsoft.Json.Schema;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using WoT.Definitions;
 using WoT.Errors;
 using WoT.ProtocolBindings;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace WoT.Implementation
 {

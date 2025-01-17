@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using WoT.Definitions;
 using Newtonsoft.Json.Linq;
-using System.Linq;
-using Newtonsoft.Json.Schema;
 
 namespace WoT.TDHelpers
 {
