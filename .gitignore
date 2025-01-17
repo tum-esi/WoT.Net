@@ -1,3 +1,5 @@
+API_KEY.txt
+
 # Ignore .vs, bin and obj directories
 **/.vs
 **/bin
