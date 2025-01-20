@@ -17,11 +17,6 @@ namespace WoT.Core.Definitions
         byte[] ValueToBytes(object value, DataSchema schema = null, Dictionary<string, string> parameters = null);
     }
 
-    public struct ReadContent
-    {
-        public string type;
-        public byte[] body;
-    }
     public class ContentSerdes
     {
         private static ContentSerdes instance;
@@ -30,8 +25,8 @@ namespace WoT.Core.Definitions
         public static readonly string TD = "application/td+json";
         public static readonly string JSON_LD = "application/ld+json";
 
-        private Dictionary<string, IContentCodec> _codecs = new Dictionary<string, IContentCodec>();
-        private HashSet<string> _offered = new HashSet<string>();
+        private readonly Dictionary<string, IContentCodec> _codecs = new Dictionary<string, IContentCodec>();
+        private readonly HashSet<string> _offered = new HashSet<string>();
         private static readonly string MediaTypePattern = @"(?<mediaType>(?<type>\w+)\/((\w+)(\+\w*)*))(?<MediaTypeParameters>(\;\s*((?<parameter>\w+)\=(?<value>[\S-["":;]]+|(?:""[\S\s]+""))))*)";
         private static readonly Regex mediaTypeRegex = new Regex(MediaTypePattern, RegexOptions.Multiline | RegexOptions.Compiled);
 
@@ -100,7 +95,7 @@ namespace WoT.Core.Definitions
             return ContentSerdes.GetInstance()._codecs.ContainsKey(GetMediaType(contentType));
         }
 
-        public object ContentToValue(ReadContent content, DataSchema schema)
+        public object ContentToValue(Content content, DataSchema schema)
         {
             if (content.type == null)
             {
@@ -134,11 +129,6 @@ namespace WoT.Core.Definitions
         {
             if (value == null || value.GetType() == null) Console.WriteLine("ContentSerdes valueToContent got no value");
 
-            if (value is Stream)
-            {
-                return new Content(contentType, value as Stream);
-            }
-
             byte[] bytes;
 
             string mt = ContentSerdes.GetMediaType(contentType);
@@ -155,7 +145,7 @@ namespace WoT.Core.Definitions
                 bytes = Encoding.UTF8.GetBytes(valueString);
             }
 
-            return new Content(contentType, new MemoryStream(bytes));
+            return new Content(contentType, bytes);
         }
     }
 }
