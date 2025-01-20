@@ -1,5 +1,5 @@
 ﻿using System;
-namespace WoT.Errors
+namespace WoT.Core.Errors
 {
     public class EvalError : Exception
     {
@@ -8,7 +8,7 @@ namespace WoT.Errors
         public EvalError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"EvalError: {this.Message}";
+            return $"EvalError: {Message}";
         }
 
     }
@@ -19,7 +19,7 @@ namespace WoT.Errors
         public RangeError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"RangeError: {this.Message}";
+            return $"RangeError: {Message}";
         }
 
     }
@@ -30,7 +30,7 @@ namespace WoT.Errors
         public ReferenceError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"ReferenceError: {this.Message}";
+            return $"ReferenceError: {Message}";
         }
 
     }
@@ -41,7 +41,7 @@ namespace WoT.Errors
         public TypeError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"TypeError: {this.Message}";
+            return $"TypeError: {Message}";
         }
     }
     public class URIError : Exception
@@ -51,7 +51,7 @@ namespace WoT.Errors
         public URIError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"URIError: {this.Message}";
+            return $"URIError: {Message}";
         }
 
     }
@@ -62,7 +62,7 @@ namespace WoT.Errors
         public NotFoundError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"NotFoundError: {this.Message}";
+            return $"NotFoundError: {Message}";
         }
     }
 
@@ -73,7 +73,7 @@ namespace WoT.Errors
         public NotSupportedError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"NotSupportedError: {this.Message}";
+            return $"NotSupportedError: {Message}";
         }
     }
 
@@ -84,18 +84,18 @@ namespace WoT.Errors
         public SyntaxErrpr(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"SyntaxErrpr: {this.Message}";
+            return $"SyntaxErrpr: {Message}";
         }
     }
 
-    public class NotReadableError: Exception
+    public class NotReadableError : Exception
     {
         public NotReadableError() : base() { }
         public NotReadableError(string messsage) : base(messsage) { }
         public NotReadableError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"NotReadableError: {this.Message}";
+            return $"NotReadableError: {Message}";
         }
     }
 
@@ -106,7 +106,7 @@ namespace WoT.Errors
         public OperationError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"OperationError: {this.Message}";
+            return $"OperationError: {Message}";
         }
     }
 
@@ -117,7 +117,7 @@ namespace WoT.Errors
         public NotAllowedError(string messsage, Exception inner) : base(messsage, inner) { }
         public new string ToString()
         {
-            return $"NotAllowedError: {this.Message}";
+            return $"NotAllowedError: {Message}";
         }
     }
 }

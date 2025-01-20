@@ -1,8 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using WoT.Definitions;
 using System.Threading;
-namespace WoT.Implementation
+using WoT.Core.Definitions.TD;
+using WoT.Core.Definitions;
+namespace WoT.Core.Implementation
 {
     /// <summary>
     /// An implementation of <see cref="ISubscription"/>
@@ -60,12 +61,12 @@ namespace WoT.Implementation
             if (_type == SubscriptionType.Event)
             {
                 _thing.RemoveSubscription(_name);
-                this.StopEvent?.Invoke(this, EventArgs.Empty);
+                StopEvent?.Invoke(this, EventArgs.Empty);
             }
             if (_type == SubscriptionType.Observation)
             {
                 _thing.RemoveObservation(_name);
-                this.StopObservation?.Invoke(this, EventArgs.Empty);
+                StopObservation?.Invoke(this, EventArgs.Empty);
             }
         }
     }

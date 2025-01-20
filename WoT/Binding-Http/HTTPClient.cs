@@ -1,24 +1,19 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Schema;
 using System;
 using System.Text;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Tavis.UriTemplates;
-using WoT.Definitions;
-using WoT.Errors;
 using System.Threading;
-using WoT.ProtocolBindings;
+using WoT.Core.Definitions;
+using WoT.Core.Definitions.TD;
 
 namespace WoT.Implementation
 {
     /// <summary>
     /// A simple WoT Consumer that is capable of requesting TDs only from HTTP resources und consumes them to generate <see cref="SimpleConsumedThing"/>
     /// </summary>
-    public class SimpleHTTPClient : IProtocolClient
+    public class HTTPClient : IProtocolClient
     {
         private readonly JsonSerializer _serializer;
         public readonly HttpClient httpClient;
@@ -26,7 +21,7 @@ namespace WoT.Implementation
         public string Scheme { get; } = "http";
 
     /// <inheritdoc/>
-    public SimpleHTTPClient()
+    public HTTPClient()
         {
             httpClient = new HttpClient();
             _serializer = new JsonSerializer();
@@ -34,7 +29,7 @@ namespace WoT.Implementation
         }
 
         
-        public async Task<Stream> SendGetRequest(Form form)
+        public async Task<Stream> ReadResource(Form form)
         {
                 
             HttpResponseMessage interactionResponse = await httpClient.GetAsync(form.Href);
@@ -46,7 +41,7 @@ namespace WoT.Implementation
 
        
 
-        public async Task<Stream> SendGetRequest(Form form, CancellationToken cancellationToken)
+        public async Task<Stream> ReadResource(Form form, CancellationToken cancellationToken)
         {
             HttpResponseMessage interactionResponse = await httpClient.GetAsync(form.Href, cancellationToken);
             interactionResponse.EnsureSuccessStatusCode();
@@ -54,7 +49,7 @@ namespace WoT.Implementation
             return responseStream;
 
         }
-        public async Task<Stream> SendPostRequest(Form form)
+        public async Task<Stream> InvokeResource(Form form)
         {
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, form.Href);
             var interactionResponse = await httpClient.SendAsync(message);
@@ -62,25 +57,29 @@ namespace WoT.Implementation
             Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
             return responseStream;
         }
-        public async Task<Stream> SendPostRequest<U>(Form form, U parameters)
+        public async Task<Stream> InvokeResource<U>(Form form, U parameters)
         {
 
             string payloadString = JsonConvert.SerializeObject(parameters);
             StringContent payload = new StringContent(payloadString, Encoding.UTF8, "application/json");
-            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, form.Href);
-            message.Content = payload;
+            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, form.Href)
+            {
+                Content = payload
+            };
             var interactionResponse = await httpClient.SendAsync(message);
             interactionResponse.EnsureSuccessStatusCode();
             Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
             return responseStream;
         }
 
-        public async Task SendPutRequest<T>(Form form, T value)
+        public async Task WriteResource<T>(Form form, T value)
         {
             string payloadString = JsonConvert.SerializeObject(value);
             var payload = new StringContent(payloadString, Encoding.UTF8, "application/json");
-            var message = new HttpRequestMessage(HttpMethod.Put, form.Href);
-            message.Content = payload;
+            var message = new HttpRequestMessage(HttpMethod.Put, form.Href)
+            {
+                Content = payload
+            };
             HttpResponseMessage interactionResponse = await httpClient.SendAsync(message);
             interactionResponse.EnsureSuccessStatusCode();
             

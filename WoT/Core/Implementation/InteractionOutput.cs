@@ -5,9 +5,10 @@ using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using WoT.Definitions;
-using WoT.Errors;
-namespace WoT.Implementation
+using WoT.Core.Errors;
+using WoT.Core.Definitions.TD;
+using WoT.Core.Definitions;
+namespace WoT.Core.Implementation
 {
     public class InteractionOutput : IInteractionOutput
     {
@@ -142,7 +143,7 @@ namespace WoT.Implementation
                 //Deserialize
                 T value = _serializer.Deserialize<T>(validatingReader);
 
-                bool isValid = (messages.Count == 0);
+                bool isValid = messages.Count == 0;
                 if (isValid)
                 {
                     return value;
