@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using WoT.Definitions;
 using Newtonsoft.Json.Linq;
+using WoT.Core.Definitions.TD;
 
-namespace WoT.TDHelpers
+namespace WoT.Core.Helpers
 {
 
     //Converter to assign the corresponding DataSchema for a given schema
@@ -14,52 +14,52 @@ namespace WoT.TDHelpers
         public override void WriteJson(JsonWriter writer, DataSchema value, JsonSerializer serializer)
         {
             JObject jo = new JObject();
-            if (value.AtType != null )          jo.Add("@type", JToken.FromObject(value.AtType));
-            if (value.Title != null)            jo.Add("title",  JToken.FromObject(value.Title));
-            if (value.Description != null)      jo.Add("description", JToken.FromObject(value.Description));
-            if (value.Descriptions != null)     jo.Add("descriptions", JToken.FromObject(value.Descriptions));
-            if (value.Const != null)            jo.Add("const", JToken.FromObject(value.Const));
-            if (value.Default != null)          jo.Add("default", JToken.FromObject(value.Default));
-            if (value.Unit != null)             jo.Add("unit", JToken.FromObject(value.Unit));
-            if (value.OneOf != null)            jo.Add("oneOf", JToken.FromObject(value.OneOf));
-            if (value.Enum != null)             jo.Add("enum", JToken.FromObject(value.Enum));
-            if (value.Format != null)           jo.Add("format", JToken.FromObject(value.Format));
-            if (value.Type != null)             jo.Add("type", JToken.FromObject(value.Type));
+            if (value.AtType != null) jo.Add("@type", JToken.FromObject(value.AtType));
+            if (value.Title != null) jo.Add("title", JToken.FromObject(value.Title));
+            if (value.Description != null) jo.Add("description", JToken.FromObject(value.Description));
+            if (value.Descriptions != null) jo.Add("descriptions", JToken.FromObject(value.Descriptions));
+            if (value.Const != null) jo.Add("const", JToken.FromObject(value.Const));
+            if (value.Default != null) jo.Add("default", JToken.FromObject(value.Default));
+            if (value.Unit != null) jo.Add("unit", JToken.FromObject(value.Unit));
+            if (value.OneOf != null) jo.Add("oneOf", JToken.FromObject(value.OneOf));
+            if (value.Enum != null) jo.Add("enum", JToken.FromObject(value.Enum));
+            if (value.Format != null) jo.Add("format", JToken.FromObject(value.Format));
+            if (value.Type != null) jo.Add("type", JToken.FromObject(value.Type));
             jo.Add("readOnly", JToken.FromObject(value.ReadOnly));
             jo.Add("writeOnly", JToken.FromObject(value.WriteOnly));
             switch (value.Type)
             {
                 case "object":
                     if ((value as ObjectSchema).Properties != null) jo.Add("items", JToken.FromObject((value as ObjectSchema).Properties));
-                    if ((value as ObjectSchema).Required != null)   jo.Add("minItems", JToken.FromObject((value as ObjectSchema).Required));
+                    if ((value as ObjectSchema).Required != null) jo.Add("minItems", JToken.FromObject((value as ObjectSchema).Required));
                     break;
                 case "array":
-                    if ((value as ArraySchema).Items != null)       jo.Add("items", JToken.FromObject((value as ArraySchema).Items));
-                    if ((value as ArraySchema).MinItems != null)    jo.Add("minItems", JToken.FromObject((value as ArraySchema).MinItems));
-                    if ((value as ArraySchema).MaxItems != null)    jo.Add("maxItems", JToken.FromObject((value as ArraySchema).MaxItems));
+                    if ((value as ArraySchema).Items != null) jo.Add("items", JToken.FromObject((value as ArraySchema).Items));
+                    if ((value as ArraySchema).MinItems != null) jo.Add("minItems", JToken.FromObject((value as ArraySchema).MinItems));
+                    if ((value as ArraySchema).MaxItems != null) jo.Add("maxItems", JToken.FromObject((value as ArraySchema).MaxItems));
                     break;
                 case "string":
-                    if ((value as StringSchema).MinLength != null)          jo.Add("minimum", JToken.FromObject((value as StringSchema).MinLength));
-                    if ((value as StringSchema).MaxLength != null)          jo.Add("exclusiveMinimum", JToken.FromObject((value as StringSchema).MaxLength));
-                    if ((value as StringSchema).Pattern != null)            jo.Add("maximum", JToken.FromObject((value as StringSchema).Pattern));
-                    if ((value as StringSchema).ContentEncoding != null)    jo.Add("exclusiveMaximum", JToken.FromObject((value as StringSchema).ContentEncoding));
-                    if ((value as StringSchema).ContentMediaType != null)   jo.Add("multipleOf", JToken.FromObject((value as StringSchema).ContentMediaType));
+                    if ((value as StringSchema).MinLength != null) jo.Add("minimum", JToken.FromObject((value as StringSchema).MinLength));
+                    if ((value as StringSchema).MaxLength != null) jo.Add("exclusiveMinimum", JToken.FromObject((value as StringSchema).MaxLength));
+                    if ((value as StringSchema).Pattern != null) jo.Add("maximum", JToken.FromObject((value as StringSchema).Pattern));
+                    if ((value as StringSchema).ContentEncoding != null) jo.Add("exclusiveMaximum", JToken.FromObject((value as StringSchema).ContentEncoding));
+                    if ((value as StringSchema).ContentMediaType != null) jo.Add("multipleOf", JToken.FromObject((value as StringSchema).ContentMediaType));
                     break;
                 case "boolean":
                     break;
                 case "number":
-                    if ((value as NumberSchema).Minimum != null)            jo.Add("minimum", JToken.FromObject((value as NumberSchema).Minimum));
-                    if ((value as NumberSchema).ExclusiveMinimum != null)   jo.Add("exclusiveMinimum", JToken.FromObject((value as NumberSchema).ExclusiveMinimum));
-                    if ((value as NumberSchema).Maximum != null)            jo.Add("maximum", JToken.FromObject((value as NumberSchema).Maximum));
-                    if ((value as NumberSchema).ExclusiveMaximum != null)   jo.Add("exclusiveMaximum", JToken.FromObject((value as NumberSchema).ExclusiveMaximum));
-                    if ((value as NumberSchema).MultipleOf != null)         jo.Add("multipleOf", JToken.FromObject((value as NumberSchema).MultipleOf));
+                    if ((value as NumberSchema).Minimum != null) jo.Add("minimum", JToken.FromObject((value as NumberSchema).Minimum));
+                    if ((value as NumberSchema).ExclusiveMinimum != null) jo.Add("exclusiveMinimum", JToken.FromObject((value as NumberSchema).ExclusiveMinimum));
+                    if ((value as NumberSchema).Maximum != null) jo.Add("maximum", JToken.FromObject((value as NumberSchema).Maximum));
+                    if ((value as NumberSchema).ExclusiveMaximum != null) jo.Add("exclusiveMaximum", JToken.FromObject((value as NumberSchema).ExclusiveMaximum));
+                    if ((value as NumberSchema).MultipleOf != null) jo.Add("multipleOf", JToken.FromObject((value as NumberSchema).MultipleOf));
                     break;
                 case "integer":
-                    if ((value as IntegerSchema).Minimum != null)           jo.Add("minimum", JToken.FromObject((value as IntegerSchema).Minimum));
-                    if ((value as IntegerSchema).ExclusiveMinimum != null)  jo.Add("exclusiveMinimum", JToken.FromObject((value as IntegerSchema).ExclusiveMinimum));
-                    if ((value as IntegerSchema).Maximum != null)           jo.Add("maximum", JToken.FromObject((value as IntegerSchema).Maximum));
-                    if ((value as IntegerSchema).ExclusiveMaximum != null)  jo.Add("exclusiveMaximum", JToken.FromObject((value as IntegerSchema).ExclusiveMaximum));
-                    if ((value as IntegerSchema).MultipleOf != null)        jo.Add("multipleOf", JToken.FromObject((value as IntegerSchema).MultipleOf));
+                    if ((value as IntegerSchema).Minimum != null) jo.Add("minimum", JToken.FromObject((value as IntegerSchema).Minimum));
+                    if ((value as IntegerSchema).ExclusiveMinimum != null) jo.Add("exclusiveMinimum", JToken.FromObject((value as IntegerSchema).ExclusiveMinimum));
+                    if ((value as IntegerSchema).Maximum != null) jo.Add("maximum", JToken.FromObject((value as IntegerSchema).Maximum));
+                    if ((value as IntegerSchema).ExclusiveMaximum != null) jo.Add("exclusiveMaximum", JToken.FromObject((value as IntegerSchema).ExclusiveMaximum));
+                    if ((value as IntegerSchema).MultipleOf != null) jo.Add("multipleOf", JToken.FromObject((value as IntegerSchema).MultipleOf));
                     break;
                 case "null":
                     break;
@@ -75,7 +75,7 @@ namespace WoT.TDHelpers
             JToken schemaObj = JToken.Load(reader2);
             string type = (string)schemaObj["type"]; //type of the given schema
 
-            switch(type)
+            switch (type)
             {
                 case "object":
                     return FillObjectSchemaObject(schemaObj, serializer);
@@ -227,12 +227,12 @@ namespace WoT.TDHelpers
             // to make sure const, default, and enum types match the schema type they belong to
             if (schemaObj["const"] != null) schema.Const = schemaObj["const"];
             if (schemaObj["default"] != null) schema.Default = schemaObj["default"];
-            if (schemaObj["enum"] != null) schema.Enum = schemaObj["enum"].ToObject<Object[]>();
+            if (schemaObj["enum"] != null) schema.Enum = schemaObj["enum"].ToObject<object[]>();
             return schema;
         }
 
         // to fill the common properties of DataSchemas
-        protected static void CommonFiller<T>(T schema, JToken schemaObj, JsonSerializer serializer) where T: DataSchema
+        protected static void CommonFiller<T>(T schema, JToken schemaObj, JsonSerializer serializer) where T : DataSchema
         {
             schema.Description = (string)schemaObj["description"];
             schema.Title = (string)schemaObj["title"];
@@ -307,7 +307,7 @@ namespace WoT.TDHelpers
         }
 
         // to fill the common properties of SecuritySchemas
-        protected static void CommonFiller<T>(T schema, JToken schemaObj) where T: SecurityScheme
+        protected static void CommonFiller<T>(T schema, JToken schemaObj) where T : SecurityScheme
         {
             schema.Description = (string)schemaObj["description"];
             schema.Scheme = (string)schemaObj["scheme"];
@@ -952,7 +952,7 @@ namespace WoT.TDHelpers
         }
 
         // to fill the common properties of PropertyAffordance
-        protected static void CommonFiller<T>(T propertyAffordance, JToken propObj, JsonSerializer serializer) where T: PropertyAffordance
+        protected static void CommonFiller<T>(T propertyAffordance, JToken propObj, JsonSerializer serializer) where T : PropertyAffordance
         {
             propertyAffordance.Description = (string)propObj["description"];
             propertyAffordance.Title = (string)propObj["title"];
@@ -995,14 +995,14 @@ namespace WoT.TDHelpers
                 actionAffordance.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(actionAffordanceObj["@type"]));
             }
 
-            if (actionAffordanceObj["titles"] != null)          actionAffordance.Titles = actionAffordanceObj["titles"].ToObject<MultiLanguage>();
-            if (actionAffordanceObj["descriptions"] != null)    actionAffordance.Descriptions = actionAffordanceObj["descriptions"].ToObject<MultiLanguage>();
-            if (actionAffordanceObj["input"] != null)           actionAffordance.Input = serializer.Deserialize(new JTokenReader(actionAffordanceObj["input"]), objectType: typeof(DataSchema)) as DataSchema;
-            if (actionAffordanceObj["output"] != null)          actionAffordance.Output = serializer.Deserialize(new JTokenReader(actionAffordanceObj["output"]), objectType: typeof(DataSchema)) as DataSchema;
-            if (actionAffordanceObj["safe"] != null)            actionAffordance.Safe = actionAffordanceObj["safe"].ToObject<bool>();
-            if (actionAffordanceObj["idempotent"] != null)      actionAffordance.Idempotent = actionAffordanceObj["idempotent"].ToObject<bool>();
-            if (actionAffordanceObj["synchronous"] != null)     actionAffordance.Synchronous = actionAffordanceObj["synchronous"].ToObject<bool>();
-            if (actionAffordanceObj["forms"] != null)           actionAffordance.Forms = serializer.Deserialize(new JTokenReader(actionAffordanceObj["forms"]), objectType: typeof(ActionForm[])) as ActionForm[];
+            if (actionAffordanceObj["titles"] != null) actionAffordance.Titles = actionAffordanceObj["titles"].ToObject<MultiLanguage>();
+            if (actionAffordanceObj["descriptions"] != null) actionAffordance.Descriptions = actionAffordanceObj["descriptions"].ToObject<MultiLanguage>();
+            if (actionAffordanceObj["input"] != null) actionAffordance.Input = serializer.Deserialize(new JTokenReader(actionAffordanceObj["input"]), objectType: typeof(DataSchema)) as DataSchema;
+            if (actionAffordanceObj["output"] != null) actionAffordance.Output = serializer.Deserialize(new JTokenReader(actionAffordanceObj["output"]), objectType: typeof(DataSchema)) as DataSchema;
+            if (actionAffordanceObj["safe"] != null) actionAffordance.Safe = actionAffordanceObj["safe"].ToObject<bool>();
+            if (actionAffordanceObj["idempotent"] != null) actionAffordance.Idempotent = actionAffordanceObj["idempotent"].ToObject<bool>();
+            if (actionAffordanceObj["synchronous"] != null) actionAffordance.Synchronous = actionAffordanceObj["synchronous"].ToObject<bool>();
+            if (actionAffordanceObj["forms"] != null) actionAffordance.Forms = serializer.Deserialize(new JTokenReader(actionAffordanceObj["forms"]), objectType: typeof(ActionForm[])) as ActionForm[];
             actionAffordance.OriginalJson = actionAffordanceObj.ToString();
             return actionAffordance;
         }
@@ -1032,14 +1032,14 @@ namespace WoT.TDHelpers
                 var newSerializer = JsonSerializer.CreateDefault(settings);
                 eventAffordance.AtType = newSerializer.Deserialize<string[]>(new JTokenReader(eventAffordanceObj["@type"]));
             }
-            if (eventAffordanceObj["titles"] != null)       eventAffordance.Titles = eventAffordanceObj["titles"].ToObject<MultiLanguage>();
+            if (eventAffordanceObj["titles"] != null) eventAffordance.Titles = eventAffordanceObj["titles"].ToObject<MultiLanguage>();
             if (eventAffordanceObj["descriptions"] != null) eventAffordance.Descriptions = eventAffordanceObj["descriptions"].ToObject<MultiLanguage>();
             if (eventAffordanceObj["subscription"] != null) eventAffordance.Subscription = serializer.Deserialize(new JTokenReader(eventAffordanceObj["subscription"]), objectType: typeof(DataSchema)) as DataSchema;
-            if (eventAffordanceObj["data"] != null)         eventAffordance.Data = serializer.Deserialize(new JTokenReader(eventAffordanceObj["data"]), objectType: typeof(DataSchema)) as DataSchema;
+            if (eventAffordanceObj["data"] != null) eventAffordance.Data = serializer.Deserialize(new JTokenReader(eventAffordanceObj["data"]), objectType: typeof(DataSchema)) as DataSchema;
             if (eventAffordanceObj["dataResponse"] != null) eventAffordance.DataResponse = serializer.Deserialize(new JTokenReader(eventAffordanceObj["dataResponse"]), objectType: typeof(DataSchema)) as DataSchema;
             if (eventAffordanceObj["cancellation"] != null) eventAffordance.Cancellation = serializer.Deserialize(new JTokenReader(eventAffordanceObj["cancellation"]), objectType: typeof(DataSchema)) as DataSchema;
-            if (eventAffordanceObj["forms"] != null)        eventAffordance.Forms = serializer.Deserialize(new JTokenReader(eventAffordanceObj["forms"]), objectType: typeof(EventForm[])) as EventForm[];
-            eventAffordance.OriginalJson =                  eventAffordanceObj.ToString();
+            if (eventAffordanceObj["forms"] != null) eventAffordance.Forms = serializer.Deserialize(new JTokenReader(eventAffordanceObj["forms"]), objectType: typeof(EventForm[])) as EventForm[];
+            eventAffordance.OriginalJson = eventAffordanceObj.ToString();
             return eventAffordance;
         }
 

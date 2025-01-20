@@ -4,12 +4,13 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Tavis.UriTemplates;
-using WoT.Definitions;
-using WoT.Errors;
-using WoT.ProtocolBindings;
-namespace WoT.Implementation
+using WoT.Core.Errors;
+using WoT.Core.Definitions.TD;
+using WoT.Core.Definitions;
+
+namespace WoT.Core.Implementation
 {
-    public class ConsumedThing:IConsumedThing
+    public class ConsumedThing : IConsumedThing
     {
 
         private readonly ThingDescription _td;
@@ -19,8 +20,8 @@ namespace WoT.Implementation
 
         public ConsumedThing(ThingDescription thingDescription, Consumer consumer)
         {
-            this._td = thingDescription;
-            this._consumer = consumer;
+            _td = thingDescription;
+            _consumer = consumer;
             _activeObservations = new Dictionary<string, ISubscription>();
             _activeSubscriptions = new Dictionary<string, ISubscription>();
 
@@ -29,7 +30,7 @@ namespace WoT.Implementation
         #region property operations
         public async Task<IInteractionOutput<T>> ReadProperty<T>(string propertyName, InteractionOptions? options = null)
         {
-            var properties = this._td.Properties;
+            var properties = _td.Properties;
             IProtocolClient protocolClient;
             Form form;
             // 3. Let interaction be [[td]].properties.propertyName.
@@ -44,7 +45,7 @@ namespace WoT.Implementation
                 ClientAndForm clientAndForm = _consumer.GetClientFor(propertyAffordance.Forms, "readproperty", options);
                 protocolClient = clientAndForm.protocolClient;
                 form = clientAndForm.form;
-                if (options.HasValue && options.Value.uriVariables != null) 
+                if (options.HasValue && options.Value.uriVariables != null)
                     form = HandleUriVariables(form, options.Value.uriVariables);
                 if (form == null || protocolClient == null) throw new NotFoundError($"Could not find form/client that allows reading property {propertyName}");
                 Stream responseStream = await protocolClient.SendGetRequest(form);
@@ -55,7 +56,7 @@ namespace WoT.Implementation
 
         public async Task WriteProperty<T>(string propertyName, T value, InteractionOptions? options = null)
         {
-            var properties = this._td.Properties;
+            var properties = _td.Properties;
             IProtocolClient protocolClient;
             Form form;
             // 3. Let interaction be [[td]].properties.propertyName.
@@ -76,7 +77,7 @@ namespace WoT.Implementation
                 if (form == null) throw new Exception($"Could not find a form that allows writing property {propertyName}");
 
                 await protocolClient.SendPutRequest(form, value);
-                
+
             }
         }
 
@@ -117,7 +118,7 @@ namespace WoT.Implementation
                             listener.Invoke(output);
                         }
                     }, subscription.CancellationToken);
-                    
+
                 }
                 catch (TaskCanceledException)
                 {
@@ -200,8 +201,8 @@ namespace WoT.Implementation
         #region action operations
         public async Task<IInteractionOutput> InvokeAction(string actionName, InteractionOptions? options = null)
         {
-            var actions = this._td.Actions;
-            
+            var actions = _td.Actions;
+
             if (!actions.TryGetValue(actionName, out var actionAffordance))
             {
                 // 4. If interaction is undefined, reject promise with a NotFoundError and stop.
@@ -218,7 +219,7 @@ namespace WoT.Implementation
                 if (form == null) throw new Exception($"Could not find a form that allows invoking action {actionName}");
                 Console.Write(form.Href);
                 await protocolClient.SendPostRequest(form);
-               
+
                 InteractionOutput output = new InteractionOutput(form);
                 return output;
             }
@@ -226,7 +227,7 @@ namespace WoT.Implementation
 
         public async Task<IInteractionOutput> InvokeAction<U>(string actionName, U parameters, InteractionOptions? options = null)
         {
-            var actions = this._td.Actions;
+            var actions = _td.Actions;
             if (!actions.TryGetValue(actionName, out var actionAffordance))
             {
                 // 4. If interaction is undefined, reject promise with a NotFoundError and stop.
@@ -242,9 +243,9 @@ namespace WoT.Implementation
                 if (options.HasValue && options.Value.uriVariables != null) form = HandleUriVariables(form, options.Value.uriVariables);
 
                 if (form == null) throw new Exception($"Could not find a form that allows reading property {actionName}");
-               
+
                 await protocolClient.SendPostRequest<U>(form, parameters);
-                
+
                 InteractionOutput output = new InteractionOutput(form);
                 return output;
             }
@@ -252,7 +253,7 @@ namespace WoT.Implementation
 
         public async Task<IInteractionOutput<T>> InvokeAction<T>(string actionName, InteractionOptions? options = null)
         {
-            var actions = this._td.Actions;
+            var actions = _td.Actions;
             if (!actions.TryGetValue(actionName, out var actionAffordance))
             {
                 // 4. If interaction is undefined, reject promise with a NotFoundError and stop.
@@ -277,7 +278,7 @@ namespace WoT.Implementation
 
         public async Task<IInteractionOutput<T>> InvokeAction<T, U>(string actionName, U parameters, InteractionOptions? options = null)
         {
-            var actions = this._td.Actions;
+            var actions = _td.Actions;
             if (!actions.TryGetValue(actionName, out var actionAffordance))
             {
                 // 4. If interaction is undefined, reject promise with a NotFoundError and stop.
@@ -534,7 +535,7 @@ namespace WoT.Implementation
             return _td;
         }
 
-        
+
 
         protected Form HandleUriVariables(Form form, Dictionary<string, object> uriVariables)
         // {"id": "mariz"}

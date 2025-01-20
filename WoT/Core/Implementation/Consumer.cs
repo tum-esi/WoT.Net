@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using WoT.Definitions;
-using WoT.Errors;
-using WoT.ProtocolBindings;
+using WoT.Core.Definitions;
+using WoT.Core.Definitions.TD;
+using WoT.Core.Errors;
 
-namespace WoT.Implementation
+namespace WoT.Core.Implementation
 {
     public class Consumer : IConsumer, IRequester
     {
@@ -19,7 +19,7 @@ namespace WoT.Implementation
         private Dictionary<string, IProtocolClient> _clients;
         private IConsumedThing _consumedThing;
 
-        public Consumer() 
+        public Consumer()
         {
             _clients = new Dictionary<string, IProtocolClient>();
         }
@@ -31,7 +31,7 @@ namespace WoT.Implementation
         }
 
 
-        
+
 
         public Task<ThingDescription> RequestThingDescription(string url)
         {
@@ -41,20 +41,20 @@ namespace WoT.Implementation
 
         public async Task<ThingDescription> RequestThingDescription(Uri tdUrl)
         {
-           
-               Console.WriteLine($"Info: Fetching TD from {tdUrl.OriginalString}");
-               Form tdForm = new Form();
-               tdForm.Href = tdUrl;
-               Stream responseStream = await GetClientFor(tdUrl).SendGetRequest(tdForm);
-               Console.WriteLine($"Info: Fetched TD from {tdUrl.OriginalString} successfully");
-               Console.WriteLine($"Info: Parsing TD");
-               StreamReader streamReader = new StreamReader(responseStream);
-               JsonTextReader jsonReader = new JsonTextReader(streamReader);
-               JsonSerializer serializer = new JsonSerializer();
-               ThingDescription td = serializer.Deserialize<ThingDescription>(jsonReader);
-               Console.WriteLine($"Info: Parsed TD successfully");
-               return td;
-           
+
+            Console.WriteLine($"Info: Fetching TD from {tdUrl.OriginalString}");
+            Form tdForm = new Form();
+            tdForm.Href = tdUrl;
+            Stream responseStream = await GetClientFor(tdUrl).SendGetRequest(tdForm);
+            Console.WriteLine($"Info: Fetched TD from {tdUrl.OriginalString} successfully");
+            Console.WriteLine($"Info: Parsing TD");
+            StreamReader streamReader = new StreamReader(responseStream);
+            JsonTextReader jsonReader = new JsonTextReader(streamReader);
+            JsonSerializer serializer = new JsonSerializer();
+            ThingDescription td = serializer.Deserialize<ThingDescription>(jsonReader);
+            Console.WriteLine($"Info: Parsed TD successfully");
+            return td;
+
         }
 
 
@@ -65,8 +65,8 @@ namespace WoT.Implementation
         }
 
         public void RemoveClient(string scheme)
-        { 
-            _clients.Remove(scheme); 
+        {
+            _clients.Remove(scheme);
         }
         public ClientAndForm GetClientFor(Form[] forms, string op, InteractionOptions? options = null, string contentType = "application/json", string subprotocol = "null")
         {
@@ -77,11 +77,11 @@ namespace WoT.Implementation
             {
                 uint formIndex = options.Value.formIndex.Value;
                 if (formIndex < forms.Length) form = forms[formIndex];
-                if ((op != null && !form.Op.Contains(op)) ||
-                (contentType != null && form.ContentType != contentType) ||
-                (subprotocol != "null" && form.Subprotocol != subprotocol))
+                if (op != null && !form.Op.Contains(op) ||
+                contentType != null && form.ContentType != contentType ||
+                subprotocol != "null" && form.Subprotocol != subprotocol)
                     throw new NotFoundError($"Form at index {formIndex} does not support the given specifications.");
-                else if (!this._clients.TryGetValue(form.Href.Scheme, out var pc))
+                else if (!_clients.TryGetValue(form.Href.Scheme, out var pc))
                 {
                     throw new NotFoundError($"No Protocol Client for Form with href \"{form.Href}\".");
                 }
@@ -95,8 +95,9 @@ namespace WoT.Implementation
                 Form[] filteredForms = forms;
                 if (op != null) { filteredForms = filteredForms.Where((f) => f.Op.Contains(op)).ToArray(); }
                 if (contentType != null) { filteredForms = filteredForms.Where((f) => f.ContentType == contentType).ToArray(); }
-                if (subprotocol != "null") { 
-                    filteredForms = filteredForms.Where((f) => f.Subprotocol == subprotocol).ToArray(); 
+                if (subprotocol != "null")
+                {
+                    filteredForms = filteredForms.Where((f) => f.Subprotocol == subprotocol).ToArray();
                 }
                 if (filteredForms.Length == 0)
                 {
@@ -106,7 +107,7 @@ namespace WoT.Implementation
                 bool foundMatchingScheme = false;
                 foreach (Form f in filteredForms)
                 {
-                    if (this._clients.TryGetValue(f.Href.Scheme, out var pc))
+                    if (_clients.TryGetValue(f.Href.Scheme, out var pc))
                     {
                         form = f;
                         protocolClient = pc;
@@ -122,10 +123,10 @@ namespace WoT.Implementation
 
             return new ClientAndForm(protocolClient, form);
         }
-        
+
         public IProtocolClient GetClientFor(Uri href)
         {
-            if (!this._clients.TryGetValue(href.Scheme, out var pc))
+            if (!_clients.TryGetValue(href.Scheme, out var pc))
             {
                 throw new NotFoundError($"No Protocol Client for href \"{href.OriginalString}\".");
             }
@@ -134,7 +135,7 @@ namespace WoT.Implementation
                 return pc;
             }
         }
-        
+
 
     }
 }

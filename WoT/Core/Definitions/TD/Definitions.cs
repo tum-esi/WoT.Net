@@ -2,10 +2,9 @@ using System.Collections.Generic;
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WoT.TDHelpers;
-using WoT.ProtocolBindings;
+using WoT.Core.Helpers;
 
-namespace WoT.Definitions
+namespace WoT.Core.Definitions.TD
 {
     /// <summary>
     /// A Map providing a set of human-readable texts in different languages identified by language tags described in [<see href="https://www.rfc-editor.org/rfc/rfc5646">BCP47</see>].
@@ -1069,13 +1068,13 @@ namespace WoT.Definitions
 
         /// <summary>
         /// Creates a new instance of <see cref="VersionInfo"/> with the given instance version.
-        /// Sets <see cref="VersionInfo.Model"/> to <c>null</c>
+        /// Sets <see cref="Model"/> to <c>null</c>
         /// </summary>
         /// <param name="instance">version of TD instance</param>
         public VersionInfo(string instance)
         {
-            this.Instance = instance;
-            this.Model = null;
+            Instance = instance;
+            Model = null;
         }
 
 
@@ -1086,8 +1085,8 @@ namespace WoT.Definitions
         /// <param name="model">version of underlying TM</param>
         public VersionInfo(string instance, string model)
         {
-            this.Instance = instance;
-            this.Model = model;
+            Instance = instance;
+            Model = model;
         }
 
         /// <summary>
@@ -1120,7 +1119,7 @@ namespace WoT.Definitions
         /// <param name="contentType">content type of response</param>
         public ExpectedResponse(string contentType)
         {
-            this.ContentType = contentType;
+            ContentType = contentType;
         }
     }
 
@@ -1153,9 +1152,9 @@ namespace WoT.Definitions
         /// <param name="contentType">content type of response</param>
         public AdditionalExpectedResponse(string contentType)
         {
-            this.ContentType = contentType;
-            this.Success = false;
-            this.Schema = null;
+            ContentType = contentType;
+            Success = false;
+            Schema = null;
         }
     }
 

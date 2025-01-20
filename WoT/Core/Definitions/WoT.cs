@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using WoT.Definitions;
-using WoT.Errors;
-using WoT.ProtocolBindings;
+using WoT.Core.Errors;
+using WoT.Core.Definitions.TD;
 
-namespace WoT 
+/// <summary>
+/// A namespace containing all the interfaces and classes that define the core functionality of the Web of Things (WoT) application.
+/// </summary>
+namespace WoT.Core.Definitions
 {
     /// <summary>
     /// An interface describing the capabilities of a <see ref="https://www.w3.org/TR/wot-scripting-api/#dfn-wot-consumer">WoT Consumer</see>
@@ -69,15 +71,15 @@ namespace WoT
     /// <summary>
     /// An interface describing the capabilities of <see ref="https://www.w3.org/TR/wot-scripting-api/#dfn-wot-discovery">WoT Discovery</see>
     /// </summary>
-    public interface IDiscovery: IRequester
+    public interface IDiscovery : IRequester
     {
-        
+
     }
 
     /// <summary>
     /// An interface describing the capabilities of Servient implementing all other conformance interfaces <see cref="IConsumer"/>, <see cref="IProducer"/>, <see cref="IDiscovery"/>
     /// </summary>
-    public interface IServient: IConsumer, IProducer, IDiscovery
+    public interface IServient : IConsumer, IProducer, IDiscovery
     {
 
     }
@@ -129,7 +131,7 @@ namespace WoT
         Task<byte[]> ArrayBuffer();
 
         /// <summary>
-        /// Parses the data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="WoT.Definitions.Form"/>.
+        /// Parses the data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="TD.Form"/>.
         /// </summary>
         /// <returns><see cref="Task"/> with no output</returns>
         Task Value();
@@ -161,7 +163,7 @@ namespace WoT
         /// Represents the <see cref="Form"/> selected from the <see cref="ThingDescription"/> for this WoT <see cref="InteractionAffordance"/>
         /// </summary>
         /// <value>
-        /// <c>selected <see cref="WoT.Definitions.Form"/></c>
+        /// <c>selected <see cref="TD.Form"/></c>
         /// </value>
         Form Form { get; }
 
@@ -180,7 +182,7 @@ namespace WoT
         Task<byte[]> ArrayBuffer();
 
         /// <summary>
-        /// Parses the data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="WoT.Definitions.Form"/>.
+        /// Parses the data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="TD.Form"/>.
         /// </summary>
         /// <returns><see cref="Task"/> that resolves to data of type <typeparamref name="T"/></returns>
         Task<T> Value();
