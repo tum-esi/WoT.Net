@@ -1,4 +1,3 @@
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using WoT.Core.Definitions.TD;
@@ -11,11 +10,14 @@ namespace WoT.Core.Definitions
     public interface IProtocolClient
     {
         string Scheme { get; }
-        Task<Stream> ReadResource(Form form);
-        Task<Stream> ReadResource(Form form, CancellationToken cancellationToken);
-        Task WriteResource<T>(Form form, T value);
-        Task<Stream> InvokeResource(Form form);
-        Task<Stream> InvokeResource<U>(Form form, U parameters);
+        Task<Content> ReadResource(Form form);
+        Task<Content> ReadResource(Form form, CancellationToken cancellationToken);
+        Task WriteResource(Form form, Content Content);
+        Task WriteResource(Form form, Content Content, CancellationToken cancellationToken);
+        Task<Content> InvokeResource(Form form);
+        Task<Content> InvokeResource(Form form, CancellationToken cancellationToken);
+        Task<Content> InvokeResource(Form form, Content content);
+        Task<Content> InvokeResource(Form form, Content content, CancellationToken cancellationToken);
 
         Task<ThingDescription> RequestThingDescription(string url);
 

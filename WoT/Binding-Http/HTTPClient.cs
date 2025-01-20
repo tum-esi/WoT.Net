@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Text;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -28,95 +27,117 @@ namespace WoT.Implementation
 
         }
 
-        
-        public async Task<Stream> ReadResource(Form form)
+        #region ReadResource
+        public async Task<Content> ReadResource(Form form)
         {
-                
-            HttpResponseMessage interactionResponse = await httpClient.GetAsync(form.Href);
-            interactionResponse.EnsureSuccessStatusCode();
-            Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
-            return responseStream;
-            
+            return await ReadResource(form, CancellationToken.None);
         }
-
-       
-
-        public async Task<Stream> ReadResource(Form form, CancellationToken cancellationToken)
+        public async Task<Content> ReadResource(Form form, CancellationToken cancellationToken)
         {
-            HttpResponseMessage interactionResponse = await httpClient.GetAsync(form.Href, cancellationToken);
-            interactionResponse.EnsureSuccessStatusCode();
-            Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
-            return responseStream;
-
-        }
-        public async Task<Stream> InvokeResource(Form form)
-        {
+            // See https://www.w3.org/TR/wot-thing-description11/#contentType-usage
+            // Case: 1B
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, form.Href);
-            var interactionResponse = await httpClient.SendAsync(message);
-            interactionResponse.EnsureSuccessStatusCode();
-            Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
-            return responseStream;
-        }
-        public async Task<Stream> InvokeResource<U>(Form form, U parameters)
-        {
+            message.Headers.Add("Accept", form.ContentType);
+            HttpResponseMessage interactionResponse = await httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
 
-            string payloadString = JsonConvert.SerializeObject(parameters);
-            StringContent payload = new StringContent(payloadString, Encoding.UTF8, "application/json");
+            interactionResponse.EnsureSuccessStatusCode();
+
+            string contentType = interactionResponse.Content.Headers.ContentType?.ToString() ?? ContentSerdes.DEFAULT;
+            byte[] responseBuffer = await interactionResponse.Content.ReadAsByteArrayAsync();
+
+            interactionResponse.Dispose();
+
+            return new Content(contentType, responseBuffer);
+        }
+        #endregion
+
+        #region InvokeResource
+        public async Task<Content> InvokeResource(Form form)
+        {
+            return await InvokeResource(form, null, CancellationToken.None);
+        }
+
+        public async Task<Content> InvokeResource(Form form, CancellationToken cancellationToken)
+        {
+           return await InvokeResource(form, null, cancellationToken);
+        }
+
+        public async Task<Content> InvokeResource(Form form, Content content)
+        {
+            return await InvokeResource(form, content, CancellationToken.None);
+        }
+        public async Task<Content> InvokeResource(Form form, Content content, CancellationToken cancellationToken)
+        {
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, form.Href)
             {
-                Content = payload
+                Content = content != null ? new ByteArrayContent(content.body) : null
             };
-            var interactionResponse = await httpClient.SendAsync(message);
+            if (content != null) message.Content.Headers.Add("Content-Type", content.type);
+
+            if (form.Response?.ContentType != null)
+            {
+                message.Headers.Add("Accept", form.Response?.ContentType);
+            }
+            else if (form.ContentType != null)
+            {
+                message.Headers.Add("Accept", form.ContentType);
+            }
+            else
+            {
+                message.Headers.Add("Accept", ContentSerdes.DEFAULT);
+            }
+            var interactionResponse = await httpClient.SendAsync(message, cancellationToken);
+
             interactionResponse.EnsureSuccessStatusCode();
-            Stream responseStream = await interactionResponse.Content.ReadAsStreamAsync();
-            return responseStream;
+
+            byte[] responseBuffer = await interactionResponse.Content.ReadAsByteArrayAsync();
+            string contentType = interactionResponse.Content.Headers.ContentType?.ToString() ?? ContentSerdes.DEFAULT;
+
+            return new Content(contentType, responseBuffer);
+        }
+        #endregion
+
+        public async Task WriteResource(Form form, Content content)
+        {
+            await WriteResource(form, content, CancellationToken.None);
         }
 
-        public async Task WriteResource<T>(Form form, T value)
+        public async Task WriteResource(Form form, Content content, CancellationToken cancellationToken)
         {
-            string payloadString = JsonConvert.SerializeObject(value);
-            var payload = new StringContent(payloadString, Encoding.UTF8, "application/json");
-            var message = new HttpRequestMessage(HttpMethod.Put, form.Href)
+            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, form.Href)
             {
-                Content = payload
+                Content = new ByteArrayContent(content.body)
             };
-            HttpResponseMessage interactionResponse = await httpClient.SendAsync(message);
+            HttpResponseMessage interactionResponse = await httpClient.SendAsync(message, cancellationToken);
             interactionResponse.EnsureSuccessStatusCode();
-            
         }
 
 
         
 
-        public async Task<ThingDescription> RequestThingDescription(string url)
+        public async Task<Content> RequestThingDescription(string url)
         {
             Uri tdUrl = new Uri(url);
-            HttpResponseMessage tdResponse = await httpClient.GetAsync(tdUrl);
-            tdResponse.EnsureSuccessStatusCode();
-            Console.WriteLine($"Info: Fetched TD from {url} successfully");
-            Console.WriteLine($"Info: Parsing TD");
-            HttpContent body = tdResponse.Content;
-            string tdData = await body.ReadAsStringAsync();
-            TextReader reader = new StringReader(tdData);
-            ThingDescription td = _serializer.Deserialize(reader, typeof(ThingDescription)) as ThingDescription;
-            Console.WriteLine($"Info: Parsed TD successfully");
-            return td;
+            return await RequestThingDescription(tdUrl);
         }
 
-        public async Task<ThingDescription> RequestThingDescription(Uri tdUrl)
+        public async Task<Content> RequestThingDescription(Uri tdUrl)
         {
             if (tdUrl.Scheme != "http") throw new Exception($"The protocol for accessing the TD url {tdUrl.OriginalString} is not HTTP");
             Console.WriteLine($"Info: Fetching TD from {tdUrl.OriginalString}");
-            HttpResponseMessage tdResponse = await httpClient.GetAsync(tdUrl);
+
+            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, tdUrl);
+            message.Headers.Add("Accept", "application/td+json");
+            HttpResponseMessage tdResponse = await httpClient.SendAsync(message);
+
             tdResponse.EnsureSuccessStatusCode();
+
             Console.WriteLine($"Info: Fetched TD from {tdUrl.OriginalString} successfully");
             Console.WriteLine($"Info: Parsing TD");
-            HttpContent body = tdResponse.Content;
-            string tdData = await body.ReadAsStringAsync();
-            TextReader reader = new StringReader(tdData);
-            ThingDescription td = _serializer.Deserialize(reader, typeof(ThingDescription)) as ThingDescription;
-            Console.WriteLine($"Info: Parsed TD successfully");
-            return td;
+            byte[] tdBuffer = await tdResponse.Content.ReadAsByteArrayAsync();
+            string contentType = tdResponse.Content.Headers.ContentType?.ToString() ?? "application/td+json";
+
+            return new Content(contentType, tdBuffer);
         }
     }
 
