@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using WoT.Core.Definitions.TD;
@@ -19,7 +20,8 @@ namespace WoT.Core.Definitions
         Task<Content> InvokeResource(Form form, Content content);
         Task<Content> InvokeResource(Form form, Content content, CancellationToken cancellationToken);
 
-        Task<ThingDescription> RequestThingDescription(string url);
+        Task<Content> RequestThingDescription(string url);
+        Task<Content> RequestThingDescription(Uri url);
 
     }
 
