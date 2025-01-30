@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using WoT.Core.Definitions.TD;
 
 namespace WoT.Core.Helpers
 {
-
-    //Converter to assign the corresponding DataSchema for a given schema
+    /// <summary>
+    /// Converter to assign the corresponding DataSchema for a given schema
+    /// </summary>
     public class DataSchemaConverter : JsonConverter<DataSchema>
     {
 
@@ -254,7 +255,9 @@ namespace WoT.Core.Helpers
         }
     }
 
-    //Converter to assign the corresponding SecurityScheme for a given schema
+    /// <summary>
+    /// Converter to assign the corresponding SecurityScheme for a given schema
+    /// </summary>
     public class SecuritySchemeConverter : JsonConverter<SecurityScheme>
     {
 
@@ -335,7 +338,9 @@ namespace WoT.Core.Helpers
 
     }
 
-    //Converter for Form in TD
+    /// <summary>
+    /// Converter for Form in TD
+    /// </summary>
     public class FormConverter : JsonConverter<Form>
     {
 
@@ -481,7 +486,9 @@ namespace WoT.Core.Helpers
 
     }
 
-    //Converter for ActionForm 
+    /// <summary>
+    /// Converter for ActionForm
+    /// </summary>
     public class ActionFormConverter : JsonConverter<ActionForm>
     {
 
@@ -558,7 +565,9 @@ namespace WoT.Core.Helpers
 
     }
 
-    //Converter for EventForm 
+    /// <summary>
+    /// Converter for EventForm
+    /// </summary>
     public class EventFormConverter : JsonConverter<EventForm>
     {
 
@@ -636,7 +645,9 @@ namespace WoT.Core.Helpers
 
     }
 
-    //Converter to assign the correct type for a given @contex
+    /// <summary>
+    /// Converter to assign the corresponding AtContext for a given schema
+    /// </summary>
     public class AtContextConverter : JsonConverter<object[]>
     {
 
@@ -687,7 +698,9 @@ namespace WoT.Core.Helpers
 
     }
 
-    //Called for properties that can be either string or string[], and it returns string[].
+    /// <summary>
+    /// Converter to assign the corresponding string for a given schema
+    /// </summary>
     public class StringTypeConverter : JsonConverter<string[]>
     {
 
@@ -732,7 +745,9 @@ namespace WoT.Core.Helpers
         }
     }
 
-    //Called for properties that can be either DataSchema or DataSchema[], and it returns DataSchema[].
+    /// <summary>
+    /// Called for properties that can be either DataSchema or DataSchema[], and it returns DataSchema[].
+    /// </summary>
     public class DataSchemaTypeConverter : JsonConverter<DataSchema[]>
     {
 
@@ -788,6 +803,10 @@ namespace WoT.Core.Helpers
 
         }
     }
+
+    /// <summary>
+    /// Converter for PropertyAffordance
+    /// </summary>
     public class PropertyAffordanceConverter : JsonConverter<PropertyAffordance>
     {
         public override void WriteJson(JsonWriter writer, PropertyAffordance value, JsonSerializer serializer)
@@ -975,6 +994,10 @@ namespace WoT.Core.Helpers
             propertyAffordance.OriginalJson = propObj.ToString();
         }
     }
+
+    /// <summary>
+    /// Converter for ActionAffordance
+    /// </summary>
     public class ActionAffordanceConverter : JsonConverter<ActionAffordance>
     {
         public override ActionAffordance ReadJson(JsonReader reader, Type objectType, ActionAffordance existingValue, bool hasExistingValue, JsonSerializer serializer)
