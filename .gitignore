@@ -5,6 +5,7 @@ API_KEY.txt
 **/bin
 **/obj
 .DS_Store
+**/*.user
 
 # Ignore documentation Generation Output
 WoT/docGeneration/api

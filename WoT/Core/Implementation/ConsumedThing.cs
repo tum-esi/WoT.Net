@@ -10,6 +10,9 @@ using WoT.Core.Errors;
 
 namespace WoT.Core.Implementation
 {
+    /// <summary>
+    /// An implementation of <see cref="IConsumedThing"/>
+    /// </summary>
     public class ConsumedThing : IConsumedThing
     {
 
