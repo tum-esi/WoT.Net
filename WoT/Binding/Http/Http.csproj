@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>WoT.Binding.$(AssemblyName)</PackageId>
+    <Title>WoT.Binding.Http</Title>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionSuffix>alpha</VersionSuffix>
+    <Authors>Fady Salama</Authors>
+    <PackageTags>Web of Things; WoT; HTTP; HTTPS</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LaunchDarkly.EventSource" Version="5.1.0" />
+    <PackageReference Include="WoT.Net.Core" Version="1.0.0-alpha" />
+  </ItemGroup>
+
+</Project>
