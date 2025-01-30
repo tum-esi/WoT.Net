@@ -9,7 +9,7 @@ namespace WoT.Core.Implementation.Codecs
 {
     public class JsonCodec : IContentCodec
     {
-        private string _subMediaType;
+        private readonly string _subMediaType;
 
         public JsonCodec(string subMediaType = null)
         {
@@ -21,20 +21,22 @@ namespace WoT.Core.Implementation.Codecs
             return _subMediaType;
         }
 
-        public object BytesToValue(byte[] bytes, DataSchema schema = null, Dictionary<string, string> parameters = null)
+        public T BytesToValue<T>(byte[] bytes, IDataSchema schema = null, Dictionary<string, string> parameters = null)
         {
             string encoding = parameters != null && parameters.ContainsKey("charset") ? parameters["charset"].ToLower() : "utf-8";
-            object parsed;
+            T parsed;
             try
             {
-                parsed = JsonConvert.DeserializeObject(Encoding.GetEncoding(encoding).GetString(bytes));
+                string valueString = Encoding.GetEncoding(encoding).GetString(bytes);
+                parsed = JsonConvert.DeserializeObject<T>(valueString);
             }
             catch (Exception err)
             {
                 if (bytes.Length == 0)
                 {
-                    parsed = null;
-                } else
+                    parsed = default;
+                }
+                else
                 {
                     throw err;
                 }
@@ -42,7 +44,7 @@ namespace WoT.Core.Implementation.Codecs
             return parsed;
         }
 
-        public byte[] ValueToBytes(object value, DataSchema schema = null, Dictionary<string, string> parameters = null)
+        public byte[] ValueToBytes<T>(T value, IDataSchema schema = null, Dictionary<string, string> parameters = null)
         {
             string encoding = parameters != null && parameters.ContainsKey("charset") ? parameters["charset"].ToLower() : "utf-8";
             string body = "";
@@ -50,7 +52,7 @@ namespace WoT.Core.Implementation.Codecs
             {
                 body = JsonConvert.SerializeObject(value);
             }
-            
+
             return Encoding.GetEncoding(encoding).GetBytes(body);
 
         }

@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using WoT.Core.Helpers;
 
 namespace WoT.Core.Definitions.TD
@@ -16,7 +16,11 @@ namespace WoT.Core.Definitions.TD
     /// </remarks>
     public class MultiLanguage : Dictionary<string, string>
     {
-
+        /// <summary>
+        /// Contains additional key-value pairs not defined in the WoT Spec
+        /// </summary>
+        [JsonExtensionData]
+        public IDictionary<string, JToken> AdditionalData { get; set; }
     }
 
     /// <summary>
@@ -62,7 +66,7 @@ namespace WoT.Core.Definitions.TD
         /// Supply a default value. 
         /// </summary>
         /// <remarks>
-        /// The value SHOULD validate against the data schema in which it resides.
+        /// The value SHOULD validate against the Data schema in which it resides.
         /// </remarks>
         object Default { get; set; }
 
@@ -75,7 +79,7 @@ namespace WoT.Core.Definitions.TD
         string Unit { get; set; }
 
         /// <summary>
-        /// Used to ensure that the data is valid against one of the specified schemas in the array.
+        /// Used to ensure that the Data is valid against one of the specified schemas in the array.
         /// </summary>
         /// <remarks>
         /// This can be used to describe multiple input or output schemas.
@@ -103,9 +107,15 @@ namespace WoT.Core.Definitions.TD
         string Format { get; set; }
 
         /// <summary>
-        /// Assignment of JSON-based data types compatible with JSON Schema (one of <c>"boolean"</c>, <c>"integer"</c>, <c>"number"</c>, <c>"string"</c>, <c>"object"</c>, <c>"array"</c>, or <c>"null"</c>).
+        /// Assignment of JSON-based Data types compatible with JSON Schema (one of <c>"boolean"</c>, <c>"integer"</c>, <c>"number"</c>, <c>"string"</c>, <c>"object"</c>, <c>"array"</c>, or <c>"null"</c>).
         /// </summary>
         string Type { get; }
+
+        /// <summary>
+        /// Contains additional key-value pairs not defined in the WoT Spec
+        /// </summary>
+        [JsonExtensionData]
+        IDictionary<string, JToken> AdditionalData { get; set; }
 
     }
 
@@ -116,7 +126,7 @@ namespace WoT.Core.Definitions.TD
     public interface IArraySchema : IDataSchema
     {
         /// <summary>
-        /// Assignment of JSON-based data types compatible with JSON Schema.
+        /// Assignment of JSON-based Data types compatible with JSON Schema.
         /// </summary>
         /// <value>
         ///     Schema type: <c>"array"</c>
@@ -156,7 +166,7 @@ namespace WoT.Core.Definitions.TD
     public interface IBooleanSchema : IDataSchema
     {
         /// <summary>
-        /// Assignment of JSON-based data types compatible with JSON Schema.
+        /// Assignment of JSON-based Data types compatible with JSON Schema.
         /// </summary>
         /// <value>
         ///     Schema type: <c>"boolean"</c>
@@ -179,7 +189,7 @@ namespace WoT.Core.Definitions.TD
     public interface INumberSchema : IDataSchema
     {
         /// <summary>
-        /// Assignment of JSON-based data types compatible with JSON Schema.
+        /// Assignment of JSON-based Data types compatible with JSON Schema.
         /// </summary>
         /// <value>
         ///     Schema type: <c>"number"</c>
@@ -229,7 +239,7 @@ namespace WoT.Core.Definitions.TD
     public interface IIntegerSchema : IDataSchema
     {
         /// <summary>
-        /// Assignment of JSON-based data types compatible with JSON Schema.
+        /// Assignment of JSON-based Data types compatible with JSON Schema.
         /// </summary>
         /// <value>
         ///     Schema type: <c>"integer"</c>
@@ -281,7 +291,7 @@ namespace WoT.Core.Definitions.TD
     public interface IObjectSchema : IDataSchema
     {
         /// <summary>
-        /// Assignment of JSON-based data types compatible with JSON Schema.
+        /// Assignment of JSON-based Data types compatible with JSON Schema.
         /// </summary>
         /// <value>
         ///     Schema type: <c>"object"</c>
@@ -316,7 +326,7 @@ namespace WoT.Core.Definitions.TD
     public interface IStringSchema : IDataSchema
     {
         /// <summary>
-        /// Assignment of JSON-based data types compatible with JSON Schema.
+        /// Assignment of JSON-based Data types compatible with JSON Schema.
         /// </summary>
         /// <value>
         ///     Schema type: <c>"string"</c>
@@ -405,9 +415,9 @@ namespace WoT.Core.Definitions.TD
         /// Define URI template variables according to [<see href="https://www.rfc-editor.org/rfc/rfc6570">RFC6570</see>] as collection based on <see cref="DataSchema"/> declarations.
         /// </summary>
         /// <remarks>
-        /// The Thing level <c>uriVariables</c> can be used in Thing level <c>forms</c> or in Interaction Affordances.
+        /// The Thing level <c>UriVariables</c> can be used in Thing level <c>forms</c> or in Interaction Affordances.
         /// The individual variables DataSchema cannot be an ObjectSchema or an ArraySchema since each variable needs to be serialized to a string inside the <c>href</c> upon the execution of the operation.
-        /// If the same variable is both declared in Thing level uriVariables and in Interaction Affordance level, the Interaction Affordance level variable takes precedence. 
+        /// If the same variable is both declared in Thing level UriVariables and in Interaction Affordance level, the Interaction Affordance level variable takes precedence. 
         /// </remarks>
         /// <seealso cref="DataSchema"/>
         Dictionary<string, DataSchema> UriVariables { get; set; }
@@ -423,7 +433,7 @@ namespace WoT.Core.Definitions.TD
 
 
     /// <summary>
-    /// Metadata that describes the data format used. It can be used for validation.
+    /// Metadata that describes the Data format used. It can be used for validation.
     /// </summary>
     [JsonConverter(typeof(DataSchemaConverter))]
     public class DataSchema : IDataSchema
@@ -446,10 +456,17 @@ namespace WoT.Core.Definitions.TD
         public bool WriteOnly { get; set; }
         public string Format { get; set; }
         public string Type { get; }
+
+
+        /// <summary>
+        /// Contains additional key-value pairs not defined in the WoT Spec
+        /// </summary>
+        [JsonExtensionData]
+        public IDictionary<string, JToken> AdditionalData { get; set; }
     }
 
     /// <summary>
-    ///     Metadata describing data of type <c>array</c>.
+    ///     Metadata describing Data of type <c>array</c>.
     /// </summary>
     /// <remarks>
     ///     This Subclass is indicated by the value <c>"array"</c> assigned to <c>Type</c> in <see cref="DataSchema">DataSchema</see> instances.
@@ -468,7 +485,7 @@ namespace WoT.Core.Definitions.TD
     }
 
     /// <summary>
-    ///     Metadata describing data of type <c>boolean</c>.
+    ///     Metadata describing Data of type <c>boolean</c>.
     /// </summary>
     /// <remarks>
     ///     This Subclass is indicated by the value <c>"boolean"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
@@ -483,7 +500,7 @@ namespace WoT.Core.Definitions.TD
     }
 
     /// <summary>
-    ///     Metadata describing data of type <c>number</c>.
+    ///     Metadata describing Data of type <c>number</c>.
     /// </summary>
     /// <remarks>
     ///     This Subclass is indicated by the value <c>"number"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
@@ -504,7 +521,7 @@ namespace WoT.Core.Definitions.TD
     }
 
     /// <summary>
-    ///     Metadata describing data of type <c>integer</c>.
+    ///     Metadata describing Data of type <c>integer</c>.
     /// </summary>
     /// <remarks>
     ///     This Subclass is indicated by the value <c>"integer"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
@@ -525,7 +542,7 @@ namespace WoT.Core.Definitions.TD
     }
 
     /// <summary>
-    ///     Metadata describing data of type <c>object</c>.
+    ///     Metadata describing Data of type <c>object</c>.
     /// </summary>
     /// <remarks>
     ///     This Subclass is indicated by the value <c>"object"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
@@ -546,7 +563,7 @@ namespace WoT.Core.Definitions.TD
     }
 
     /// <summary>
-    ///     Metadata describing data of type <c>string</c>.
+    ///     Metadata describing Data of type <c>string</c>.
     /// </summary>
     /// <remarks>
     ///     This Subclass is indicated by the value <c>"string"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
@@ -568,20 +585,20 @@ namespace WoT.Core.Definitions.TD
     }
 
     /// <summary>
-    ///     Metadata describing data of type <c>null</c>.
+    ///     Metadata describing Data of type <c>null</c>.
     /// </summary>
     /// <remarks>
     ///     This Subclass is indicated by the value <c>"null"</c> assigned to <c>Type</c> in <see cref="DataSchema"/> instances.
     ///     This Subclass describes only one acceptable value, namely null.
     ///     It is important to note that null does not mean the absence of a value. It is analogous to null in JavaScript, None in Python, null in Java, null in C# and nil in Ruby programming languages.
-    ///     It can be used as part of a oneOf declaration, where it is used to indicate, that the data can also be <c>null</c>.
+    ///     It can be used as part of a oneOf declaration, where it is used to indicate, that the Data can also be <c>null</c>.
     /// </remarks>
     public class NullSchema : DataSchema
     {
         /// <inheritdoc/>
         public NullSchema() { }
         /// <summary>
-        /// Assignment of JSON-based data types compatible with JSON Schema.
+        /// Assignment of JSON-based Data types compatible with JSON Schema.
         /// </summary>
         /// <value>
         ///     Schema type: <c>"null"</c>
@@ -640,6 +657,12 @@ namespace WoT.Core.Definitions.TD
 
         /// <inheritdoc cref="InteractionAffordance.Forms"/>
         public new PropertyForm[] Forms { get; set; }
+
+        /// <summary>
+        /// Contains additional key-value pairs not defined in the WoT Spec
+        /// </summary>
+        [JsonExtensionData]
+        public IDictionary<string, JToken> AdditionalData { get; set; }
 
     }
 
@@ -764,7 +787,7 @@ namespace WoT.Core.Definitions.TD
         public ActionAffordance() { }
 
         /// <summary>
-        /// Used to define the input data schema of the Action.
+        /// Used to define the input Data schema of the Action.
         /// </summary>
         /// <value>
         /// metadata describing input payload
@@ -772,7 +795,7 @@ namespace WoT.Core.Definitions.TD
         public DataSchema Input { get; set; }
 
         /// <summary>
-        /// Used to define the output data schema of the Action.
+        /// Used to define the output Data schema of the Action.
         /// </summary>
         /// <value>
         /// metadata describing output payload
@@ -807,10 +830,16 @@ namespace WoT.Core.Definitions.TD
         public new ActionForm[] Forms { get; set; }
 
 
+        /// <summary>
+        /// Contains additional key-value pairs not defined in the WoT Spec
+        /// </summary>
+        [JsonExtensionData]
+        public IDictionary<string, JToken> AdditionalData { get; set; }
+
     }
 
     /// <summary>
-    /// A Subclass of <see cref="InteractionAffordance"/> that describes an event source, which asynchronously pushes event data to Consumers (e.g., overheating alerts).
+    /// A Subclass of <see cref="InteractionAffordance"/> that describes an event source, which asynchronously pushes event Data to Consumers (e.g., overheating alerts).
     /// </summary>
     [JsonConverter(typeof(EventAffordanceConverter))]
     public class EventAffordance : InteractionAffordance
@@ -819,7 +848,7 @@ namespace WoT.Core.Definitions.TD
         public EventAffordance() { }
 
         /// <summary>
-        /// Defines data that needs to be passed upon subscription, e.g., filters or message format for setting up Webhooks.
+        /// Defines Data that needs to be passed upon subscription, e.g., filters or message format for setting up Webhooks.
         /// </summary>
         /// <value>
         /// metadata describing subscription payload
@@ -827,23 +856,23 @@ namespace WoT.Core.Definitions.TD
         public DataSchema Subscription { get; set; }
 
         /// <summary>
-        /// Defines the data schema of the Event instance messages pushed by the Thing.
+        /// Defines the Data schema of the Event instance messages pushed by the Thing.
         /// </summary>
         /// <value>
-        /// metadata describing notification payload (data received)
+        /// metadata describing notification payload (Data received)
         /// </value>
         public DataSchema Data { get; set; }
 
         /// <summary>
-        /// Defines the data schema of the Event response messages sent by the consumer in a response to a data message.
+        /// Defines the Data schema of the Event response messages sent by the consumer in a response to a Data message.
         /// </summary>
         /// <value>
-        /// metadata describing notification response payload (data sent after each notification)
+        /// metadata describing notification response payload (Data sent after each notification)
         /// </value>
         public DataSchema DataResponse { get; set; }
 
         /// <summary>
-        /// Defines any data that needs to be passed to cancel a subscription, e.g., a specific message to remove a Webhook.
+        /// Defines any Data that needs to be passed to cancel a subscription, e.g., a specific message to remove a Webhook.
         /// </summary>
         /// <value>
         /// metadata describing cancellation payload
@@ -853,6 +882,11 @@ namespace WoT.Core.Definitions.TD
         /// <inheritdoc cref="InteractionAffordance.Forms"/>
         public new EventForm[] Forms { get; set; }
 
+        /// <summary>
+        /// Contains additional key-value pairs not defined in the WoT Spec
+        /// </summary>
+        [JsonExtensionData]
+        public IDictionary<string, JToken> AdditionalData { get; set; }
     }
 
     /// <summary>
@@ -914,7 +948,7 @@ namespace WoT.Core.Definitions.TD
         public ExpectedResponse? Response { get; set; }
 
         /// <summary>
-        /// This optional term can be used if additional expected responses are possible, e.g. for error reporting. Each additional response needs to be distinguished from others in some way (for example, by specifying a protocol-specific error code), and may also have its own data schema.
+        /// This optional term can be used if additional expected responses are possible, e.g. for error reporting. Each additional response needs to be distinguished from others in some way (for example, by specifying a protocol-specific error code), and may also have its own Data schema.
         /// </summary>
         /// <value>
         /// metadata describing additional expected responses
@@ -945,15 +979,19 @@ namespace WoT.Core.Definitions.TD
         /// </value>
         public string[] Op { get; set; }
 
-
+        /// <summary>
+        /// Contains additional key-value pairs not defined in the WoT Spec
+        /// </summary>
+        [JsonExtensionData]
+        public IDictionary<string, JToken> AdditionalData { get; set; }
     }
 
     public struct ClientAndForm
     {
-        public IProtocolClient protocolClient { get; }
-        public Form form { get; }
+        public IProtocolClient ProtocolClient { get; }
+        public Form Form { get; }
 
-        public ClientAndForm(IProtocolClient protocolClient, Form form) { this.protocolClient = protocolClient; this.form = form; }
+        public ClientAndForm(IProtocolClient protocolClient, Form form) { this.ProtocolClient = protocolClient; this.Form = form; }
     }
 
     /// <summary>
@@ -1041,6 +1079,12 @@ namespace WoT.Core.Definitions.TD
         /// </value>
         [JsonConverter(typeof(StringTypeConverter))]
         public string[] Hreflang { get; set; }
+
+        /// <summary>
+        /// Contains additional key-value pairs not defined in the WoT Spec
+        /// </summary>
+        [JsonExtensionData]
+        public IDictionary<string, JToken> AdditionalData { get; set; }
     }
 
 
@@ -1142,7 +1186,7 @@ namespace WoT.Core.Definitions.TD
         public bool Success { get; set; }
 
         /// <summary>
-        /// Used to define the output data schema for an additional response if it differs from the default output data schema. Rather than a DataSchema object, the name of a previous definition given in a schemaDefinitions map must be used.
+        /// Used to define the output Data schema for an additional response if it differs from the default output Data schema. Rather than a DataSchema object, the name of a previous definition given in a schemaDefinitions map must be used.
         /// </summary>
         public string Schema { get; set; }
 
@@ -1206,6 +1250,12 @@ namespace WoT.Core.Definitions.TD
         /// type of security mechanism
         /// </value>
         public string Scheme { get; set; }
+
+        /// <summary>
+        /// Contains additional key-value pairs not defined in the WoT Spec
+        /// </summary>
+        [JsonExtensionData]
+        public IDictionary<string, JToken> AdditionalData { get; set; }
     }
 
     /// <summary>
@@ -1398,7 +1448,7 @@ namespace WoT.Core.Definitions.TD
         public string[] Profile { get; set; }
 
         /// <summary>
-        /// Set of named data schemas. To be used in a <c>schema</c> name-value pair inside an <c>AdditionalExpectedResponse</c> object.
+        /// Set of named Data schemas. To be used in a <c>schema</c> name-value pair inside an <c>AdditionalExpectedResponse</c> object.
         /// </summary>
         /// <seealso cref="DataSchema"/>
         /// <seealso cref="AdditionalExpectedResponse"/>
@@ -1408,15 +1458,15 @@ namespace WoT.Core.Definitions.TD
         /// Define URI template variables according to [<see href="https://www.rfc-editor.org/rfc/rfc6570">RFC6570</see>] as collection based on <see cref="DataSchema"/> declarations.
         /// </summary>
         /// <remarks>
-        /// The Thing level <c>uriVariables</c> can be used in Thing level <c>forms</c> or in Interaction Affordances.
+        /// The Thing level <c>UriVariables</c> can be used in Thing level <c>forms</c> or in Interaction Affordances.
         /// The individual variables DataSchema cannot be an ObjectSchema or an ArraySchema since each variable needs to be serialized to a string inside the <c>href</c> upon the execution of the operation.
-        /// If the same variable is both declared in Thing level uriVariables and in Interaction Affordance level, the Interaction Affordance level variable takes precedence. 
+        /// If the same variable is both declared in Thing level UriVariables and in Interaction Affordance level, the Interaction Affordance level variable takes precedence. 
         /// </remarks>
         /// <seealso cref="DataSchema"/>
         public Dictionary<string, DataSchema> UriVariables { get; set; }
 
         /// <summary>
-        /// Any properties not matching the explicitly defined in properties will be captured in the AdditionalProperties dictionary.
+        /// Contains additional key-value pairs not defined in the WoT Spec
         /// </summary>
         [JsonExtensionData]
         public Dictionary<string, JToken> AdditionalProperties { get; set; }

@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>netstandard2.0</TargetFramework>
+	  <Title>WoT.Net.Core</Title>
+	  <VersionPrefix>1.0.0</VersionPrefix>
+	  <VersionSuffix>alpha</VersionSuffix>
+	  <PackageVersion>$(VersionPrefix)-$(VersionSuffix)</PackageVersion>
+	  <Authors>Fady Salama, Idil Szegin, Mariz Awad</Authors>
+	  <Company>Technical University of Munich, Professorship of Embedded Systems and Internet of Things</Company>
+	  <PackageId>WoT.Net.Core</PackageId>
+	  <Product>WoT.Net.Core</Product>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <PackageProjectUrl>https://tum-esi.github.io/WoT.Net/</PackageProjectUrl>
+	  <Description>A .NET Standard 2.0 implementation of the W3C Web of Things (WoT) Scripting API</Description>
+	  <RepositoryUrl>https://github.com/tum-esi/WoT.Net</RepositoryUrl>
+	  <PackageIcon>wot_dot_net_logo.png</PackageIcon>
+	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	  <PackageLicenseFile>LICENSE</PackageLicenseFile>
+	  <PackageTags>Web of Things; WoT; IoT; HTTP</PackageTags>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include=".\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include=".\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JsonSchema.Net" Version="7.3.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Tavis.UriTemplates" Version="2.0.0" />
+  </ItemGroup>
+</Project>

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using WoT.Core.Errors;
 using WoT.Core.Definitions.TD;
+using WoT.Core.Errors;
 
 /// <summary>
 /// A namespace containing all the interfaces and classes that define the core functionality of the Web of Things (WoT) application.
@@ -19,24 +19,8 @@ namespace WoT.Core.Definitions
         /// Expects an <c>td</c> argument and returns a <see cref="Task"/> that resolves with an object implementing <see cref="IConsumedThing"/> interface that represents a client interface to operate with the Thing.
         /// </summary>
         /// <param name="td">TD of the client Thing</param>
-        /// <returns> Task that resolves with an object implementing <see cref="IConsumedThing"/> interface </returns>
+        /// <returns> Task that resolves with an object implementing <see cref="IConsumedThing"/> </returns>
         /// <seealso href="https://www.w3.org/TR/wot-scripting-api/#the-consume-method">WoT Scripting API</seealso>
-
-
-        //AddClientFactory(string scheme);
-        //RemoveClientFactory(string scheme);
-        /// <summary>
-        /// Returns the <see cref="IProtocolClient"/> and <see cref="Form"/> available to the <see cref="IConsumedThing"/> object 
-        /// from the given forms, schemes and specifications.
-        /// </summary>
-        /// <returns>Protocol Client with matching Scheme</returns>
-        ClientAndForm GetClientFor(Form[] forms, string op, InteractionOptions? options = null, string contentType = "application/json", string subprotocol = "null");
-        IProtocolClient GetClientFor(Uri href);
-        void AddClient(IProtocolClient protocolClient);
-
-        void RemoveClient(string scheme);
-
-
         IConsumedThing Consume(ThingDescription td);
     }
 
@@ -45,6 +29,12 @@ namespace WoT.Core.Definitions
     /// </summary>
     public interface IProducer
     {
+        /// <summary>
+        /// Produces a Thing from the given <see cref="ThingDescription"/> and returns a <see cref="Task"/> that resolves with an object implementing <see cref="IExposedThing"/> interface that represents a server interface to operate with the Thing.
+        /// </summary>
+        /// <param name="td">TD of the exposed Thing</param>
+        /// <returns>Task that resolves with an object implementing <see cref="IExposedThing"/></returns>
+        /// <seealso cref="https://www.w3.org/TR/wot-scripting-api/#the-produce-method"/>
         Task<IExposedThing> Produce(ThingDescription td);
     }
 
@@ -54,18 +44,20 @@ namespace WoT.Core.Definitions
     public interface IRequester
     {
         /// <summary>
-        /// Requests a Thing Description from the given URL.
+        /// Requests a Thing Description from the given string URI.
         /// </summary>
-        /// <param name="url">URL as a string</param>
+        /// <param name="uri">URL as a string</param>
         /// <returns>Deserialized TD</returns>
-        Task<ThingDescription> RequestThingDescription(string url);
+        /// <seealso cref="https://www.w3.org/TR/wot-scripting-api/#the-requestthingdescription-method"/>
+        Task<ThingDescription> RequestThingDescription(string uri);
 
         /// <summary>
-        /// Requests a Thing Description from the given URL.
+        /// Requests a Thing Description from the given <see cref="Uri"/>.
         /// </summary>
-        /// <param name="url">URL as a URI object</param>
+        /// <param name="uri">URL as a URI object</param>
         /// <returns>Deserialized TD</returns>
-        Task<ThingDescription> RequestThingDescription(Uri url);
+        /// <seealso cref="https://www.w3.org/TR/wot-scripting-api/#the-requestthingdescription-method"/>
+        Task<ThingDescription> RequestThingDescription(Uri uri);
     }
 
     /// <summary>
@@ -85,10 +77,21 @@ namespace WoT.Core.Definitions
     }
 
     /// <summary>
-    /// An interface for InteractionOutputs with no output data
+    /// An interface for the output value of an Interaction. It contains the value of the output and a boolean flag to indicate if the output is empty.
+    /// <remarks> This is needed because generic value types in C# 7.3 are not nullable</remarks>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IInteractionOutputValue<T>
+    {
+        bool IsEmpty { get; }
+        T Value { get; }
+    }
+
+    /// <summary>
+    /// An interface for InteractionOutputs with no output Data
     /// </summary>
     /// <remarks>
-    /// As this <c>InteractionOutput</c> interface represents and output with no data, all properties of this interface will be set to <c>null</c>
+    /// As this <c>InteractionOutput</c> interface represents and output with no Data, all properties of this interface will be set to <c>null</c>
     /// </remarks>
     public interface IInteractionOutput
     {
@@ -101,7 +104,7 @@ namespace WoT.Core.Definitions
         Stream Data { get; }
 
         /// <summary>
-        /// Tells whether the data stream has been disturbed
+        /// Tells whether the Data stream has been disturbed
         /// </summary>
         /// <value>
         /// <c>false</c>
@@ -124,38 +127,40 @@ namespace WoT.Core.Definitions
         /// </value>
         IDataSchema Schema { get; }
 
+        bool IgnoreValidation { get; }
+
         /// <summary>
-        /// Returns data stream as array of bytes
+        /// Returns Data stream as array of bytes
         /// </summary>
         /// <returns><see cref="Task"/> that resolves with empty array</returns>
         Task<byte[]> ArrayBuffer();
 
         /// <summary>
-        /// Parses the data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="TD.Form"/>.
+        /// Parses the Data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="TD.Form"/>.
         /// </summary>
         /// <returns><see cref="Task"/> with no output</returns>
         Task Value();
     }
 
     /// <summary>
-    /// An interface for InteractionOutputs with output data
+    /// An interface for InteractionOutputs with output Data
     /// </summary>
-    /// <typeparam name="T">output data type</typeparam>
+    /// <typeparam name="T">output Data type</typeparam>
     public interface IInteractionOutput<T>
     {
         /// <summary>
         /// Represents the raw payload in WoT Interactions as a <see cref="Stream"/>
         /// </summary>
         /// <value>
-        /// <c>output data stream</c>
+        /// <c>output Data stream</c>
         /// </value>
         Stream Data { get; }
 
         /// <summary>
-        /// Tells whether the data stream has been disturbed
+        /// Tells whether the Data stream has been disturbed
         /// </summary>
         /// <value>
-        /// <c>data stream distribution status</c>
+        /// <c>Data stream distribution status</c>
         /// </value>
         bool DataUsed { get; }
 
@@ -176,16 +181,16 @@ namespace WoT.Core.Definitions
         IDataSchema Schema { get; }
 
         /// <summary>
-        /// Returns data stream as array of bytes
+        /// Returns Data stream as array of bytes
         /// </summary>
-        /// <returns><see cref="Task"/> that resolves with data represented as <c>byte[]</c></returns>
+        /// <returns><see cref="Task"/> that resolves with Data represented as <c>byte[]</c></returns>
         Task<byte[]> ArrayBuffer();
 
         /// <summary>
-        /// Parses the data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="TD.Form"/>.
+        /// Parses the Data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="TD.Form"/>.
         /// </summary>
-        /// <returns><see cref="Task"/> that resolves to data of type <typeparamref name="T"/></returns>
-        Task<T> Value();
+        /// <returns><see cref="Task"/> that resolves to Data of type <typeparamref name="T"/></returns>
+        Task<IInteractionOutputValue<T>> Value();
 
     }
 
@@ -280,42 +285,33 @@ namespace WoT.Core.Definitions
         /// </summary>
         /// <typeparam name="T">type of Property value</typeparam>
         /// <param name="propertyName">name of Property to be observed</param>
-        /// <param name="listener">a callback function that is executed once a Property value change was notified; takes <see cref="IInteractionOutput{T}"/> as input representing received data</param>
+        /// <param name="listener">a callback function that is executed once a Property value change was notified; takes <see cref="IInteractionOutput{T}"/> as input representing received Data</param>
+        /// <param name="onerror">a callback function that executed if the request fails; takes <see cref="Exception"/> as input</param>
         /// <param name="options">additional options for performing the interaction</param>
         /// <returns><see cref="Task"/> that resolves with <see cref="ISubscription"/> representing the active subscription</returns>
         /// <exception cref="NotAllowedError"/>
-        Task<ISubscription> ObserveProperty<T>(string propertyName, Action<IInteractionOutput<T>> listener, InteractionOptions? options = null);
-
-        /// <inheritdoc cref="ObserveProperty{T}(string, Action{IInteractionOutput{T}}, InteractionOptions?)"/>
-        /// <param name="onerror">a callback function that executed if the request fails; takes <see cref="Exception"/> as input</param>
-        Task<ISubscription> ObserveProperty<T>(string propertyName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror, InteractionOptions? options = null);
+        Task<ISubscription> ObserveProperty<T>(string propertyName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror = null, InteractionOptions? options = null);
 
         /// <summary>
-        /// Makes a request for subscribing to Event notifications that do not provide data.
+        /// Makes a request for subscribing to Event notifications that do not provide Data.
         /// </summary>
         /// <param name="eventName">name of Event</param>
         /// <param name="listener">a callback function that is executed once notified. Does not take any parameters</param>
+        /// <param name="onerror">a callback function that executed if the request fails; takes <see cref="Exception"/> as input</param>
         /// <param name="options">additional options for performing the interaction</param>
         /// <returns><see cref="Task"/> that resolves with <see cref="ISubscription"/> representing the active subscription</returns>
-        Task<ISubscription> SubscribeEvent(string eventName, Action listener, InteractionOptions? options = null);
-
-        /// <inheritdoc cref="ObserveProperty{T}(string, Action{IInteractionOutput{T}}, InteractionOptions?)"/>
-        /// <param name="onerror">a callback function that executed if the request fails; takes <see cref="Exception"/> as input</param>
-        Task<ISubscription> SubscribeEvent(string eventName, Action listener, Action<Exception> onerror, InteractionOptions? options = null);
+        Task<ISubscription> SubscribeEvent(string eventName, Action listener, Action<Exception> onerror = null, InteractionOptions? options = null);
 
         /// <summary>
-        /// Makes a request for subscribing to Event notifications that provide data.
+        /// Makes a request for subscribing to Event notifications that provide Data.
         /// </summary>
-        /// <typeparam name="T">type of received payload data</typeparam>
+        /// <typeparam name="T">type of received payload Data</typeparam>
         /// <param name="eventName">name of Event</param>
-        /// <param name="listener">a callback function that is executed once notified. Takes <see cref="IInteractionOutput{T}"/> as input representing received data</param>
+        /// <param name="listener">a callback function that is executed once notified. Takes <see cref="IInteractionOutput{T}"/> as input representing received Data</param>
+        /// <param name="onerror">a callback function that executed if the request fails; takes <see cref="Exception"/> as input</param>
         /// <param name="options">additional options for performing the interaction</param>
         /// <returns><see cref="Task"/> that resolves with <see cref="ISubscription"/> representing the active subscription</returns>
-        Task<ISubscription> SubscribeEvent<T>(string eventName, Action<IInteractionOutput<T>> listener, InteractionOptions? options = null);
-
-        /// <inheritdoc cref="SubscribeEvent{T}(string, Action{IInteractionOutput{T}}, InteractionOptions?)"/>
-        /// <param name="onerror">a callback function that executed if the request fails; takes <see cref="Exception"/> as input</param>
-        Task<ISubscription> SubscribeEvent<T>(string eventName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror, InteractionOptions? options = null);
+        Task<ISubscription> SubscribeEvent<T>(string eventName, Action<IInteractionOutput<T>> listener, Action<Exception> onerror = null, InteractionOptions? options = null);
 
         /// <summary>
         /// Returns the <see cref="ThingDescription"/> of the <see cref="IConsumedThing"/> object that represents the Thing Description of the <see cref="IConsumedThing"/>. Applications may consult the Thing metadata stored in <see cref="ThingDescription"/> in order to introspect its capabilities before interacting with it.
@@ -351,21 +347,27 @@ namespace WoT.Core.Definitions
     /// Holds the interaction options that need to be exposed for application scripts.
     /// </summary>
     public struct InteractionOptions
-    {
+    {   
+        private uint? _formIndex;
+
         /// <summary>
         /// Represents an application hint for which Form definition, identified by this index, of the TD to use for the given WoT interaction.
         /// </summary>
-        public uint? formIndex;
+        public uint? FormIndex { get => _formIndex; 
+            set {
+                _formIndex = value;
+            } 
+        }
 
         /// <summary>
         /// Represents the URI template variables to be used with the WoT Interaction
         /// </summary>
-        public Dictionary<string, object> uriVariables;
+        public Dictionary<string, object> UriVariables { get; set; }
 
         /// <summary>
-        /// Represents additional opaque data that needs to be passed to the interaction.
+        /// Represents additional opaque Data that needs to be passed to the interaction.
         /// </summary>
-        public object data;
+        public object Data { get; set; }
 
     }
 

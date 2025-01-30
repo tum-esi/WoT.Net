@@ -1,21 +1,44 @@
+using Json.Schema;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Schema;
 using System;
-using System.Text;
-using System.Collections.Generic;
 using System.IO;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using WoT.Core.Errors;
-using WoT.Core.Definitions.TD;
 using WoT.Core.Definitions;
+using WoT.Core.Definitions.TD;
+using WoT.Core.Errors;
+
 namespace WoT.Core.Implementation
 {
+
+    /// <summary>
+    /// An implementation of <see cref="IInteractionOutputValue{T}"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public struct InteractionOutputValue<T> : IInteractionOutputValue<T>
+    {
+        /// <summary>
+        /// Indicates if the output is empty
+        /// </summary>
+        public bool IsEmpty { get; internal set; }
+
+        /// <summary>
+        /// The value of the output
+        /// </summary>
+        public T Value { get; internal set; }
+    }
+
+    /// <summary>
+    /// An implementation of <see cref="IInteractionOutput"/>
+    /// </summary>
     public class InteractionOutput : IInteractionOutput
     {
         private readonly Form _form;
-        public InteractionOutput(Form form)
+        private bool _ignoreValidation = false;
+        public InteractionOutput(Form form, bool ignoreValidation = false)
         {
             _form = form;
+            _ignoreValidation = ignoreValidation;
         }
         public Stream Data => null;
 
@@ -24,6 +47,8 @@ namespace WoT.Core.Implementation
         public Form Form => _form;
 
         public IDataSchema Schema => null;
+
+        public bool IgnoreValidation => _ignoreValidation;
 
         public Task<byte[]> ArrayBuffer()
         {
@@ -38,64 +63,40 @@ namespace WoT.Core.Implementation
     /// <summary>
     /// An implementation of <see cref="IInteractionOutput{T}"/>
     /// </summary>
-    /// <typeparam name="T">output data type</typeparam>
+    /// <typeparam name="T">output Data type</typeparam>
     public class InteractionOutput<T> : IInteractionOutput<T>
     {
+        private readonly Content _content;
+        private T _value;
+        private byte[] _buffer;
         private readonly Form _form;
-        private readonly Stream _data;
-        private bool _dataUsed;
-        private readonly T _value;
-        private bool _isValueSet;
         private readonly IDataSchema _schema;
-        private readonly JSchema _parsedSchema;
-        private readonly JsonSerializer _serializer;
-        public InteractionOutput(DataSchema schema, Form form, Stream data)
+        private bool _dataUsed;
+        private bool _ignoreValidation;
+        public InteractionOutput(Content content, Form form, IDataSchema schema, bool ignoreValidation = false)
         {
+            _content = content;
             _form = form;
-            _data = data;
-            _dataUsed = false;
-            //_content = content;
             _schema = schema;
-            string schemaString = JsonConvert.SerializeObject(schema, settings: new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-            _parsedSchema = JSchema.Parse(schemaString);
-            _serializer = new JsonSerializer();
-
+            _ignoreValidation = ignoreValidation;
         }
-        public InteractionOutput(DataSchema schema, Form form, Stream data, T value)
+        public Stream Data
         {
-            _form = form;
-            _data = data;
-            _dataUsed = false;
-            _value = value;
-            _isValueSet = true;
-            _schema = schema;
-            string schemaString = JsonConvert.SerializeObject(schema, settings: new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-            _parsedSchema = JSchema.Parse(schemaString);
-            _serializer = new JsonSerializer();
+            get
+            {
+                if (_dataUsed)
+                {
+                    throw new NotReadableError("Can't read the stream once it has been already used");
+                }
 
-        }
-        public InteractionOutput(PropertyAffordance schema, Form form, Stream data)
-        {
-            _form = form;
-            _data = data;
-            //_content = content;
-            _schema = schema;
-            _parsedSchema = JSchema.Parse(schema.OriginalJson);
-            _serializer = new JsonSerializer();
+                // Once the stream is created Data might be pulled unpredictably
+                // therefore we assume that it is going to be used to be safe.
+                _dataUsed = true;
 
-        }
-        public InteractionOutput(PropertyAffordance schema, Form form, Stream data, T value)
-        {
-            _form = form;
-            _data = data;
-            _value = value;
-            _isValueSet = true;
-            _schema = schema;
-            _parsedSchema = JSchema.Parse(schema.OriginalJson);
-            _serializer = new JsonSerializer();
 
+                return _content.body;
+            }
         }
-        public Stream Data => _data;
 
         public bool DataUsed => _dataUsed;
 
@@ -105,56 +106,84 @@ namespace WoT.Core.Implementation
 
         public async Task<byte[]> ArrayBuffer()
         {
-            Task<byte[]> task = Task.Run(() =>
-           {
-               if (!_data.CanRead || _dataUsed)
-               {
-                   throw new NotReadableError();
-               }
-               MemoryStream ms = new MemoryStream();
-               _data.CopyTo(ms);
-               _dataUsed = true;
-               byte[] arrayBuffer = ms.ToArray();
-               return arrayBuffer;
-           });
-            return await task;
+            if (_buffer != null)
+            {
+                return _buffer;
+            }
+
+            if (!Data.CanRead || _dataUsed)
+            {
+                throw new NotReadableError("Can't read the stream once it has been already used");
+            }
+
+
+            return await this._content.ToBuffer();
         }
 
-        public async Task<T> Value()
-        {
-            Task<T> task = Task.Run(() =>
-            {
-                if (!_data.CanRead || _dataUsed)
-                {
-                    throw new NotReadableError();
-                }
-                StreamReader sr = new StreamReader(_data, Encoding.UTF8);
-                string valueJson = sr.ReadToEnd();
-                _dataUsed = true;
-                // Intialize validating schema
-                JsonTextReader reader = new JsonTextReader(new StringReader(valueJson));
-                JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader)
-                {
-                    Schema = _parsedSchema
-                };
-                //Add Error listener
-                IList<string> messages = new List<string>();
-                validatingReader.ValidationEventHandler += (o, a) => messages.Add(a.Message);
-                //Deserialize
-                T value = _serializer.Deserialize<T>(validatingReader);
 
-                bool isValid = messages.Count == 0;
-                if (isValid)
+        public async Task<IInteractionOutputValue<T>> Value()
+        {
+            if (_schema == null)
+            {
+                Console.WriteLine("No schema defined. Hence null is reported for Value() function.If you are invoking an action with no output that is on purpose, otherwise consider using arrayBuffer().");
+                return new InteractionOutputValue<T> { IsEmpty = true, Value = default };
+            }
+
+            if (_value != null && !_value.Equals(default(T))) { return new InteractionOutputValue<T>() { IsEmpty = false, Value = _value }; }
+
+            if (_dataUsed)
+            {
+                throw new NotReadableError("Can't read the stream once it has been already used");
+            }
+
+            if (_form == null)
+            {
+                throw new NotReadableError("No form defined");
+            }
+
+            if (_schema.Const == null && _schema.Enum == null && _schema.OneOf == null && _schema.Type == null)
+            {
+                throw new NotReadableError("No schema type defined");
+            }
+
+            if (!ContentSerdes.GetInstance().IsSupported(_content.type))
+            {
+                throw new NotSupportedError($"Content type {_content.type} not supported");
+            }
+
+            var bytes = await _content.ToBuffer();
+            _dataUsed = true;
+            _buffer = bytes;
+
+            _value = ContentSerdes.GetInstance().ContentToValue<T>(new ReadContent(type: _content.type, body: bytes), _schema);
+
+            EvaluationResults result = null;
+            if (!_ignoreValidation)
+            {
+                string schemaString = JsonConvert.SerializeObject(_schema);
+                string valueString = JsonConvert.SerializeObject(_value);
+
+                var schema = JsonSchema.FromText(schemaString);
+                var valueNode = JsonNode.Parse(valueString);
+                result = schema.Evaluate(valueNode);
+            }
+
+
+            if (result == null || result.IsValid)
+            {
+                if (bytes.Length > 0)
                 {
-                    return value;
+                    return new InteractionOutputValue<T> { IsEmpty = false, Value = _value };
                 }
                 else
                 {
-                    throw new Exception("Schema Validation failed for value of readProperty");
+                    return new InteractionOutputValue<T> { IsEmpty = true, Value = default };
                 }
-            });
-            return await task;
+            }
+            else
+            {
+                throw new Exception("Invalid value according to DataSchema");
+            }
         }
     }
-
 }

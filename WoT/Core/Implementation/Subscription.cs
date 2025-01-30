@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Threading;
-using WoT.Core.Definitions.TD;
 using WoT.Core.Definitions;
+using WoT.Core.Definitions.TD;
+
 namespace WoT.Core.Implementation
 {
     /// <summary>
@@ -14,13 +15,7 @@ namespace WoT.Core.Implementation
         private readonly string _name;
         private readonly InteractionAffordance _interaction;
         private readonly Form _form;
-        private readonly ConsumedThing _thing;
-        private bool _active;
-        private CancellationToken _cancellationToken;
-        public CancellationTokenSource tokenSource;
-
-        public event EventHandler StopEvent;
-        public event EventHandler StopObservation;
+        private readonly IProtocolSubscription _protocolSubscription;
 
         /// <summary>
         /// Subscription Types
@@ -31,44 +26,90 @@ namespace WoT.Core.Implementation
             Observation
         }
 
-        public Subscription(SubscriptionType type, string name, InteractionAffordance interaction, Form form, ConsumedThing thing)
+        /// <summary>
+        /// Create a new Subscription
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <param name="interaction"></param>
+        /// <param name="form"></param>
+        /// <param name="thing"></param>
+        /// <param name="internalSub"></param>
+        public Subscription(SubscriptionType type, 
+            string name, 
+            InteractionAffordance interaction, 
+            Form form,
+            IProtocolSubscription internalSub)
         {
             _type = type;
             _name = name;
+            _form = form;
             _interaction = interaction;
-            _thing = thing;
-            _active = true;
-            tokenSource = new CancellationTokenSource();
-            _cancellationToken = tokenSource.Token;
-            switch (_type)
-            {
-                case SubscriptionType.Event:
-                    _thing.AddSubscription(_name, this);
-                    break;
-                case SubscriptionType.Observation:
-                    _thing.AddObservation(_name, this);
-                    break;
-            }
-
+            _protocolSubscription = internalSub;
         }
 
-        public bool Active => _active;
-        public CancellationToken CancellationToken => _cancellationToken;
+        public bool Active => !_protocolSubscription.Closed;
 
-        public async Task Stop(InteractionOptions? options = null)
+        public Task Stop(InteractionOptions? options = null)
         {
-            _active = false;
-            if (_type == SubscriptionType.Event)
+            var tsc = new TaskCompletionSource<bool>();
+            try
             {
-                _thing.RemoveSubscription(_name);
-                StopEvent?.Invoke(this, EventArgs.Empty);
+                _protocolSubscription.Close();
+                tsc.SetResult(true);
             }
-            if (_type == SubscriptionType.Observation)
+            catch (Exception ex)
             {
-                _thing.RemoveObservation(_name);
-                StopObservation?.Invoke(this, EventArgs.Empty);
+                tsc.SetException(ex);
             }
+            return tsc.Task;
+        }
+
+        public int FindBestMatchingUnlinkFormIndex()
+        {
+            string operation = _type == SubscriptionType.Event ? "unsubscribeevent" : "unobserveproperty";
+            int maxScore = 0;
+            int maxScoreIndex = -1;
+
+            for (int i = 0; i < _interaction.Forms.Length; i++)
+            {
+                int score = 0;
+                Form currentForm = _interaction.Forms[i];
+                List<string> currentOps = new List<string>(currentForm.Op);
+                if (currentOps.Contains(operation)) score += 1;
+                if (currentForm.Href.Authority == _form.Href.Authority) score += 1;
+                if (currentForm.ContentType == _form.ContentType) score += 1;
+
+                if (score > maxScore)
+                {
+                    maxScore = score;
+                    maxScoreIndex = i;
+                }
+            }
+
+            if (maxScoreIndex < 0)
+            {
+                string unlinkText;
+                string interactionText;
+                if (_type == SubscriptionType.Event)
+                {
+                    interactionText = "event";
+                    unlinkText = "unsubscribing";
+                }
+                else
+                {
+                    interactionText = "property";
+                    unlinkText = "unobserving";
+                }
+                throw new Exception($"Could not find matching form for {unlinkText} {interactionText} {_name}");
+            }
+            return maxScoreIndex;
+        }
+
+        public Form FindBestMatchingUnlinkForm()
+        {
+            int maxScoreIndex = FindBestMatchingUnlinkFormIndex();
+            return _interaction.Forms[maxScoreIndex];
         }
     }
-
 }

@@ -10,13 +10,32 @@ using WoT.Core.Implementation.Codecs;
 
 namespace WoT.Core.Definitions
 {
+    /// <summary>
+    /// Interface for content codecs. To be implemented by classes that provide serialization/deserialization of content.
+    /// </summary>
     public interface IContentCodec
     {
         string GetMediaType();
-        object BytesToValue(byte[] bytes, DataSchema schema = null, Dictionary<string, string> parameters = null);
-        byte[] ValueToBytes(object value, DataSchema schema = null, Dictionary<string, string> parameters = null);
+        T BytesToValue<T>(byte[] bytes, IDataSchema schema = null, Dictionary<string, string> parameters = null);
+        byte[] ValueToBytes<T>(T value, IDataSchema schema = null, Dictionary<string, string> parameters = null);
+    }
+    /// <summary>
+    /// A struct for content read from a stream.
+    /// </summary>
+    public struct ReadContent
+    {
+        public string type;
+        public byte[] body;
+        public ReadContent(string type, byte[] body)
+        {
+            this.type = type;
+            this.body = body;
+        }
     }
 
+    /// <summary>
+    /// Content Management class for serialization/deserialization of content.
+    /// </summary>
     public class ContentSerdes
     {
         private static ContentSerdes instance;
@@ -32,6 +51,10 @@ namespace WoT.Core.Definitions
 
         public object Log { get; private set; }
 
+        /// <summary>
+        /// Get the singleton instance of the ContentSerdes class.
+        /// </summary>
+        /// <returns>a singleton instance of ContentSerdes</returns>
         public static ContentSerdes GetInstance()
         {
             if (instance == null)
@@ -47,6 +70,11 @@ namespace WoT.Core.Definitions
             return instance;
         }
 
+        /// <summary>
+        /// Get the media type from a content type string.
+        /// </summary>
+        /// <param name="contentType">content type</param>
+        /// <returns>media type</returns>
         public static string GetMediaType(string contentType)
         {
             Match match = mediaTypeRegex.Match(contentType);
@@ -57,13 +85,18 @@ namespace WoT.Core.Definitions
             return null;
         }
 
+        /// <summary>
+        /// Get the media type parameters from a content type string.
+        /// </summary>
+        /// <param name="contentType">content type as a string</param>
+        /// <returns>a dictionary of all media types and their parameters</returns>
         public static Dictionary<string, string> GetMediaTypeParameters(string contentType)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             Match match = mediaTypeRegex.Match(contentType);
             if (match.Success)
             {
-                for(int i = 0; i < match.Groups["parameter"].Captures.Count; i++)
+                for (int i = 0; i < match.Groups["parameter"].Captures.Count; i++)
                 {
                     parameters.Add(match.Groups["parameter"].Captures[i].Value, match.Groups["value"].Captures[i].Value);
                 }
@@ -71,72 +104,106 @@ namespace WoT.Core.Definitions
             return parameters;
         }
 
+        /// <summary>
+        /// Add a codec to the ContentSerdes instance.
+        /// </summary>
+        /// <param name="codec">new codec</param>
+        /// <param name="offered">signals if a codec should be offered by a Exposed Things</param>
         public void AddCodec(IContentCodec codec, bool offered = false)
         {
-            ContentSerdes.GetInstance()._codecs.Add(codec.GetMediaType(), codec);
+            _codecs.Add(codec.GetMediaType(), codec);
             if (offered)
             {
-                ContentSerdes.GetInstance()._offered.Add(codec.GetMediaType());
+                _offered.Add(codec.GetMediaType());
             }
         }
 
+        /// <summary>
+        /// Get the supported media types.
+        /// </summary>
+        /// <returns>array of supported media types as strings</returns>
         public string[] GetSupportedMediaTypes()
         {
-            return ContentSerdes.GetInstance()._codecs.Keys.ToArray();
+            return _codecs.Keys.ToArray();
         }
 
+        /// <summary>
+        /// Get the offered media types.
+        /// </summary>
+        /// <returns>array of offered media types as strings</returns>
         public string[] GetOfferedMediaTypes()
         {
-            return ContentSerdes.GetInstance()._offered.ToArray();
+            return _offered.ToArray();
         }
 
+        /// <summary>
+        /// Check if a content type is supported.
+        /// </summary>
+        /// <param name="contentType">the content type to check for</param>
+        /// <returns><see langword="true"/> if supported, otherwise <see langword="false"/></returns>
         public bool IsSupported(string contentType)
         {
-            return ContentSerdes.GetInstance()._codecs.ContainsKey(GetMediaType(contentType));
+            return _codecs.ContainsKey(GetMediaType(contentType));
         }
 
-        public object ContentToValue(Content content, DataSchema schema)
+        /// <summary>
+        /// Transform content to a value.
+        /// </summary>
+        /// <typeparam name="T">value type</typeparam>
+        /// <param name="content">content</param>
+        /// <param name="schema">schema for object validation</param>
+        /// <returns></returns>
+        public T ContentToValue<T>(ReadContent content, IDataSchema schema)
         {
             if (content.type == null)
             {
                 if (content.body.Length > 0)
                 {
                     // default to application/json
-                    content.type = ContentSerdes.DEFAULT;
+                    content.type = DEFAULT;
                 }
                 else
                 {
                     // empty payload without media type -> void/undefined (note: e.g., empty payload with text/plain -> "")
-                    return null;
+                    return default;
                 }
             }
 
-            string mt = ContentSerdes.GetMediaType(content.type);
-            Dictionary<string, string> par = ContentSerdes.GetMediaTypeParameters(content.type);
+            string mt = GetMediaType(content.type);
+            Dictionary<string, string> par = GetMediaTypeParameters(content.type);
 
-            if (this._codecs.ContainsKey(mt))
+            if (_codecs.ContainsKey(mt))
             {
-                return this._codecs[mt].BytesToValue(content.body, schema, par);
+                return _codecs[mt].BytesToValue<T>(content.body, schema, par);
             }
             else
             {
                 Console.WriteLine($"ContentSerdes passthrough due to unsupported media type {mt}");
-                return Encoding.UTF8.GetString(content.body);
+                return (T)JsonConvert.DeserializeObject(Encoding.UTF8.GetString(content.body));
             }
         }
 
-        public Content ValueToContent(object value, string contentType, DataSchema schema)
+
+        /// <summary>
+        /// Transform a value to content.
+        /// </summary>
+        /// <typeparam name="T">value type</typeparam>
+        /// <param name="value">value to convert</param>
+        /// <param name="contentType">content-type to convert to</param>
+        /// <param name="schema">schema for validation</param>
+        /// <returns></returns>
+        public Content ValueToContent<T>(T value, string contentType, IDataSchema schema)
         {
-            if (value == null || value.GetType() == null) Console.WriteLine("ContentSerdes valueToContent got no value");
+            if (value == null || GetType() == null) Console.WriteLine("ContentSerdes valueToContent got no value");
 
             byte[] bytes;
 
-            string mt = ContentSerdes.GetMediaType(contentType);
-            Dictionary<string, string> par = ContentSerdes.GetMediaTypeParameters(contentType);
+            string mt = GetMediaType(contentType);
+            Dictionary<string, string> par = GetMediaTypeParameters(contentType);
 
-            if (this._codecs.ContainsKey(mt))
+            if (_codecs.ContainsKey(mt))
             {
-                bytes = this._codecs[mt].ValueToBytes(value, schema, par);
+                bytes = _codecs[mt].ValueToBytes<T>(value, schema, par);
             }
             else
             {
@@ -145,7 +212,7 @@ namespace WoT.Core.Definitions
                 bytes = Encoding.UTF8.GetBytes(valueString);
             }
 
-            return new Content(contentType, bytes);
+            return new Content(contentType, new MemoryStream(bytes));
         }
     }
 }

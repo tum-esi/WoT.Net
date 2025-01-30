@@ -1,56 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>netstandard2.0</TargetFramework>
-	  <Title>WoT.Net</Title>
-	  <VersionPrefix>0.0.1</VersionPrefix>
-	  <VersionSuffix>alpha</VersionSuffix>
-	  <PackageVersion>$(VersionPrefix)-$(VersionSuffix)</PackageVersion>
-	  <Authors>Fady Salama, Idil Szegin</Authors>
-	  <Company>Technical University of Munich, Professorship of Embedded Systems and Internet of Things</Company>
-	  <PackageId>WoT.Net</PackageId>
-	  <Product>WoT.Net</Product>
-	  <PackageReadmeFile>README.md</PackageReadmeFile>
-	  <PackageProjectUrl>https://tum-esi.github.io/WoT.Net/</PackageProjectUrl>
-	  <Description>A .NET Standard 2.0 implementation of the W3C Web of Things (WoT) Scripting API</Description>
-	  <RepositoryUrl>https://github.com/tum-esi/WoT.Net</RepositoryUrl>
-	  <PackageIcon>wot_dot_net_logo.png</PackageIcon>
-	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-	  <PackageLicenseFile>LICENSE</PackageLicenseFile>
-	  <PackageTags>Web of Things; WoT; IoT; HTTP</PackageTags>
-	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-	  <None Include="docGeneration\images\wot_dot_net_logo.png">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-	  </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.15" />
-    <PackageReference Include="Tavis.UriTemplates" Version="2.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="docGeneration\images\wot_dot_net_logo.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="binding-http/SimpleConsumedThing.cs" />
-  </ItemGroup>
 
 </Project>
