@@ -120,8 +120,136 @@ namespace WoT.Core.Implementation
             return await this._content.ToBuffer();
         }
 
+        public async Task<T> Value()
+        {
+            if (_schema == null)
+            {
+                throw new NotAllowedError("No schema defined; assuming empty payload");
+            }
 
-        public async Task<IInteractionOutputValue<T>> Value()
+            if (_value != null && !_value.Equals(default(T))) { return _value;  }
+
+            if (_dataUsed)
+            {
+                throw new NotReadableError("Can't read the stream once it has been already used");
+            }
+
+            if (_form == null)
+            {
+                throw new NotReadableError("No form defined");
+            }
+
+            if (_schema.Const == null && _schema.Enum == null && _schema.OneOf == null && _schema.Type == null)
+            {
+                throw new NotReadableError("No schema type defined");
+            }
+
+            if (!ContentSerdes.GetInstance().IsSupported(_content.type))
+            {
+                throw new NotSupportedError($"Content type {_content.type} not supported");
+            }
+
+            var bytes = await _content.ToBuffer();
+            _dataUsed = true;
+            _buffer = bytes;
+
+            _value = ContentSerdes.GetInstance().ContentToValue<T>(new ReadContent(type: _content.type, body: bytes), _schema);
+
+            EvaluationResults result = null;
+            if (!_ignoreValidation)
+            {
+                string schemaString = JsonConvert.SerializeObject(_schema);
+                string valueString = JsonConvert.SerializeObject(_value);
+
+                var schema = JsonSchema.FromText(schemaString);
+                var valueNode = JsonNode.Parse(valueString);
+                result = schema.Evaluate(valueNode);
+            }
+
+
+            if (result == null || result.IsValid)
+            {
+                if (bytes.Length > 0)
+                {
+                    return _value;
+                }
+                else
+                {
+                    throw new EvalError("No value found in the content");
+                }
+            }
+            else
+            {
+                throw new EvalError("Invalid value according to DataSchema: " + result.Errors);
+            }
+        }
+
+        public async Task<object> ValueAsObject()
+        {
+            if (_schema == null)
+            {
+                Console.WriteLine("No schema defined. Hence null is reported for Value() function.If you are invoking an action with no output that is on purpose, otherwise consider using arrayBuffer().");
+                return null;
+            }
+
+            if (_value != null && !_value.Equals(default(T))) { return _value; }
+
+            if (_dataUsed)
+            {
+                throw new NotReadableError("Can't read the stream once it has been already used");
+            }
+
+            if (_form == null)
+            {
+                throw new NotReadableError("No form defined");
+            }
+
+            if (_schema.Const == null && _schema.Enum == null && _schema.OneOf == null && _schema.Type == null)
+            {
+                throw new NotReadableError("No schema type defined");
+            }
+
+            if (!ContentSerdes.GetInstance().IsSupported(_content.type))
+            {
+                throw new NotSupportedError($"Content type {_content.type} not supported");
+            }
+
+            var bytes = await _content.ToBuffer();
+            _dataUsed = true;
+            _buffer = bytes;
+
+            _value = ContentSerdes.GetInstance().ContentToValue<T>(new ReadContent(type: _content.type, body: bytes), _schema);
+
+            EvaluationResults result = null;
+            if (!_ignoreValidation)
+            {
+                string schemaString = JsonConvert.SerializeObject(_schema);
+                string valueString = JsonConvert.SerializeObject(_value);
+
+                var schema = JsonSchema.FromText(schemaString);
+                var valueNode = JsonNode.Parse(valueString);
+                result = schema.Evaluate(valueNode);
+            }
+
+
+            if (result == null || result.IsValid)
+            {
+                if (bytes.Length > 0)
+                {
+                    return _value;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                throw new EvalError("Invalid value according to DataSchema" + result.Errors);
+            }
+        }
+
+        public async Task<IInteractionOutputValue<T>> ValueInContainer()
         {
             if (_schema == null)
             {
@@ -182,7 +310,7 @@ namespace WoT.Core.Implementation
             }
             else
             {
-                throw new Exception("Invalid value according to DataSchema");
+                throw new EvalError("Invalid value according to DataSchema" + result.Errors);
             }
         }
     }

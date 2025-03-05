@@ -189,8 +189,79 @@ namespace WoT.Core.Definitions
         /// <summary>
         /// Parses the Data returned by the WoT <see cref="InteractionAffordance"/> and returns a value with the type described by the interaction <see href="DataSchema"/> if that exists, or by the <see cref="Form.ContentType"/> of the interaction <see cref="TD.Form"/>.
         /// </summary>
+        /// <exception cref="NotAllowedError">If no <see cref="DataSchema"/> is defined for output</exception>
+        /// <exception cref="NotReadableError">
+        /// Gets thrown if:
+        /// <list type="bullet">
+        ///     <item>
+        ///         <description>Form of the interaction is not defined</description>
+        ///     </item>
+        ///     <item>
+        ///         <description>DataSchema does not include either "const", "enum", "oneOf" or "type"</description>
+        ///     </item>
+        /// </list>
+        /// </exception>
+        /// <exception cref="NotSupportedError">If the output "contentType" is not supported</exception>
+        /// <exception cref="EvalError">
+        /// Gets thrown if:
+        /// <list type="bullet">
+        ///     <item>
+        ///         <description>Payload is empty during parsing (even if schema allows it)</description>
+        ///     </item>
+        ///     <item>
+        ///         <description>Schema validation fails</description>
+        ///     </item>
+        /// </list>
+        /// </exception>
         /// <returns><see cref="Task"/> that resolves to Data of type <typeparamref name="T"/></returns>
-        Task<IInteractionOutputValue<T>> Value();
+        Task<T> Value();
+
+        /// <summary>
+        /// Parses the Data returned by the WoT <see cref="InteractionAffordance"/> and 
+        /// returns an <see langword="object"/> that either contains payload or <see langword="null"/>.
+        /// 
+        /// Use this method when payload may be empty, you want to avoid exceptions and want handle the typing yourself.
+        /// </summary>
+        /// <returns><see cref="Task"/> that resolves to an <see langword="object"/> containing 
+        /// either a payload of type <typeparamref name="T"/> or <see langword="null"/></returns>
+        /// 
+        /// <exception cref="NotReadableError">
+        /// Gets thrown if:
+        /// <list type="bullet">
+        ///     <item>
+        ///         <description>Form of the interaction is not defined</description>
+        ///     </item>
+        ///     <item>
+        ///         <description>DataSchema does not include either "const", "enum", "oneOf" or "type"</description>
+        ///     </item>
+        /// </list>
+        /// </exception>
+        /// <exception cref="NotSupportedError">If the output "contentType" is not supported</exception>
+        /// <exception cref="EvalError">Schema validation fails</exception>
+        Task<object> ValueAsObject();
+
+        /// <summary>
+        /// Parses the Data returned by the WoT <see cref="InteractionAffordance"/> and 
+        /// returns an object implementing the <see cref="IInteractionOutputValue"/> interface />.
+        /// 
+        /// Use this method when payload may be empty, you want to avoid exceptions and do not want to handle the typing yourself.
+        /// </summary>
+        /// <returns><see cref="Task"/> that an object implementing the <see cref="IInteractionOutputValue"/> of type <typeparamref name="T"/></returns>
+        /// 
+        /// <exception cref="NotReadableError">
+        /// Gets thrown if:
+        /// <list type="bullet">
+        ///     <item>
+        ///         <description>Form of the interaction is not defined</description>
+        ///     </item>
+        ///     <item>
+        ///         <description>DataSchema does not include either "const", "enum", "oneOf" or "type"</description>
+        ///     </item>
+        /// </list>
+        /// </exception>
+        /// <exception cref="NotSupportedError">If the output "contentType" is not supported</exception>
+        /// <exception cref="EvalError">Schema validation fails</exception>
+        Task<IInteractionOutputValue<T>> ValueInContainer();
 
     }
 
