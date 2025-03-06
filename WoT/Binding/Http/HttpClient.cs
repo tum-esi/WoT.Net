@@ -154,15 +154,15 @@ namespace WoT.Binding.Http
             (
                 form: form,
                 defaultMethod: HttpMethod.Post,
-                requestHeaders: new Dictionary<string, List<string>> 
+                requestHeaders: new Dictionary<string, List<string>>
                 {
                     { "Accept", new List<string> { acceptHeader } }
                 },
-                contentHeaders: new Dictionary<string, List<string>> 
+                contentHeaders: content != null ? new Dictionary<string, List<string>>
                 {
                     {"Content-Type", new List<string> { content.type } }
 
-                }
+                } : null
              );
             message.Content = content != null ? new StreamContent(content.body) : null;
 
@@ -210,7 +210,6 @@ namespace WoT.Binding.Http
                 contentHeaders: new Dictionary<string, List<string>>
                 {
                     {"Content-Type", new List<string> { content.type } }
-
                 }
              );
 
@@ -384,7 +383,7 @@ namespace WoT.Binding.Http
                 }
             }
 
-            if(contentHeaders != null)
+            if(contentHeaders != null && httpRequestMessage.Content != null)
             {
                 foreach (var item in contentHeaders)
                 {
