@@ -18,6 +18,6 @@ a JSON-LD document that is both highly human- and machine-readable and contains 
 
 ## What is our aim?
 Our long-term goal here is to provide the .NET Standard 2.0 stack that fully implements the [Scripting API](https://www.w3.org/TR/wot-scripting-api/), which would facilitate
-rapid development of WoT applications for devices running Windows OS, including the Hololens 2, but would also facilitate the integration of the WoT stack in Unity.
+rapid development of WoT applications and also facilitate the integration of the WoT stack in Unity.
 Our short-term goal is to implement the functionalities of a WoT Consumer, i.e. the functionalities needed to fetch a TD and consume it to interact with the entity it describes.
-We will focus first on HTTP Things but aim to implement functionality for HTTPS, CoAP, CoAPS, and MQTT in the future.
+We will focus first on HTTP/S Things but aim to implement CoAP, CoAPS, and MQTT in the future.
