@@ -19,22 +19,22 @@ a JSON-LD document that is both highly human- and machine-readable and contains 
 
 The library is structured as follows:
 
-* ###  ``WoT`` namespace
+* ###  ``WoT.Core`` namespace
 
   Top-level namespace of the library which includes all definitions of the conformance class interfaces as described in the [WoT Scripting API](https://www.w3.org/TR/wot-scripting-api/). These are ``Cosumer``, ``Producer`` and ``Discovery``. These interfaces can be implemented to extend the capabilities of the stack.
 
-* ### ``WoT.Definitions`` namespace
+* ### ``WoT.Core.Definitions`` namespace
 
   This namespace includes all interfaces and classes required for defining the ``ThingDescription`` class as described in the [TD Specification](https://www.w3.org/TR/wot-thing-description11/). This class is used as a cornerstone for building the rest of the library.
 
-* ### ``WoT.Implementation`` namespace
+* ### ``WoT.Core.Implementation`` namespace
 
   This namespace includes all implementations of the interfaces defined in ``WoT`` namespace. These implementations provide the capability of implementing and/or interacting with WoT Entities.
 
-* ### ``WoT.Errors`` namespace
+* ### ``WoT.Core.Errors`` namespace
   
   This namespace contains definitions of all errors (exceptions) defined in the context of WoT
 
-* ### ``WoT.TDHelpers`` namespace
+* ### ``WoT.Core.TDHelpers`` namespace
   
   This namespace contains all ``JSONConverter``s and needed to serialize and deserialize the TD.
