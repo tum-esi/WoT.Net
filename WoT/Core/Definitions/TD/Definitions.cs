@@ -1206,7 +1206,7 @@ namespace WoT.Core.Definitions.TD
     /// <summary>
     /// Metadata describing the configuration of a security mechanism.
     /// </summary>
-    /// <seealso cref="https://www.w3.org/TR/wot-thing-description11/#securityscheme"/>
+    /// <seealso href="https://www.w3.org/TR/wot-thing-description11/#securityscheme"/>
     [JsonConverter(typeof(SecuritySchemeConverter))]
     public abstract class SecurityScheme
     {

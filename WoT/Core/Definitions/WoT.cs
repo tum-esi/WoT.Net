@@ -34,7 +34,7 @@ namespace WoT.Core.Definitions
         /// </summary>
         /// <param name="td">TD of the exposed Thing</param>
         /// <returns>Task that resolves with an object implementing <see cref="IExposedThing"/></returns>
-        /// <seealso cref="https://www.w3.org/TR/wot-scripting-api/#the-produce-method"/>
+        /// <seealso href="https://www.w3.org/TR/wot-scripting-api/#the-produce-method"/>
         Task<IExposedThing> Produce(ThingDescription td);
     }
 
@@ -48,7 +48,7 @@ namespace WoT.Core.Definitions
         /// </summary>
         /// <param name="uri">URL as a string</param>
         /// <returns>Deserialized TD</returns>
-        /// <seealso cref="https://www.w3.org/TR/wot-scripting-api/#the-requestthingdescription-method"/>
+        /// <seealso href="https://www.w3.org/TR/wot-scripting-api/#the-requestthingdescription-method"/>
         Task<ThingDescription> RequestThingDescription(string uri);
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace WoT.Core.Definitions
         /// </summary>
         /// <param name="uri">URL as a URI object</param>
         /// <returns>Deserialized TD</returns>
-        /// <seealso cref="https://www.w3.org/TR/wot-scripting-api/#the-requestthingdescription-method"/>
+        /// <seealso href="https://www.w3.org/TR/wot-scripting-api/#the-requestthingdescription-method"/>
         Task<ThingDescription> RequestThingDescription(Uri uri);
     }
 
@@ -242,11 +242,11 @@ namespace WoT.Core.Definitions
 
         /// <summary>
         /// Parses the Data returned by the WoT <see cref="InteractionAffordance"/> and 
-        /// returns an object implementing the <see cref="IInteractionOutputValue"/> interface />.
+        /// returns an object implementing the <see cref="IInteractionOutputValue{T}"/> interface />.
         /// 
         /// Use this method when payload may be empty, you want to avoid exceptions and do not want to handle the typing yourself.
         /// </summary>
-        /// <returns><see cref="Task"/> that an object implementing the <see cref="IInteractionOutputValue"/> of type <typeparamref name="T"/></returns>
+        /// <returns><see cref="Task"/> that an object implementing the <see cref="IInteractionOutputValue{T}"/> of type <typeparamref name="T"/></returns>
         /// 
         /// <exception cref="NotReadableError">
         /// Gets thrown if:

@@ -89,11 +89,6 @@ namespace WoT.Core.Implementation
                     throw new NotReadableError("Can't read the stream once it has been already used");
                 }
 
-                // Once the stream is created Data might be pulled unpredictably
-                // therefore we assume that it is going to be used to be safe.
-                _dataUsed = true;
-
-
                 return _content.body;
             }
         }
@@ -116,8 +111,10 @@ namespace WoT.Core.Implementation
                 throw new NotReadableError("Can't read the stream once it has been already used");
             }
 
+            _buffer = await _content.ToBuffer();
+            _dataUsed = true;
 
-            return await this._content.ToBuffer();
+            return _buffer;
         }
 
         public async Task<T> Value()
