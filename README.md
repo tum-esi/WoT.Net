@@ -20,7 +20,7 @@ Our short-term goal is to implement the functionalities of a WoT Consumer, i.e. 
 We will focus first on HTTP Things but aim to implement functionality for HTTPS, CoAP, CoAPS, and MQTT in the future.
 
 ## How is it structured?
-WoT.Net is implemented as a core package [**WoT.Net.Core**](WoT.Net.Core), which defines the core interfaces and classes used in the context of the Web of Things. The core package is protocol-agnostic and does not provide any protocol implementations. Protocol implementations are provided using protocol bindings. Currently available binding packages are:
+WoT.Net is implemented as a core package [**WoT.Net.Core**](https://www.nuget.org/packages/WoT.Net.Core), which defines the core interfaces and classes used in the context of the Web of Things. The core package is protocol-agnostic and does not provide any protocol implementations. Protocol implementations are provided using protocol bindings. Currently available binding packages are:
 
 - [**WoT.Net.Binding.Http**](https://www.nuget.org/packages/WoT.Net.Binding.Http): a binding for HTTP/S
 
