@@ -2,17 +2,38 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageId>WoT.Binding.$(AssemblyName)</PackageId>
-    <Title>WoT.Binding.Http</Title>
-    <VersionPrefix>1.0.0</VersionPrefix>
-    <VersionSuffix>alpha</VersionSuffix>
+    <PackageId>WoT.Net.Binding.$(AssemblyName)</PackageId>
+    <Title>WoT.Net.Binding.Http</Title>
+    <VersionPrefix>0.0.1</VersionPrefix>
     <Authors>Fady Salama</Authors>
     <PackageTags>Web of Things; WoT; HTTP; HTTPS</PackageTags>
+    <PackageIcon>wot_dot_net_logo.png</PackageIcon>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\docGeneration\images\wot_dot_net_logo.png" Link="wot_dot_net_logo.png">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="LaunchDarkly.EventSource" Version="5.1.0" />
-    <PackageReference Include="WoT.Net.Core" Version="1.0.0-alpha" />
+    <PackageReference Include="WoT.Net.Core" Version="0.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LICENSE">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+    <None Update="README.md">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
   </ItemGroup>
 
 </Project>
