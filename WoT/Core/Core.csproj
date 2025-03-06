@@ -3,7 +3,7 @@
   <PropertyGroup>
 	  <TargetFramework>netstandard2.0</TargetFramework>
 	  <Title>WoT.Net.Core</Title>
-	  <VersionPrefix>0.0.1</VersionPrefix>
+	  <VersionPrefix>0.0.2</VersionPrefix>
 	  <Authors>Fady Salama, Idil Szegin, Mariz Awad</Authors>
 	  <Company>Technical University of Munich, Professorship of Embedded Systems and Internet of Things</Company>
 	  <PackageId>WoT.Net.Core</PackageId>
