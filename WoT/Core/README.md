@@ -1,7 +1,7 @@
 # WoT.Net.Core
 
 [![NuGet Version](https://img.shields.io/nuget/v/WoT.Net.Core?style=flat-square)
-](https://www.nuget.org/packages/WoT.Net)
+](https://www.nuget.org/packages/WoT.Net.Core)
 
 
 A .NET Standard 2.0 implementation of the W3C Web of Things (WoT) [Scripting API](https://www.w3.org/TR/wot-scripting-api/), inspired by [node-wot](https://github.com/eclipse-thingweb/node-wot)
