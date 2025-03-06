@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>WoT.Net.Binding.$(AssemblyName)</PackageId>
     <Title>WoT.Net.Binding.Http</Title>
-    <VersionPrefix>0.0.1</VersionPrefix>
+    <VersionPrefix>0.0.2</VersionPrefix>
     <Authors>Fady Salama</Authors>
     <PackageTags>Web of Things; WoT; HTTP; HTTPS</PackageTags>
     <PackageIcon>wot_dot_net_logo.png</PackageIcon>
@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LaunchDarkly.EventSource" Version="5.1.0" />
-    <PackageReference Include="WoT.Net.Core" Version="0.0.1" />
+    <PackageReference Include="LaunchDarkly.EventSource" Version="5.2.0" />
+    <PackageReference Include="WoT.Net.Core" Version="0.0.2" />
   </ItemGroup>
 
   <ItemGroup>
