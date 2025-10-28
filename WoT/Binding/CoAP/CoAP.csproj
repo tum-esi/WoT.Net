@@ -1,0 +1,39 @@
+<!-- CoAP Binding for WoT.Net -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>WoT.Net.Binding.$(AssemblyName)</PackageId>
+    <Title>WoT.Net.Binding.CoAP</Title>
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <Authors>Fady Salama</Authors>
+    <PackageTags>Web of Things; WoT; CoAP</PackageTags>
+    <PackageIcon>wot_dot_net_logo.png</PackageIcon>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\docGeneration\images\wot_dot_net_logo.png" Link="wot_dot_net_logo.png">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WoT.Net.Core" Version="0.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LICENSE">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+    <None Update="README.md">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
+</Project>

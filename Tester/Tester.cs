@@ -1,20 +1,42 @@
-﻿using WoT.Core.Implementation;
+using System;
+using WoT.Core.Implementation;
+using WoT.Binding.CoAP;
 using WoT.Binding.Http;
 using WoT.Core.Definitions.TD;
 using Newtonsoft.Json;
 
 
-Consumer consumer = new();
-HttpClientConfig clientConfig = new()
+var consumer = new Consumer();
+ThingDescription td;
+string protocol2Test = "http"; // change to "coap" to test CoAP only
+
+
+if (protocol2Test == "coap")
 {
-    AllowSelfSigned = true
-};
-consumer.AddClientFactory(new HttpClientFactory(new HttpClientConfig()));
-consumer.AddClientFactory(new HttpsClientFactory(clientConfig));
+    // CoAP
+    var tdUri = args.Length > 0 ? args[0] : "coap://localhost:5683/tester";
+    // Basic CoAP client configuration (timeouts in ms)
+    var coapConfig = new CoapClientConfig
+    {
+        Timeout = 5000,
+        MaxRetransmit = 4,
+        AckTimeout = 2000
+    };
+    consumer.AddClientFactory(new CoapClientFactory(coapConfig));
+    Console.WriteLine($"Requesting TD from: {tdUri}");
+    td = await consumer.RequestThingDescription(tdUri);
+}
+else
+{
+    // HTTP
+    var httpTdUri = args.Length > 0 ? args[0] : "http://localhost:8085/tester";
+    consumer.AddClientFactory(new HttpClientFactory(new HttpClientConfig()));
+    consumer.Start();
 
-consumer.Start();
-
-ThingDescription td = await consumer.RequestThingDescription("http://plugfest.thingweb.io:80/http-data-schema-thing/");
+    Console.WriteLine($"Requesting TD from: {httpTdUri}");
+    td = await consumer.RequestThingDescription(httpTdUri);
+}
+// Consume the Thing
 ConsumedThing consumedThing = (ConsumedThing)consumer.Consume(td);
 
 // Read a boolean
@@ -55,35 +77,5 @@ Console.WriteLine("Output of 'void-int' action was: " + output);
 int output2 = await (await consumedThing.InvokeAction<int, int>("int-int", 4)).Value();
 Console.WriteLine("Output of 'void-int' action was: " + output2);
 
-if (consumedThing != null)
-{
 
-    // Subscribe to Event
-    var sub = await consumedThing.SubscribeEvent<int>("on-int", async (output) =>
-    {
-        Console.WriteLine("Event: Received on-int event");
-        Console.WriteLine($"Value received: {await output.Value()}");
-        Console.WriteLine("---------------------");
-    });
-
-    var task = Task.Run(async () =>
-    {
-        while (sub.Active)
-        {
-            // Get random integer between 0 and 100
-            Random random = new();
-            int randomInt = random.Next(0, 100);
-            Console.WriteLine($"Writing int {randomInt}");
-            Console.WriteLine("---------------------");
-            // Write an int
-            await consumedThing.WriteProperty("int", randomInt);
-            
-            await Task.Delay(TimeSpan.FromSeconds(1));
-        }
-        return;
-    });
-
-    Task stopTask = Task.Delay(TimeSpan.FromSeconds(10)).ContinueWith(async (task) => { await sub.Stop(); });
-    await task;
-}
-Console.WriteLine("Done");
+Console.WriteLine("Done.");

@@ -14,12 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Core">
-      <HintPath>..\WoT\Core\bin\Release\netstandard2.0\Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Http">
-      <HintPath>..\WoT\Binding\Http\bin\Release\netstandard2.0\Http.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\WoT\Core\Core.csproj" />
+    <ProjectReference Include="..\WoT\Binding\CoAP\CoAP.csproj" />
+    <ProjectReference Include="..\WoT\Binding\Http\Http.csproj" />
   </ItemGroup>
-
 </Project>
