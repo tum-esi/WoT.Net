@@ -173,17 +173,28 @@ namespace WoT.Binding.CoAP
             await _udpClient.SendAsync(message, message.Length, host, port);
 
             // Receive response with timeout and cancellation support
+            // Note: UdpClient.ReceiveAsync() doesn't support CancellationToken in .NET Standard 2.0
+            // Using Task.WhenAny as a workaround
             using (var timeoutCts = new CancellationTokenSource(_config.Timeout))
             using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token))
             {
-                try
+                var receiveTask = _udpClient.ReceiveAsync();
+                var cancelTask = Task.Delay(-1, linkedCts.Token);
+                
+                var completedTask = await Task.WhenAny(receiveTask, cancelTask);
+                
+                if (completedTask == receiveTask)
                 {
-                    var result = await _udpClient.ReceiveAsync();
+                    var result = await receiveTask;
                     return ParseCoapResponse(result.Buffer);
                 }
-                catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+                else if (timeoutCts.IsCancellationRequested)
                 {
                     throw new TimeoutException($"CoAP request to {uri} timed out after {_config.Timeout}ms");
+                }
+                else
+                {
+                    throw new OperationCanceledException("CoAP request was cancelled", cancellationToken);
                 }
             }
         }
@@ -253,12 +264,14 @@ namespace WoT.Binding.CoAP
             int length = value.Length;
 
             // Encode delta and length according to RFC 7252
+            // Note: This implementation supports delta/length values up to 268 (single extended byte)
+            // Values 269-65804 would require 2 extended bytes, which is not implemented for simplicity
             int deltaEncoded = delta;
             int lengthEncoded = length;
             byte deltaExtra = 0;
             byte lengthExtra = 0;
 
-            // Handle extended delta (13-268: use 1 extra byte, 269-65804: use 2 extra bytes)
+            // Handle extended delta (13-268: use 1 extra byte)
             if (delta >= 13 && delta < 269)
             {
                 deltaEncoded = 13;
@@ -266,13 +279,11 @@ namespace WoT.Binding.CoAP
             }
             else if (delta >= 269)
             {
-                deltaEncoded = 14;
-                ushort deltaVal = (ushort)(delta - 269);
-                deltaExtra = (byte)(deltaVal >> 8);
-                // We would need 2 bytes but keeping it simple for basic implementation
+                // 2-byte extended delta not implemented - this would require special handling
+                throw new NotImplementedException($"CoAP option delta {delta} requires 2-byte extended encoding which is not implemented");
             }
 
-            // Handle extended length (similar to delta)
+            // Handle extended length (13-268: use 1 extra byte)
             if (length >= 13 && length < 269)
             {
                 lengthEncoded = 13;
@@ -280,8 +291,8 @@ namespace WoT.Binding.CoAP
             }
             else if (length >= 269)
             {
-                lengthEncoded = 14;
-                // For simplicity, not fully implementing 2-byte extended length
+                // 2-byte extended length not implemented
+                throw new NotImplementedException($"CoAP option length {length} requires 2-byte extended encoding which is not implemented");
             }
 
             // Write option header
