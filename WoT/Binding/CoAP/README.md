@@ -9,11 +9,12 @@ This package provides CoAP protocol support for the WoT.Net library, enabling co
 - CoAP client implementation for consuming CoAP Things
 - Support for GET, POST, PUT, DELETE operations
 - Basic CoAP message encoding/decoding (RFC 7252)
+- **Block2 support for large payloads (blockwise transfer)**
 - Compatible with .NET Standard 2.0
 
 **Not yet implemented:**
 - CoAP Observe for event subscriptions
-- Block-wise transfers
+- Block1 (blockwise transfer for requests)
 - DTLS/CoAPS security
 
 ## Usage

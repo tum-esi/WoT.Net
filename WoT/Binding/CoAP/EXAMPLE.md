@@ -45,9 +45,19 @@ The current CoAP binding provides a basic implementation of the CoAP protocol su
 ### Not Yet Implemented
 
 - **CoAP Observe**: Event subscriptions via CoAP Observe are not yet implemented
-- **Block-wise transfers**: Large payloads are not split into blocks
+- **Block1**: Blockwise transfer for large request payloads is not yet implemented
 - **DTLS Security**: CoAPS (secure CoAP) is not yet supported
 - **Advanced options**: Many CoAP options are not yet implemented
+
+### Block2 Support
+
+The implementation now includes **Block2 (RFC 7959)** support for handling large responses:
+- Automatically detects when a server uses blockwise transfer
+- Requests subsequent blocks until the complete payload is received
+- Assembles blocks into a complete response transparently
+- Supports block sizes from 16 to 1024 bytes
+
+This enables fetching large Thing Descriptions and other payloads that exceed the basic CoAP message size limit.
 
 ### For Production Use
 
