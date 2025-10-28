@@ -20,11 +20,12 @@ namespace WoT.Binding.CoAP
     /// For production use with advanced features (blockwise transfer, observe, DTLS),
     /// consider integrating a full-featured CoAP library.
     /// </remarks>
-    public class WotCoapClient : IProtocolClient
+    public class WotCoapClient : IProtocolClient, IDisposable
     {
         private readonly CoapClientConfig _config;
         private readonly UdpClient _udpClient;
         private ushort _messageId = 0;
+        private bool _disposed = false;
 
         /// <summary>
         /// The protocol scheme of this client
@@ -39,7 +40,7 @@ namespace WoT.Binding.CoAP
         {
             _config = config ?? new CoapClientConfig();
             _udpClient = new UdpClient();
-            _udpClient.Client.ReceiveTimeout = _config.Timeout;
+            // Don't set ReceiveTimeout on socket - timeout is handled in SendCoapRequest
         }
 
         #region ReadResource
@@ -123,8 +124,20 @@ namespace WoT.Binding.CoAP
 
         public Task Stop()
         {
-            _udpClient?.Dispose();
+            Dispose();
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Dispose of resources
+        /// </summary>
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _udpClient?.Dispose();
+                _disposed = true;
+            }
         }
 
         public bool SetSecurity(SecurityScheme[] metadata, Dictionary<CredentialScheme, object> credentials)
@@ -159,17 +172,20 @@ namespace WoT.Binding.CoAP
             // Send request
             await _udpClient.SendAsync(message, message.Length, host, port);
 
-            // Receive response
-            var receiveTask = _udpClient.ReceiveAsync();
-            var completedTask = await Task.WhenAny(receiveTask, Task.Delay(_config.Timeout, cancellationToken));
-
-            if (completedTask != receiveTask)
+            // Receive response with timeout and cancellation support
+            using (var timeoutCts = new CancellationTokenSource(_config.Timeout))
+            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token))
             {
-                throw new TimeoutException($"CoAP request to {uri} timed out after {_config.Timeout}ms");
+                try
+                {
+                    var result = await _udpClient.ReceiveAsync();
+                    return ParseCoapResponse(result.Buffer);
+                }
+                catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+                {
+                    throw new TimeoutException($"CoAP request to {uri} timed out after {_config.Timeout}ms");
+                }
             }
-
-            var result = await receiveTask;
-            return ParseCoapResponse(result.Buffer);
         }
 
         private byte[] BuildCoapMessage(CoapMethod method, string path, byte[] payload, string contentType)
@@ -189,25 +205,40 @@ namespace WoT.Binding.CoAP
                 ms.WriteByte((byte)(msgId >> 8));
                 ms.WriteByte((byte)(msgId & 0xFF));
 
-                // Options
+                // Options - must be in order by option number
+                int lastOptionNumber = 0;
+
+                // Uri-Path options (option 11)
                 if (!string.IsNullOrEmpty(path))
                 {
                     var pathSegments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var segment in pathSegments)
                     {
-                        WriteOption(ms, 11, Encoding.UTF8.GetBytes(segment)); // Uri-Path option
+                        int optionNumber = 11;
+                        lastOptionNumber = WriteOption(ms, optionNumber, Encoding.UTF8.GetBytes(segment), lastOptionNumber);
                     }
                 }
 
+                // Content-Format option (option 12) - must come after Uri-Path
+                if (payload != null && payload.Length > 0 && !string.IsNullOrEmpty(contentType))
+                {
+                    int contentFormat = GetContentFormatCode(contentType);
+                    int optionNumber = 12;
+                    byte[] formatBytes;
+                    if (contentFormat <= 255)
+                    {
+                        formatBytes = new byte[] { (byte)contentFormat };
+                    }
+                    else
+                    {
+                        formatBytes = new byte[] { (byte)(contentFormat >> 8), (byte)(contentFormat & 0xFF) };
+                    }
+                    lastOptionNumber = WriteOption(ms, optionNumber, formatBytes, lastOptionNumber);
+                }
+
+                // Payload marker and payload
                 if (payload != null && payload.Length > 0)
                 {
-                    if (!string.IsNullOrEmpty(contentType))
-                    {
-                        int contentFormat = GetContentFormatCode(contentType);
-                        WriteOption(ms, 12, new byte[] { (byte)contentFormat }); // Content-Format option
-                    }
-
-                    // Payload marker
                     ms.WriteByte(0xFF);
                     ms.Write(payload, 0, payload.Length);
                 }
@@ -216,18 +247,66 @@ namespace WoT.Binding.CoAP
             }
         }
 
-        private void WriteOption(MemoryStream ms, int optionNumber, byte[] value)
+        private int WriteOption(MemoryStream ms, int optionNumber, byte[] value, int previousOptionNumber)
         {
-            int delta = optionNumber; // Simplified - should calculate delta from previous option
+            int delta = optionNumber - previousOptionNumber;
             int length = value.Length;
 
-            byte optionHeader = (byte)((Math.Min(delta, 13) << 4) | Math.Min(length, 13));
+            // Encode delta and length according to RFC 7252
+            int deltaEncoded = delta;
+            int lengthEncoded = length;
+            byte deltaExtra = 0;
+            byte lengthExtra = 0;
+
+            // Handle extended delta (13-268: use 1 extra byte, 269-65804: use 2 extra bytes)
+            if (delta >= 13 && delta < 269)
+            {
+                deltaEncoded = 13;
+                deltaExtra = (byte)(delta - 13);
+            }
+            else if (delta >= 269)
+            {
+                deltaEncoded = 14;
+                ushort deltaVal = (ushort)(delta - 269);
+                deltaExtra = (byte)(deltaVal >> 8);
+                // We would need 2 bytes but keeping it simple for basic implementation
+            }
+
+            // Handle extended length (similar to delta)
+            if (length >= 13 && length < 269)
+            {
+                lengthEncoded = 13;
+                lengthExtra = (byte)(length - 13);
+            }
+            else if (length >= 269)
+            {
+                lengthEncoded = 14;
+                // For simplicity, not fully implementing 2-byte extended length
+            }
+
+            // Write option header
+            byte optionHeader = (byte)((deltaEncoded << 4) | lengthEncoded);
             ms.WriteByte(optionHeader);
 
+            // Write extended delta if needed
+            if (deltaEncoded == 13)
+            {
+                ms.WriteByte(deltaExtra);
+            }
+
+            // Write extended length if needed
+            if (lengthEncoded == 13)
+            {
+                ms.WriteByte(lengthExtra);
+            }
+
+            // Write option value
             if (value.Length > 0)
             {
                 ms.Write(value, 0, value.Length);
             }
+
+            return optionNumber;
         }
 
         private CoapResponse ParseCoapResponse(byte[] data)

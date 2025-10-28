@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\docGeneration\images\wot_dot_net_logo.png" Link="wot_dot_net_net_logo.png">
+    <None Include="..\..\docGeneration\images\wot_dot_net_logo.png" Link="wot_dot_net_logo.png">
       <PackagePath>\</PackagePath>
       <Pack>True</Pack>
     </None>
