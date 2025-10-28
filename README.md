@@ -17,12 +17,13 @@ a JSON-LD document that is both highly human- and machine-readable and contains 
 Our long-term goal here is to provide the .NET Standard 2.0 stack that fully implements the [Scripting API](https://www.w3.org/TR/wot-scripting-api/), which would facilitate
 rapid development of WoT applications and also facilitate the integration of the WoT stack in Unity.
 Our short-term goal is to implement the functionalities of a WoT Consumer, i.e. the functionalities needed to fetch a TD and consume it to interact with the entity it describes.
-We will focus first on HTTP Things but aim to implement functionality for HTTPS, CoAP, CoAPS, and MQTT in the future.
+We will focus first on HTTP Things but have also implemented basic CoAP support, with plans to add full CoAPS and MQTT support in the future.
 
 ## How is it structured?
 WoT.Net is implemented as a core package [**WoT.Net.Core**](https://www.nuget.org/packages/WoT.Net.Core), which defines the core interfaces and classes used in the context of the Web of Things. The core package is protocol-agnostic and does not provide any protocol implementations. Protocol implementations are provided using protocol bindings. Currently available binding packages are:
 
 - [**WoT.Net.Binding.Http**](https://www.nuget.org/packages/WoT.Net.Binding.Http): a binding for HTTP/S
+- [**WoT.Net.Binding.CoAP**]: a basic binding for CoAP (Constrained Application Protocol)
 
 ## Getting Started
 
@@ -129,7 +130,7 @@ This can be done by implementing the `IClient` and `IClientFactory` interfaces, 
 - [X] TD Deserializing and Parsing 
 - [X] HTTP Consumer
 - [X] HTTPS Consumer
-- [ ] CoAP Consumer
+- [X] CoAP Consumer (basic implementation)
 - [ ] CoAPS Consumer
 - [ ] MQTT Consumer
 
