@@ -537,7 +537,8 @@ namespace WoT.Binding.CoAP
         {
             if (!response.IsSuccess)
             {
-                throw new Exception($"CoAP request failed with code {response.CodeClass}.{response.CodeDetail:D2}");
+                string errorMessage = GetCoapErrorMessage(response);
+                throw new Exception(errorMessage);
             }
 
             string contentType = defaultContentType ?? "application/json";
@@ -545,6 +546,69 @@ namespace WoT.Binding.CoAP
             MemoryStream memStream = new MemoryStream(payload);
 
             return new Content(contentType, memStream);
+        }
+
+        private string GetCoapErrorMessage(CoapResponse response)
+        {
+            string codeDescription = GetCoapCodeDescription(response.CodeClass, response.CodeDetail);
+            string code = $"{response.CodeClass}.{response.CodeDetail:D2}";
+            
+            // Try to extract error details from payload if present
+            string payloadInfo = "";
+            if (response.Payload != null && response.Payload.Length > 0)
+            {
+                try
+                {
+                    // Try to decode payload as UTF-8 string for additional context
+                    string payloadText = Encoding.UTF8.GetString(response.Payload);
+                    if (!string.IsNullOrWhiteSpace(payloadText) && payloadText.Length < 200)
+                    {
+                        payloadInfo = $" - {payloadText}";
+                    }
+                }
+                catch
+                {
+                    // If payload is not text, ignore
+                }
+            }
+
+            return $"CoAP request failed with code {code} ({codeDescription}){payloadInfo}";
+        }
+
+        private string GetCoapCodeDescription(int codeClass, int codeDetail)
+        {
+            // Based on RFC 7252 Section 5.9 - Response Codes
+            switch (codeClass)
+            {
+                case 4: // Client Error
+                    switch (codeDetail)
+                    {
+                        case 0: return "Bad Request - Invalid request syntax or parameters";
+                        case 1: return "Unauthorized - Authentication required";
+                        case 2: return "Bad Option - Unrecognized or malformed option";
+                        case 3: return "Forbidden - Access denied";
+                        case 4: return "Not Found - Resource does not exist";
+                        case 5: return "Method Not Allowed - Method not supported for this resource";
+                        case 6: return "Not Acceptable - No acceptable representation available";
+                        case 12: return "Precondition Failed - Precondition in request failed";
+                        case 13: return "Request Entity Too Large - Payload too large";
+                        case 15: return "Unsupported Content-Format - Content format not supported";
+                        default: return $"Client Error {codeDetail}";
+                    }
+                case 5: // Server Error
+                    switch (codeDetail)
+                    {
+                        case 0: return "Internal Server Error - Server encountered an error (check request parameters and payload)";
+                        case 1: return "Not Implemented - Method not implemented";
+                        case 2: return "Bad Gateway - Invalid response from upstream";
+                        case 3: return "Service Unavailable - Server temporarily unavailable";
+                        case 4: return "Gateway Timeout - Upstream timeout";
+                        case 5: return "Proxying Not Supported - Proxy functionality not supported";
+                        default: return $"Server Error {codeDetail}";
+                    }
+                default:
+                    return $"Error {codeClass}.{codeDetail:D2}";
+            }
         }
 
         private byte[] ReadStreamToBytes(Stream stream)
