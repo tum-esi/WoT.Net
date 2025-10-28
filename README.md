@@ -130,7 +130,7 @@ This can be done by implementing the `IClient` and `IClientFactory` interfaces, 
 - [X] TD Deserializing and Parsing 
 - [X] HTTP Consumer
 - [X] HTTPS Consumer
-- [X] CoAP Consumer (basic implementation)
+- [X] CoAP Consumer
 - [ ] CoAPS Consumer
 - [ ] MQTT Consumer
 
